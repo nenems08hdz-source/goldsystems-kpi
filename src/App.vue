@@ -1,11 +1,18 @@
-<script setup></script>
+<script setup>
+// 1. Importamos el archivo usando Mayúscula inicial para el nombre del componente
+import Sidebar from './components/sidebar.vue'
+</script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+  <div class="min-h-screen bg-gray-50 flex">
+    
+    <Sidebar />
+
+    <main class="flex-1 p-8">
+    </main>
+
+  </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+</style>
