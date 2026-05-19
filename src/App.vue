@@ -9,11 +9,11 @@ import navbar from './components/navbar.vue'
     
     <sidebar />
 
-    <div class="flex-1 flex flex-col">
+    <div class="flex-1fefe flex flex-col w-full">
       
       <navbar />
 
-      <main class="flex-1 p-8 overflow-y-auto">
+      <main class="flex-1 p-8 overflow-y-auto ">
         <RouterView />
       </main>
 
