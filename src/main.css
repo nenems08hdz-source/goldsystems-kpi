@@ -1,3 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+    --color-kpi-morado: beaed8;
+    --color-pi-azul: 77a9d4;
+}
+
