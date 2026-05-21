@@ -1,5 +1,6 @@
 <script setup>
-
+import MedidorKpi from '../components/MedidorKpi.vue'
+import ProgresoKpi from '../components/ProgresoKpi.vue'
 import { ref } from 'vue'
  
 const misIndicadores = ref([

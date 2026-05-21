@@ -1,7 +1,7 @@
 <script setup>
 import apexchart from 'vue3-apexcharts'
 
-const series = [76] // El valor que quieres mostrar
+const series = [76] 
 
 const chartOptions = {
   chart: {
