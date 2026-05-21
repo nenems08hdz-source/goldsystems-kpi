@@ -1,4 +1,4 @@
-<script>
+<script septup>
 import { ref } from 'vue'
 const misIndicadores = ref([
 {
