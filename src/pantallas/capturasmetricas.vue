@@ -1,4 +1,4 @@
-<script>
+<script setup>
 import { ref } from 'vue'
 const misIndicadores = ref([
 {
@@ -32,9 +32,14 @@ const misIndicadores = ref([
         <i class="fi fi-sr-bars-filter text-lg"></i>
     </div>
 </div>
-<div class="divide-y divide-slate-800 mb-6">
-    
+
+
+ 
 </div>
-</div>
+
+
+
+
+
 
 </template>
