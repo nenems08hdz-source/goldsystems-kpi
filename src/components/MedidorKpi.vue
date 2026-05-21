@@ -1,7 +1,7 @@
 <script setup>
 import apexchart from 'vue3-apexcharts'
 
-const series = [76] // El valor que quieres mostrar
+const series = [76] 
 
 const chartOptions = {
   chart: {
@@ -32,7 +32,7 @@ const chartOptions = {
     gradient: {
       shade: 'dark',
       type: 'horizontal',
-      gradientToColors: ['#beaed8'], // Color lavanda
+      gradientToColors: ['#beaed8'], 
       stops: [0, 100]
     }
   }

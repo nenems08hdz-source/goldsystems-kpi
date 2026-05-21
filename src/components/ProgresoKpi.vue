@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 import apexchart from 'vue3-apexcharts'
 
-// 1. Tus series de datos (Tus ventas/sales mapeadas)
 const series = ref([
   {
     name: "sales",
@@ -10,13 +9,12 @@ const series = ref([
   }
 ])
 
-// 2. Tus opciones de diseño (Equivalente a tu chartOptions)
 const chartOptions = ref({
   chart: {
     type: 'bar',
     toolbar: { show: false }
   },
-  colors: ['#beaed8'], // Color lila pastel para que combine con tu panel
+  colors: ['#beaed8'], 
   plotOptions: {
     bar: {
       borderRadius: 4,
@@ -26,7 +24,7 @@ const chartOptions = ref({
   dataLabels: {
     enabled: false
   },
-  // Agrupamos el eje X en trimestres (Q1, Q2...) de 2019 y 2020 de forma directa y segura
+  
   xaxis: {
     type: 'category',
     categories: ['Q1 19', 'Q2 19', 'Q3 19', 'Q4 19', 'Q1 20', 'Q2 20', 'Q3 20', 'Q4 20'],

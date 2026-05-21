@@ -1,7 +1,8 @@
 <script setup>
-
+import MedidorKpi from '../components/MedidorKpi.vue'
+import ProgresoKpi from '../components/ProgresoKpi.vue'
 import { ref } from 'vue'
- 
+
 const misIndicadores = ref([
   {
     "id": 1,
@@ -20,7 +21,7 @@ const misIndicadores = ref([
     "icono": "browser",
     "objetivo": "85 pts",
     "progreso": 78,
-    "estado": "En Proceso",
+    "estado": "En Riesgo",
     "estadoTipo": "warning"
   },
   {
@@ -60,7 +61,7 @@ const misIndicadores = ref([
     "icono": "database-settings",
     "objetivo": "< 200ms",
     "progreso": 60,
-    "estado": "En Proceso",
+    "estado": "En Riesgo",
     "estadoTipo": "warning"
   },
   {
@@ -80,7 +81,7 @@ const misIndicadores = ref([
     "icono": "credit-card",
     "objetivo": "$5,000 USD",
     "progreso": 92,
-    "estado": "En Proceso",
+    "estado": "En Riesgo",
     "estadoTipo": "warning"
   }
 ]) 
@@ -199,9 +200,6 @@ const misIndicadores = ref([
           Métricas Detalladas por Departamento
         </h3>
         <div class="flex gap-3">
-          <button class="p-3 py-1 text-xs font-bold tracking-wider rounded border border-slate-700 shadow-sm active:scale-95 transition-transform uppercase bg-[#3f2a52] hover:bg-[#beaed8] text-white">
-            Filtros
-          </button>
           <button class="p-3 py-1 text-xs font-bold tracking-wider rounded border border-slate-700 shadow-sm active:scale-95 transition-transform uppercase bg-[#3f2a52] hover:bg-[#beaed8] text-white">
             Ver historial
           </button>

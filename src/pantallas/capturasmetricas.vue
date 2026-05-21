@@ -27,18 +27,11 @@ const misIndicadores = ref([
         <h2 class=" text-black font-bold  uppercase tracking-wider text-black">
             Kpis asignadas
         </h2>
-        <button class="p-3 py-1 text-xs font-bold tracking-wider rounded border border-slate-700 shadow-sm active:scale-95 transition-transform uppercase bg-[#3f2a52] hover:bg-[#beaed8] text-white">
-        </button>
         <i class="fi fi-sr-bars-filter text-lg"></i>
     </div>
 </div>
 
 
+
 </div>
-
-
-
-
-
-
 </template>
