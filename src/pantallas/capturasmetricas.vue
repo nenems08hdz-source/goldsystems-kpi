@@ -24,7 +24,7 @@ const misIndicadores = ref([
 <div class="border-b border-slate-800 rounded-xl p-6 w-full max-w-5x1 shadow-x1">
 
     <div class="flex justify-between items-center pb-4 mb-4 border-b border-slate-600">
-        <h2 class=" text-black font-bold  uppercase tracking-wider text-slate-300">
+        <h2 class=" text-black font-bold  uppercase tracking-wider text-black">
             Kpis asignadas
         </h2>
         <button class="p-3 py-1 text-xs font-bold tracking-wider rounded border border-slate-700 shadow-sm active:scale-95 transition-transform uppercase bg-[#3f2a52] hover:bg-[#beaed8] text-white">
