@@ -155,7 +155,7 @@ const misIndicadores = ref([
 
     <tbody class="divide-y divide-[#beaed8]/20">
       
-      <tr v-for="indicador in misIndicadores" :key="indicador.id" class="hover:bg-gray-50/70 transition-colors">
+        <tr v-for="indicador in misIndicadores" :key="indicador.id" class="hover:bg-[#beaed8] transition-colors duration-150 group">
         
         <td class="p-4">
           <div class="font-bold text-gray-800 text-xs">{{ indicador.nombre }}</div>
