@@ -11,6 +11,7 @@ const router = createRouter({
       component: kpis
     },
     {
+<<<<<<< HEAD
       path: '/',
       name: 'principal',
       component: principal
@@ -18,6 +19,15 @@ const router = createRouter({
      {
       path: '/capturasmetricas',
       name: 'capturasmetricas',
+=======
+      path: '/', 
+      name: 'inicio',
+      component: principal
+    },
+     {
+      path: '/capturas', 
+      name: 'capturas-metricas',
+>>>>>>> 08968cb925e320c5a902d2fd04cd485d10b29954
       component: capturasmetricas
     },
   ],
