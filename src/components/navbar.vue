@@ -1,10 +1,9 @@
 <script setup>
 // lógica de JavaScript más adelante
-// Variables para saber qué area se eligió, funciones de clics, etc.)
 </script>
 
 <template>
-  <header class="h-16 bg-white border-b border border-gray-200 px-8 flex items-center justify-between shadow-sm">
+  <header class="h-16 bg-white border-b border border-gray-200 px-8 flex items-center justify-between shadow-xl">
     
     <div class="flex items-center gap-6">
 

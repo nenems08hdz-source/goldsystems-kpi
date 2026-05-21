@@ -1,5 +1,192 @@
+<script setup>
+import { ref } from 'vue'
+const misIndicadores = ref([
+  {
+    id: 1,
+    nombre: "Margen de Beneficio Neto",
+    formula: "(Ingresos - Gastos) / Ingresos",
+    departamento: "Finanzas",
+    responsable: "Ing. Keila O.",
+    valor: "24.8%",
+    periodicidad: "Mensual",
+    estado: "Saludable"
+  },
+  {
+    id: 2,
+    nombre: "Uptime de Servidores",
+    formula: "(Tiempo Activo / Tiempo Total) * 100",
+    departamento: "Operaciones",
+    responsable: "Ing. Marcos R.",
+    valor: "99.2%",
+    periodicidad: "Diario",
+    estado: "Alerta"
+  },
+  {
+    id: 1,
+    nombre: "Tasa de Churn de Clientes",
+    formula: "Cálculo: Clientes perdidos / Clientes totales",
+    departamento: "Ventas",
+    responsable: "Dra. Elena S.",
+    valor: "5.2%",
+    periodicidad: "Semanal",
+    estado: "Saludable"
+  },
+  {
+    id: 1,
+    nombre: "Satisfacción de Empleados (eNPS)",
+    formula: "Cálculo: % Promotores - % Detractores",
+    departamento: "Recursos Humanos",
+    responsable: "S. Gutierrez",
+    valor: "5.2%",
+    periodicidad: "diario",
+    estado: "Crítico"
+  }
+])
+</script>
 <template>
-    <div>
-       <h1 class = "text-xs"></h1>  
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-1">
+
+  <div class="bg-[#3f2a52] text-white rounded-xl shadow-lg p-5 border flex flex-col justify-between">
+    
+    <div class="flex justify-between items-center mb-4">
+      <span class="text-xs font-bold tracking-wider text-[#beaed8] uppercase">KPIs Saludables</span>
+      <span class="text-emerald-400 text-lg">✓</span> 
     </div>
+
+    <div class="my-2">
+      <span class="text-4xl font-extrabold tracking-tight">12</span>
+    </div>
+
+    <div class="mt-2 flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span class="text-[11px] font-bold text-emerald-400 uppercase tracking-wide">Estado: Óptimo</span>
+    </div>
+    
+  </div>
+  <div class="bg-[#3f2a52] text-white rounded-xl shadow-lg p-5 border flex flex-col justify-between">
+    
+    <div class="flex justify-between items-center mb-4">
+      <span class="text-xs font-bold tracking-wider text-[#beaed8] uppercase">KPIs en alerta</span>
+      <span class="text-yellow-400 text-lg">⚠</span> 
+    </div>
+
+    <div class="my-2">
+      <span class="text-4xl font-extrabold tracking-tight">05</span>
+    </div>
+
+    <div class="mt-2 flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
+      <span class="text-[11px] font-bold text-yellow-400 uppercase tracking-wide">Estado: preventivo</span>
+    </div>
+    
+  </div>
+  <div class="bg-[#3f2a52] text-white rounded-xl p-5 shadow_lg border flex flex-col justify-between">
+    
+    <div class="flex justify-between items-center mb-4">
+        <span class="text-xs font-bold tracking-wider text-[#beaed8] uppercase">kpis críticas</span>
+        <span class="text-red-400 text-lg">✕</span>
+    </div>
+    
+    <div clas="my-2 ">
+        <span class="text-4xl font-extrabold tracking-tight">02</span>
+    </div>
+
+    <div class="mt-2 flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-red-400 animate-pulse"></span>
+      <span class="text-[11px] font-bold text-red-400 uppercase tracking-wide">Estado: preventivo</span>
+    </div>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-5 bg-white rounded-xl shadow-md border border-[#beaed8]/90 mt-8">
+  
+  <div class="flex flex-col gap-1.5">
+    <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Departamento</label>
+    <select class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#77a9d4] cursor-pointer transition-colors">
+      <option value="">Todos los departamentos</option>
+      <option value="finanzas">Finanzas</option>
+      <option value="ventas">Ventas</option>
+      <option value="operaciones">Operaciones</option>
+    </select>
+  </div>
+
+  <div class="flex flex-col gap-1.5">
+    <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Tipo de Métrica</label>
+    <select class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#77a9d4] cursor-pointer transition-colors">
+      <option value="">Cualquier tipo</option>
+      <option value="financiera">Financiera</option>
+      <option value="proceso">Operaciones</option>
+      <option value="calidad">Calidad</option>
+    </select>
+  </div>
+
+  <div class="flex flex-col gap-1.5">
+    <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Estado</label>
+    <select class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/90 p-2.5 outline-none focus:border-[#77a9d4] cursor-pointer transition-colors">
+      <option value="">Todos los estados</option>
+      <option value="saludable">Saludable</option>
+      <option value="alerta">Alerta</option>
+      <option value="critico">Crítico</option>
+    </select>
+  </div>
+
+  <div class="flex items-end justify-end">
+    <button class="bg-[#77a9d4] hover:bg-[#beaed8] text-gray-700 font-bold text-xs p-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors h-[38px]">
+      <span></span>Nuevo kpi
+    </button>
+  </div>
+</div>
+
+<div class="bg-white rounded-xl shadow-md border border-[#beaed8]/80 mt-6 overflow-hidden overflow-x-auto max-h-[500px] overflow-y-auto">
+  
+  <table class="w-full text-left border-collapse">
+    
+    <thead class="bg-gray-50 border-b border-[#beaed8]/40">
+      <tr class="sticky top-0 bg-gray-50 z-10">
+        <th class="p-4 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Nombre del KPI</th>
+        <th class="p-4 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Departamento</th>
+        <th class="p-4 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Responsable</th>
+        <th class="p-4 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Valor Actual</th>
+        <th class="p-4 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Periodicidad</th>
+        <th class="p-4 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Estado</th>
+        <th class="p-4 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-right">Acciones</th>
+      </tr>
+    </thead>
+
+    <tbody class="divide-y divide-[#beaed8]/20">
+      
+      <tr v-for="indicador in misIndicadores" :key="indicador.id" class="hover:bg-gray-50/70 transition-colors">
+        
+        <td class="p-4">
+          <div class="font-bold text-gray-800 text-xs">{{ indicador.nombre }}</div>
+          <div class="text-[11px] text-gray-400 mt-0.5">Cálculo: {{ indicador.formula }}</div>
+        </td>
+        
+        <td class="p-4 text-gray-600 text-sm">{{ indicador.departamento }}</td>
+        <td class="p-4 text-gray-600 text-sm">{{ indicador.responsable }}</td>
+        <td class="p-4 font-semibold text-gray-800 text-sm">{{ indicador.valor }}</td>
+        
+        <td class="p-4">
+          <span class="text-[10px] font-bold bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full uppercase tracking-wide border border-gray-200">
+           {{ indicador.periodicidad }}
+          </span>
+        </td>
+        
+        <td class="p-4">
+          <div class="flex items-center gap-1.5 text-sm font-medium text-emerald-600">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            {{ indicador.estado }}
+          </div>
+        </td>
+        
+        <td class="p-4 text-right">
+          <button class="text-gray-400 hover:text-gray-600 font-bold px-2 text-lg">⋮</button>
+        </td>
+
+      </tr>
+
+    </tbody>
+  </table>
+</div>
+
 </template>
