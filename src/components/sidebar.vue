@@ -1,6 +1,7 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 </script>
+
 <template>
   <aside class="bg-[#3f2a52] text-white min-h-screen w-64 border-r border-gray-800 flex flex-col justify-between p-4">
     
@@ -12,28 +13,28 @@ import { RouterLink } from 'vue-router'
       <nav>
         <ul class="flex flex-col gap-1">
           <li>
-            <RouterLink to="/" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-200 hover:bg-[#beaed8] hover:text-[#3f2a52] transition-colors font-medium">
+            <RouterLink to="/" active-class="bg-[#beaed8] text-[#3f2a52]" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-200 hover:bg-[#beaed8] hover:text-[#3f2a52] transition-colors font-medium">
               <i class="fi fi-sr-apps w-5 text-center flex items-center justify-center"></i> 
               Panel Principal
             </RouterLink>
           </li>
           
           <li>
-            <RouterLink to="/kpis" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-200 hover:bg-[#beaed8] hover:text-[#3f2a52] transition-colors font-medium">
+            <RouterLink to="/kpis" active-class="bg-[#beaed8] text-[#3f2a52]" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-200 hover:bg-[#beaed8] hover:text-[#3f2a52] transition-colors font-medium">
               <i class="fi fi-sr-chart-histogram w-5 text-center flex items-center justify-center"></i> 
               Gestión de KPIs
             </RouterLink>
           </li>
           
           <li>
-            <RouterLink to="/captura-kpis" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-200 hover:bg-[#beaed8] hover:text-[#3f2a52] transition-colors font-medium">
+            <RouterLink to="/capturasmetricas" active-class="bg-[#beaed8] text-[#3f2a52]" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-200 hover:bg-[#beaed8] hover:text-[#3f2a52] transition-colors font-medium">
               <i class="fi fi-sr-document-signed w-5 text-center flex items-center justify-center"></i> 
               Captura de Métricas
             </RouterLink>
           </li>
           
           <li>
-            <RouterLink to="/auditoria" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-200 hover:bg-[#beaed8] hover:text-[#3f2a52] transition-colors font-medium">
+            <RouterLink to="/" active-class="bg-[#beaed8] text-[#3f2a52]" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-200 hover:bg-[#beaed8] hover:text-[#3f2a52] transition-colors font-medium">
               <i class="fi fi-sr-shield-check w-5 text-center flex items-center justify-center"></i> 
               Auditoría y Resumen
             </RouterLink>

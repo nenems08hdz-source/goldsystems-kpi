@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import principal from '../pantallas/principal.vue'
 import kpis from '../pantallas/kpis.vue'
 import capturasmetricas from '../pantallas/capturasmetricas.vue'
-import principal from '../pantallas/principal.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -17,9 +17,14 @@ const router = createRouter({
       component: kpis
     },
     {
-      path: '/captura-kpis', 
-      name: 'captura-metricas',
-      component: capturasmetricas
+      path: '/capturasmetricas', 
+      name: 'capturasmetricas',
+      component: () => import('../pantallas/capturasmetricas.vue')
+    },
+    {
+      path: '/registrar-metrica',
+      name: 'RegistrarMetrica',
+      component: () => import('../pantallas/registrometricas.vue') 
     }
   ],
 })
