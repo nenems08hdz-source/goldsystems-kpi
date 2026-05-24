@@ -26,7 +26,7 @@ import { RouterLink } from 'vue-router'
           </li>
           
           <li>
-            <RouterLink to="/captura-kpis" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-200 hover:bg-[#beaed8] hover:text-[#3f2a52] transition-colors font-medium">
+            <RouterLink to="" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-200 hover:bg-[#beaed8] hover:text-[#3f2a52] transition-colors font-medium">
               <i class="fi fi-sr-document-signed w-5 text-center flex items-center justify-center"></i> 
               Captura de Métricas
             </RouterLink>

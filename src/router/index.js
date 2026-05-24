@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import kpis from '../pantallas/kpis.vue'
 import principal from '../pantallas/principal.vue'
 import capturasmetricas from '../pantallas/capturasmetricas.vue'
+import auditoria from '../pantallas/auditoria.vue'
+import formulariokpi from '../pantallas/formulariokpi.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -16,16 +18,14 @@ const router = createRouter({
       component: principal
     },
      {
-      path: '/capturasmetricas',
-      name: 'capturasmetricas',
-      path: '/', 
-      name: 'inicio',
-      component: principal
+      path: '/auditoria',
+      name: 'centro-auditoria',
+      component: auditoria
     },
-     {
-      path: '/capturas', 
-      name: 'capturas-metricas',
-      component: capturasmetricas
+    {
+      path: '/kpis/nuevo', 
+      name: 'nuevo-kpi',
+      component: formulariokpi
     },
   ],
 })

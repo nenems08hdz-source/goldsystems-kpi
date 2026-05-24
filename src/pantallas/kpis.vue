@@ -1,8 +1,10 @@
 <script setup>
 import { ref } from 'vue'
-
-// 1. IMPORTACIÓN CORREGIDA: Ahora apunta al archivo en minúsculas
 import plantillatabla from '../components/plantillatabla.vue'
+import tarjetaskpi from '../components/tarjetasestado.vue'
+const totalSaludables = ref(12)
+const totalAlerta = ref(5)
+const totalCriticos = ref(2)
 
 const misIndicadores = ref([
   {
@@ -45,71 +47,42 @@ const misIndicadores = ref([
     periodicidad: "Diario",
     estado: "Crítico"
   },
-  {
-    id: 4,
+   {
+    id: 5,
     nombre: "Satisfacción de Empleados (eNPS)",
     formula: "% Promotores - % Detractores",
     departamento: "Recursos Humanos",
-    responsable: "S. Gutierrez",
-    valor: "5.2%",
-    periodicidad: "Diario",
+    responsable: "S. Arantxa",
+    valor: "9.2%",
+    periodicidad: "Trimestral",
     estado: "Crítico"
-  }
+  },
 ])
 </script>
 
 <template>
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-1">
+  <div class="p-3 min-h-screen">
     
-    <div class="bg-[#3f2a52] text-white rounded-xl shadow-lg p-5 border flex flex-col justify-between">
-      <div class="flex justify-between items-center mb-4">
-        <span class="text-xs font-bold tracking-wider text-[#beaed8] uppercase">KPIs Saludables</span>
-        <span class="text-emerald-400 text-lg">✓</span> 
-      </div>
-      <div class="my-2">
-        <span class="text-4xl font-extrabold tracking-tight">12</span>
-      </div>
-      <div class="mt-2 flex items-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span class="text-[11px] font-bold text-emerald-400 uppercase tracking-wide">Estado: Óptimo</span>
-      </div>
+    <div class="mb-6">
+      <h1 class="text-4xl font-bold text-[#3f2a52] tracking-tight">
+        Panel de Indicadores (KPIs)
+      </h1>
+      <p class="text-xs text-gray-500 mt-1">
+        Visualización analítica, seguimiento de metas corporativas y estado actual de los procesos de la planta.
+      </p>
     </div>
-
-    <div class="bg-[#3f2a52] text-white rounded-xl shadow-lg p-5 border flex flex-col justify-between">
-      <div class="flex justify-between items-center mb-4">
-        <span class="text-xs font-bold tracking-wider text-[#beaed8] uppercase">KPIs en alerta</span>
-        <span class="text-yellow-400 text-lg">⚠</span> 
-      </div>
-      <div class="my-2">
-        <span class="text-4xl font-extrabold tracking-tight">05</span>
-      </div>
-      <div class="mt-2 flex items-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
-        <span class="text-[11px] font-bold text-yellow-400 uppercase tracking-wide">Estado: preventivo</span>
-      </div>
-    </div>
-
-    <div class="bg-[#3f2a52] text-white rounded-xl p-5 shadow-lg border flex flex-col justify-between">
-      <div class="flex justify-between items-center mb-4">
-        <span class="text-xs font-bold tracking-wider text-[#beaed8] uppercase">kpis críticas</span>
-        <span class="text-red-400 text-lg">✕</span>
-      </div>
-      <div class="my-2">
-        <span class="text-4xl font-extrabold tracking-tight">02</span>
-      </div>
-      <div class="mt-2 flex items-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-red-400 animate-pulse"></span>
-        <span class="text-[11px] font-bold text-red-400 uppercase tracking-wide">Estado: preventivo</span>
-      </div>
-    </div>
-
-  </div>
+  <!--tarjetas kpis-->
+  <tarjetaskpi 
+    :saludables="totalSaludables"
+    :alerta="totalAlerta"
+    :criticos="totalCriticos"
+  />
 
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-5 bg-white rounded-xl shadow-md border border-[#beaed8]/90 mt-8">
     
     <div class="flex flex-col gap-1.5">
       <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Departamento</label>
-      <select class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#77a9d4] cursor-pointer transition-colors">
+      <select class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#77a9d4] focus:ring-2 focus:ring-[#77a9d4]/30 cursor-pointer transition-colors">
         <option value="">Todos los departamentos</option>
         <option value="finanzas">Finanzas</option>
         <option value="ventas">Ventas</option>
@@ -119,7 +92,7 @@ const misIndicadores = ref([
 
     <div class="flex flex-col gap-1.5">
       <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Tipo de Métrica</label>
-      <select class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#77a9d4] cursor-pointer transition-colors">
+      <select class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#77a9d4] focus:ring-2 focus:ring-[#77a9d4]/30 cursor-pointer transition-colors">
         <option value="">Cualquier tipo</option>
         <option value="financiera">Financiera</option>
         <option value="proceso">Operaciones</option>
@@ -129,7 +102,7 @@ const misIndicadores = ref([
 
     <div class="flex flex-col gap-1.5">
       <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Estado</label>
-      <select class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/90 p-2.5 outline-none focus:border-[#77a9d4] cursor-pointer transition-colors">
+      <select class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/90 p-2.5 outline-none focus:border-[#77a9d4] focus:ring-2 focus:ring-[#77a9d4]/30 cursor-pointer transition-colors">
         <option value="">Todos los estados</option>
         <option value="saludable">Saludable</option>
         <option value="alerta">Alerta</option>
@@ -138,9 +111,11 @@ const misIndicadores = ref([
     </div>
 
     <div class="flex items-end justify-end">
-      <button class="bg-[#77a9d4] hover:bg-[#beaed8] text-gray-700 font-bold text-xs p-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors h-[38px] w-full sm:w-auto">
-        Nuevo KPI
-      </button>
+      <button 
+  @click="$router.push('/kpis/nuevo')"
+  class="bg-[#3f2a52] hover:bg-[#77a9d4] text-white font-bold text-xs p-2.5 rounded-lg flex items-center justify-center gap-2 transition-all duration-300 h-[38px] w-full sm:w-auto shadow-sm">
+Crear Nuevo KPI
+</button>
     </div>
 
   </div>
@@ -157,8 +132,14 @@ const misIndicadores = ref([
         <div class="text-[11px] text-gray-400 mt-0.5">Cálculo: {{ fila.formula }}</div>
       </td>
       
-      <td class="p-4 text-gray-600 text-sm">{{ fila.departamento }}</td>
+       <td class="p-4 align-middle">
+          <span class="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded border border-gray-200 uppercase tracking-wide">
+            {{ fila.departamento }}
+          </span>
+        </td>
+      
       <td class="p-4 text-gray-600 text-sm">{{ fila.responsable }}</td>
+      
       <td class="p-4 font-semibold text-gray-800 text-sm">{{ fila.valor }}</td>
       
       <td class="p-4">
@@ -168,19 +149,21 @@ const misIndicadores = ref([
       </td>
       
       <td class="p-4">
-        <div class="flex items-center gap-1.5 text-sm font-medium"
-             :class="{
-               'text-emerald-600': fila.estado === 'Óptimo' || fila.estado === 'Saludable',
-               'text-yellow-600': fila.estado === 'Alerta',
-               'text-red-600': fila.estado === 'Crítico'
-             }">
-          <span class="w-2 h-2 rounded-full animate-pulse" 
+        <div class="flex items-center">
+          <span class="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide flex items-center gap-1.5"
                 :class="{
-                  'bg-emerald-500': fila.estado === 'Óptimo' || fila.estado === 'Saludable',
-                  'bg-yellow-400': fila.estado === 'Alerta',
-                  'bg-red-500': fila.estado === 'Crítico'
-                }"></span>
-          {{ fila.estado }}
+                  'bg-emerald-50 text-emerald-700 border border-emerald-200': fila.estado === 'Óptimo' || fila.estado === 'Saludable',
+                  'bg-yellow-50 text-yellow-700 border border-yellow-200': fila.estado === 'Alerta',
+                  'bg-red-50 text-red-700 border border-red-200': fila.estado === 'Crítico'
+                }">
+            <span class="w-1.5 h-1.5 rounded-full animate-pulse" 
+                  :class="{
+                    'bg-emerald-500': fila.estado === 'Óptimo' || fila.estado === 'Saludable',
+                    'bg-yellow-500': fila.estado === 'Alerta',
+                    'bg-red-500': fila.estado === 'Crítico'
+                  }"></span>
+            {{ fila.estado }}
+          </span>
         </div>
       </td>
       
@@ -190,4 +173,5 @@ const misIndicadores = ref([
 
     </template>
   </plantillatabla>
+</div>
 </template>
