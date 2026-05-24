@@ -1,32 +1,35 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import principal from '../pantallas/principal.vue'
-import kpis from '../pantallas/kpis.vue'
-import capturasmetricas from '../pantallas/capturasmetricas.vue'
+
+// Usamos @/ para que busque directo desde la raíz de src sin importar los puntos
+import Principal from '../pantallas/principal.vue'
+import Kpis from '../pantallas/kpis.vue'
+import Capturas from '../pantallas/capturasmetricas.vue'
+import Registro from '../pantallas/registrometricas.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      name: 'inicio',
-      component: principal
+      name: 'principal',
+      component: Principal
     },
     {
       path: '/kpis',
-      name: 'gestion-kpis',
-      component: kpis
+      name: 'kpis',
+      component: Kpis
     },
     {
-      path: '/capturasmetricas', 
-      name: 'capturasmetricas',
-      component: () => import('../pantallas/capturasmetricas.vue')
+      path: '/capturas',
+      name: 'capturas',
+      component: Capturas
     },
     {
-      path: '/registrar-metrica',
-      name: 'RegistrarMetrica',
-      component: () => import('../pantallas/registrometricas.vue') 
+      path: '/registro',
+      name: 'registro',
+      component: Registro
     }
-  ],
+  ]
 })
 
 export default router
