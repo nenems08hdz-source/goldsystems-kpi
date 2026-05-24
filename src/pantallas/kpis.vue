@@ -1,7 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 
-// 1. IMPORTACIÓN CORREGIDA: Apunta al archivo en minúsculas
 import plantillatabla from '../components/plantillatabla.vue'
 
 const misIndicadores = ref([
@@ -47,8 +46,6 @@ const misIndicadores = ref([
   }
 ])
 
-// Buscamos dinámicamente las filas de la tabla cuando la pantalla se cargue
-// y les ponemos la clase 'group' que Tailwind necesita para el hover completo.
 onMounted(() => {
   const filas = document.querySelectorAll('.tabla-kpis table tbody tr')
   filas.forEach(tr => tr.classList.add('group'))
