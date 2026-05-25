@@ -42,11 +42,13 @@ const misEventos = ref([
     detalle: "Asignación de rol 'Analista Junior' a cuenta nueva",
     fecha: "24 May 2026, 13:22:45",
     estado: "Exitosa"
-  }
+  },
+  
 ])
 </script>
 
 <template>
+  
   <div class="p-3 min-h-screen">
     
     <div class="flex justify-between items-center mb-6">
@@ -161,9 +163,63 @@ const misEventos = ref([
         <td class="p-4 align-middle text-center">
           <button class="text-gray-400 hover:text-gray-600 font-bold px-2 text-base">⋮</button>
         </td>
+        <div class=" border border-[#beaed8]/20">
+
+        </div>
+        
 
       </template>
     </plantillatabla>
+
+    <div class="flex items-center gap-4 w-full mb-4 my-4 ">
+  <h2 class="text-xl font-bold text-[#3f2a52] tracking-tight whitespace-nowrap">
+    Resumen de Cambios Operativos
+  </h2>
+  <div class="h-[1.5px] bg-[#3f2a52] flex-grow mt-1"></div>
+</div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 border border-[#beaed8] bg-white rounded-xl mt-5 divide-y md:divide-y-0 md:divide-x divide-[#beaed8]/20 overflow-hidden shadow-xl">
+  
+  <div class="p-4 flex justify-between items-end h-20 bg-transparent">
+    <div class="flex flex-col justify-between h-full text-left">
+      <span class="font-bold text-gray-400 uppercase text-[10px] tracking-wider">Metas Editadas</span>
+      <span class="text-2xl font-bold text-black leading-none">24</span>
+    </div>
+    <div class="flex items-end gap-1 pb-1">
+      <div class="w-1 h-3 bg-gray-600 rounded-sm"></div>
+      <div class="w-1 h-5 bg-gray-500 rounded-sm"></div>
+      <div class="w-1 h-7 bg-blue-400/70 rounded-sm"></div>
+      <div class="w-1 h-9 bg-[#77a9d4] rounded-sm"></div>
+    </div>
+  </div>
+
+  <div class="p-4 flex justify-between items-end h-20 bg-transparent">
+    <div class="flex flex-col justify-between h-full text-left">
+      <span class="font-bold text-gray-400 uppercase text-[10px] tracking-wider">Cambios de Datos</span>
+      <span class="text-2xl font-bold text-black leading-none">112</span>
+    </div>
+    <div class="flex items-end gap-1 pb-1">
+      <div class="w-1 h-6 bg-gray-600 rounded-sm"></div>
+      <div class="w-1 h-4 bg-gray-500 rounded-sm"></div>
+      <div class="w-1 h-8 bg-blue-400/70 rounded-sm"></div>
+      <div class="w-1 h-5 bg-[#77a9d4] rounded-sm"></div>
+    </div>
+  </div>
+
+  <div class="p-4 flex justify-between items-end h-20 bg-transparent">
+    <div class="flex flex-col justify-between h-full text-left">
+      <span class="font-bold text-gray-400 uppercase text-[10px] tracking-wider">Cancelaciones</span>
+      <span class="text-2xl font-bold text-black leading-none">3</span>
+    </div>
+    <div class="flex items-end gap-1 pb-1">
+      <div class="w-1 h-2 bg-gray-600 rounded-sm"></div>
+      <div class="w-1 h-3 bg-gray-500 rounded-sm"></div>
+      <div class="w-1 h-1 bg-gray-500 rounded-sm"></div>
+      <div class="w-1 h-4 bg-red-400/60 rounded-sm"></div>
+    </div>
+  </div>
+
+</div>
 
   </div>
 </template>

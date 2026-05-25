@@ -18,7 +18,7 @@ defineProps({
 <template>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-1">
     
-    <div class="bg-[#3f2a52] text-white rounded-xl shadow-lg p-5 border border-[#beaed8]/20 flex flex-col justify-between">
+    <div class="bg-[#3f2a52] text-[#beaed8] rounded-xl shadow-lg p-5 border border-[#beaed8]/20 flex flex-col justify-between">
       <div class="flex justify-between items-center mb-4">
         <span class="text-xs font-bold tracking-wider text-[#beaed8] uppercase">KPIs Saludables</span>
         <span class="text-emerald-400 text-lg">✓</span> 
@@ -34,7 +34,7 @@ defineProps({
       </div>
     </div>
 
-    <div class="bg-[#3f2a52] text-white rounded-xl shadow-lg p-5 border border-[#beaed8]/20 flex flex-col justify-between">
+    <div class="bg-[#3f2a52] text-[#beaed8] rounded-xl shadow-lg p-5 border border-[#beaed8]/20 flex flex-col justify-between">
       <div class="flex justify-between items-center mb-4">
         <span class="text-xs font-bold tracking-wider text-[#beaed8] uppercase">KPIs en alerta</span>
         <span class="text-yellow-400 text-lg">⚠</span> 
@@ -50,7 +50,7 @@ defineProps({
       </div>
     </div>
 
-    <div class="bg-[#3f2a52] text-white rounded-xl p-5 shadow-lg border border-[#beaed8]/20 flex flex-col justify-between">
+    <div class="bg-[#3f2a52] text-[#beaed8] rounded-xl p-5 shadow-lg border border-[#beaed8]/20 flex flex-col justify-between">
       <div class="flex justify-between items-center mb-4">
         <span class="text-xs font-bold tracking-wider text-[#beaed8] uppercase">kpis críticas</span>
         <span class="text-red-400 text-lg">✕</span>

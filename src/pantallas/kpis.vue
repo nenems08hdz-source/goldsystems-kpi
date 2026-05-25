@@ -28,7 +28,7 @@ const misIndicadores = ref([
     estado: "Alerta"
   },
   {
-    id: 3,
+    id: 3, 
     nombre: "Tasa de Churn de Clientes",
     formula: "Clientes perdidos / Clientes totales",
     departamento: "Ventas",
@@ -57,6 +57,36 @@ const misIndicadores = ref([
     periodicidad: "Trimestral",
     estado: "Crítico"
   },
+  {
+    id: 6,
+    nombre: "Tiempo de Resolución de Soporte (MTTR)",
+    formula: "Tiempo total de resolución / Casos totales",
+    departamento: "Operaciones",
+    responsable: "Ing. Carlos M.",
+    valor: "1.8 hrs",
+    periodicidad: "Diario",
+    estado: "Óptimo"
+  },
+  {
+    id: 7,
+    nombre: "Costo de Adquisición de Cliente (CAC)",
+    formula: "Inversión en Marketing y Ventas / Nuevos Clientes",
+    departamento: "Ventas",
+    responsable: "Lic. Laura B.",
+    valor: "$120.00",
+    periodicidad: "Mensual",
+    estado: "Alerta"
+  },
+  {
+    id: 8,
+    nombre: "Efectividad General del Equipo (OEE)",
+    formula: "(Disponibilidad * Rendimiento * Calidad) * 100",
+    departamento: "Calidad",
+    responsable: "Ing. Andrés P.",
+    valor: "72.5%",
+    periodicidad: "Semanal",
+    estado: "Crítico"
+  }
 ])
 </script>
 
