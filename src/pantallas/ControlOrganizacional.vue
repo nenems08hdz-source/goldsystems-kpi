@@ -1,22 +1,17 @@
 <script setup>
 import { ref } from 'vue'
-// Reutilizamos tu componente estrella de tabla
+
 import plantillatabla from '../components/plantillatabla.vue'
 
-// =========================================================================
-// VARIABLES DE CONTROL PARA EL PANEL LATERAL (NUEVO)
-// =========================================================================
 const mostrarPanelKpis = ref(false)
 const usuarioSeleccionado = ref(null)
 
-// Datos simulados de los KPIs para mostrar en el panel lateral
 const kpisSimulados = ref([
   { nombre: 'Eficiencia de Entrega (OTIF)', meta: '> 95%' },
   { nombre: 'Costo por Kilómetro Recorrido', meta: '< $12.50' },
   { nombre: 'Rotación de Inventario en Almacén', meta: '12 Veces/Año' }
 ])
 
-// Funciones para activar los botones
 const abrirPanelKpis = (usuario) => {
   usuarioSeleccionado.value = usuario
   mostrarPanelKpis.value = true
@@ -30,7 +25,6 @@ const eliminarUsuarioVisual = (usuario) => {
   alert(`¿Seguro que deseas eliminar a: ${usuario.nombre}?`)
 }
 
-// 1. Estructura de Datos para el Árbol Jerárquico (Diseño Premium)
 const departamentos = ref([
   { id: 1, nombre: 'Corporativo KPI360', abierto: true, nivel: 0 },
   { id: 2, nombre: 'Finanzas', abierto: true, nivel: 1 },
@@ -41,10 +35,10 @@ const departamentos = ref([
   { id: 7, nombre: 'Recursos Humanos', abierto: false, nivel: 1 },
 ])
 
-// 2. Datos que alimentarán los encabezados de tu plantilla de tabla
+
 const encabezadosTabla = ['Usuario', 'Rol', 'KPI Propios', 'Estado']
 
-// 3. Arreglo de usuarios que se pintará dinámicamente mediante el slot
+
 const usuarios = ref([
   { id: 1, nombre: 'Ana López', correo: 'ana.lopez@kpi360.com', rol: 'EMPLEADO', kpis: 12, estado: 'Activo', colorRol: 'bg-[#3f2a52]/10 text-[#3f2a52]' },
   { id: 2, nombre: 'Carlos Ruiz', correo: 'carlos.ruiz@kpi360.com', rol: 'LÍDER', kpis: 8, estado: 'Activo', colorRol: 'bg-emerald-100 text-emerald-700' },

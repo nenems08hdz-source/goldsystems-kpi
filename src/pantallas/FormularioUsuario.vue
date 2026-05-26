@@ -3,7 +3,6 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-// Datos estáticos simulados solo para el selector de departamentos
 const departamentos = [
   { id: 1, nombre: 'Ventas' },
   { id: 2, nombre: 'Finanzas' },

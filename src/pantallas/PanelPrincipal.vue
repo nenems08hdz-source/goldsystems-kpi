@@ -5,7 +5,7 @@ import ProgresoKpi from '../components/ProgresoKpi.vue'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
 import plantillatabla from '../components/plantillatabla.vue'
 
-// Listado de indicadores detallados
+
 const misIndicadores = ref([
   {
     "id": 1,
@@ -89,11 +89,9 @@ const misIndicadores = ref([
   }
 ]) 
 
-// Cabeceras exactas para la tabla detallada
 const cabecerasDetalle = ['Departamento', 'Objetivo', 'Progreso', 'Estado']
 const cabecerasCriticos = ['Detalle del Indicador en Alerta']
 
-// Computed para filtrar alertas y críticos
 const kpisCriticas = computed(() => {
   return misIndicadores.value.filter(ind => ind.estadoTipo === 'danger' || ind.estadoTipo === 'warning')
 })
