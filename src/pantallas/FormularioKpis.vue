@@ -1,18 +1,16 @@
 <script setup>
 import { ref } from 'vue'
-// Objeto reactivo para capturar los datos del nuevo KPI
 const nuevoKpi = ref({
   nombre: '',
   formula: '',
   departamento: '',
   responsable: '',
   valorInicial: '',
-  periodicidad: 'Mensual', // Valor por defecto
+  periodicidad: 'Mensual', 
   meta: '',
   descripcion: ''
 })
 
-// Función para simular el guardado
 const guardarKpi = () => {
   console.log('Datos enviados:', nuevoKpi.value)
   alert('¡KPI Registrado con éxito en el sistema!')
