@@ -7,6 +7,7 @@ import formulariokpi from '../pantallas/FormularioKpis.vue'
 import control from '../pantallas/ControlOrganizacional.vue'
 import FormularioUsuario from '../pantallas/FormularioUsuario.vue'
 import Registro from '../pantallas/registrometricas.vue'
+import Ajustes from '../components/Ajustes.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -49,6 +50,11 @@ const router = createRouter({
       path: '/organizacion/nuevo',
       name: 'nuevo-usuario',
       component: FormularioUsuario
+    },
+    {
+      path: '/ajustes',
+      name: 'ajustes',
+      component: Ajustes 
     }
   ],
 })

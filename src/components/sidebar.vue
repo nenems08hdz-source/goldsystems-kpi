@@ -50,18 +50,17 @@ import { RouterLink } from 'vue-router'
       </nav>
     </div>
 
-    <div class="border-t border-gray-700 pt-4 gap-1 flex flex-col">
-      <div class="px-4 py-2">
-        <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-200 hover:bg-[#beaed8] hover:text-[#3f2a52] transition-colors font-medium">
+      <div>
+        <RouterLink to= "/Ajustes" class= "flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-200 hover:bg-[#beaed8] hover:text-[#3f2a52] transition-colors font-medium">
           <i class="fi fi-sr-settings w-5 text-center flex items-center justify-center"></i> 
           Ajustes
-        </a>
-      </div>
+        </RouterLink>
       
-      <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-red-400 hover:bg-red-900/30 transition-colors font-medium">
+      
+      <RouterLink class= "flex items-center gap-3 px-4 py-2.5 rounded-lg text-red-400 hover:bg-red-900/30 transition-colors font-medium">
         <i class="fi fi-sr-exit w-5 text-center flex items-center justify-center"></i> 
         Cerrar Sesión
-      </a>
+      </RouterLink>
     </div>
 
   </aside>
