@@ -32,7 +32,7 @@ const chartOptions = {
     gradient: {
       shade: 'dark',
       type: 'horizontal',
-      gradientToColors: ['#beaed8'], // Color lavanda
+      gradientToColors: ['#beaed8'], 
       stops: [0, 100]
     }
   }

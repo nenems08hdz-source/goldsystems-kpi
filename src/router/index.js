@@ -6,18 +6,30 @@ import auditoria from '../pantallas/auditoria.vue'
 import formulariokpi from '../pantallas/FormularioKpis.vue'
 import control from '../pantallas/ControlOrganizacional.vue'
 import FormularioUsuario from '../pantallas/FormularioUsuario.vue'
+import Registro from '../pantallas/registrometricas.vue'
+import Ajustes from '../components/Ajustes.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    {
+      path: '/',
+      name: 'principal',
+      component: principal
+    },
     {
       path: '/kpis',
       name: 'gestion-kpis',
       component: kpis
     },
     {
-      path: '/',
-      name: 'principal',
-      component: principal
+      path: '/capturasmetricas',
+      name: 'capturas',
+      component: capturasmetricas
+    },
+    {
+      path: '/registro',
+      name: 'registro',
+      component: Registro
     },
      {
       path: '/auditoria',
@@ -38,6 +50,11 @@ const router = createRouter({
       path: '/organizacion/nuevo',
       name: 'nuevo-usuario',
       component: FormularioUsuario
+    },
+    {
+      path: '/ajustes',
+      name: 'ajustes',
+      component: Ajustes 
     }
   ],
 })

@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted} from 'vue'
 import plantillatabla from '../components/plantillatabla.vue'
 import tarjetaskpi from '../components/tarjetasestado.vue'
 const totalSaludables = ref(12)
@@ -88,6 +88,11 @@ const misIndicadores = ref([
     estado: "Crítico"
   }
 ])
+
+onMounted(() => {
+  const filas = document.querySelectorAll('.tabla-kpis table tbody tr')
+  filas.forEach(tr => tr.classList.add('group'))
+})
 </script>
 
 <template>
@@ -154,10 +159,11 @@ Crear Nuevo KPI
     titulo="Listado Central de KPIs Empresariales"
     :encabezados="['Nombre del KPI', 'Departamento', 'Responsable', 'Valor Actual', 'Periodicidad', 'Estado', 'Acciones']"
     :datos="misIndicadores"
+    class="tabla-kpis"
   >
     <template #default="{ fila }">
       
-      <td class="p-4">
+      <td class="p-4 group-hover:bg-[#beaed8] transition-colors duration-150 cursor-pointer">
         <div class="font-bold text-gray-800 text-xs">{{ fila.nombre }}</div>
         <div class="text-[11px] text-gray-400 mt-0.5">Cálculo: {{ fila.formula }}</div>
       </td>
@@ -172,7 +178,7 @@ Crear Nuevo KPI
       
       <td class="p-4 font-semibold text-gray-800 text-sm">{{ fila.valor }}</td>
       
-      <td class="p-4">
+      <td class="p-4 group-hover:bg-[#beaed8] transition-colors duration-150 cursor-pointer">
         <span class="text-[10px] font-bold bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full uppercase tracking-wide border border-gray-200">
           {{ fila.periodicidad }}
         </span>
@@ -197,7 +203,7 @@ Crear Nuevo KPI
         </div>
       </td>
       
-      <td class="p-4 text-right">
+      <td class="p-4 text-right group-hover:bg-[#beaed8] transition-colors duration-150">
         <button class="text-gray-400 hover:text-gray-600 font-bold px-2 text-lg">⋮</button>
       </td>
 

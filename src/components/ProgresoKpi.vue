@@ -24,7 +24,6 @@ const chartOptions = ref({
   dataLabels: {
     enabled: false
   },
-
   xaxis: {
     type: 'category',
     categories: ['Q1 19', 'Q2 19', 'Q3 19', 'Q4 19', 'Q1 20', 'Q2 20', 'Q3 20', 'Q4 20'],
