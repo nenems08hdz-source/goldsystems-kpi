@@ -86,7 +86,7 @@ const usuarios = ref([
             <h2 class="text-base font-bold text-[#3f2a52] tracking-tight">Estructura de la Planta</h2>
             <p class="text-[10px] text-gray-400 mt-0.5">Navega por las áreas y sucursales</p>
           </div>
-          <span class="text-xs bg-[#3f2a52]/5 text-[#3f2a52] p-1.5 rounded-lg font-bold">🏢</span>
+          <span class="text-xs bg-[#3f2a52]/5 text-[#3f2a52] p-1.5 rounded-lg font-bold"></span>
         </div>
         
         <div class="p-4 flex flex-col gap-1 max-h-[400px] overflow-y-auto text-left">
@@ -122,7 +122,7 @@ const usuarios = ref([
             <span class="text-xs text-[#77a9d4]">+</span> Añadir Área
           </button>
           <button class="bg-white hover:bg-gray-50 text-gray-400 hover:text-gray-600 border border-gray-200 text-[10px] font-bold uppercase tracking-wider p-2 rounded-lg flex items-center justify-center transition-all shadow-sm" title="Añadir Raíz">
-            ➕
+            +
           </button>
         </div>
 
@@ -158,7 +158,7 @@ const usuarios = ref([
             <td class="p-4 align-middle text-left font-semibold text-gray-800 text-sm">
               <div class="flex items-center gap-1.5">
                 <span>{{ fila.kpis }}</span>
-                <span class="text-gray-400 text-xs">📋</span>
+                <span class="text-gray-400 text-xs"></span>
               </div>
             </td>
 
