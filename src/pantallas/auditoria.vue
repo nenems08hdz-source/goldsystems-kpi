@@ -178,7 +178,7 @@ const misEventos = ref([
   <div class="h-[1.5px] bg-[#3f2a52] flex-grow mt-1"></div>
 </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 border border-[#beaed8] bg-white rounded-xl mt-5 divide-y md:divide-y-0 md:divide-x divide-[#beaed8]/20 overflow-hidden shadow-xl">
+      <div class="grid grid-cols-1 md:grid-cols-3 border border-[#beaed8] bg-white rounded-xl mt-5 divide-y md:divide-y-0 md:divide-x divide-[#beaed8]/20 overflow-hidden shadow-lg">
   
   <div class="p-4 flex justify-between items-end h-20 bg-transparent">
     <div class="flex flex-col justify-between h-full text-left">

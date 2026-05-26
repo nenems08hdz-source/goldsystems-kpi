@@ -16,7 +16,7 @@ defineProps({
 </script>
 
 <template>
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-1">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-1 ">
     
     <div class="bg-[#3f2a52] text-[#beaed8] rounded-xl shadow-lg p-5 border border-[#beaed8]/20 flex flex-col justify-between">
       <div class="flex justify-between items-center mb-4">

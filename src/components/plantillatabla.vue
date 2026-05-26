@@ -2,7 +2,11 @@
 defineProps({
   titulo: String,
   encabezados: Array,
-  datos: Array
+  datos: Array,
+  mostrarAcciones: {
+    type: Boolean,
+    default: false
+  }
 })
 </script>
 
@@ -16,8 +20,7 @@ defineProps({
     </div>
     
     <div class="overflow-x-auto max-h-[450px] overflow-y-auto">
-      <table class="w-full text-left border-collapse">
-        <thead class="bg-gray-50 border-b border-[#beaed8]/40">
+      <table class="w-full text-left border-collapse table-fixed"> <thead class="bg-gray-50 border-b border-[#beaed8]/40">
           <tr class="sticky top-0 bg-gray-50 z-10">
             <th 
               v-for="header in encabezados" 
@@ -26,12 +29,28 @@ defineProps({
             >
               {{ header }}
             </th>
+            <th v-if="mostrarAcciones" class="p-4 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-right pr-6 w-24">
+              Acciones
+            </th>
           </tr>
         </thead>
 
         <tbody class="divide-y divide-[#beaed8]/20">
-          <tr v-for="(item, index) in datos" :key="index" class="hover:bg-gray-50/70 transition-colors">
+          <tr 
+            v-for="(item, index) in datos" 
+            :key="index" 
+            class="hover:bg-[#3f2a52]/30 transition-colors duration-200"
+          >
             <slot :fila="item"></slot>
+
+            <td v-if="mostrarAcciones" class="p-4 text-right align-middle pr-6 w-24">
+              <div class="flex items-center justify-end gap-2">
+                <slot name="iconos-acciones" :item="item">
+                  <button class="text-gray-400 font-bold px-1">⋮</button>
+                </slot>
+              </div>
+            </td>
+
           </tr>
         </tbody>
       </table>

@@ -1,7 +1,34 @@
 <script setup>
 import { ref } from 'vue'
-// Reutilizamos tu componente estrella de tabla (asegúrate de que la ruta sea correcta)
+// Reutilizamos tu componente estrella de tabla
 import plantillatabla from '../components/plantillatabla.vue'
+
+// =========================================================================
+// VARIABLES DE CONTROL PARA EL PANEL LATERAL (NUEVO)
+// =========================================================================
+const mostrarPanelKpis = ref(false)
+const usuarioSeleccionado = ref(null)
+
+// Datos simulados de los KPIs para mostrar en el panel lateral
+const kpisSimulados = ref([
+  { nombre: 'Eficiencia de Entrega (OTIF)', meta: '> 95%' },
+  { nombre: 'Costo por Kilómetro Recorrido', meta: '< $12.50' },
+  { nombre: 'Rotación de Inventario en Almacén', meta: '12 Veces/Año' }
+])
+
+// Funciones para activar los botones
+const abrirPanelKpis = (usuario) => {
+  usuarioSeleccionado.value = usuario
+  mostrarPanelKpis.value = true
+}
+
+const abrirModificarRol = (usuario) => {
+  alert(`Abrir modal para modificar el rol de: ${usuario.nombre}`)
+}
+
+const eliminarUsuarioVisual = (usuario) => {
+  alert(`¿Seguro que deseas eliminar a: ${usuario.nombre}?`)
+}
 
 // 1. Estructura de Datos para el Árbol Jerárquico (Diseño Premium)
 const departamentos = ref([
@@ -15,7 +42,7 @@ const departamentos = ref([
 ])
 
 // 2. Datos que alimentarán los encabezados de tu plantilla de tabla
-const encabezadosTabla = ['Usuario', 'Rol', 'KPI Propios', 'Estado', 'Acciones']
+const encabezadosTabla = ['Usuario', 'Rol', 'KPI Propios', 'Estado']
 
 // 3. Arreglo de usuarios que se pintará dinámicamente mediante el slot
 const usuarios = ref([
@@ -25,7 +52,7 @@ const usuarios = ref([
   { id: 4, nombre: 'Jorge Rivas', correo: 'jorge.rivas@kpi360.com', rol: 'EMPLEADO', kpis: 0, estado: 'Bloqueado', colorRol: 'bg-gray-100 text-gray-500' },
   { id: 5, nombre: 'Pablo Chable', correo: 'pablo.chable@kpi360.com', rol: 'EMPLEADO', kpis: 12, estado: 'Activo', colorRol: 'bg-[#3f2a52]/10 text-[#3f2a52]' },
   { id: 6, nombre: 'Arantxa Sanchez', correo: 'arantxa.sanchez@kpi360.com', rol: 'GERENTE', kpis: 8, estado: 'Activo', colorRol: 'bg-emerald-100 text-emerald-700' },
-  { id: 7, nombre: 'Christo Ajelo', correo: 'crhisto.a@kpi360.com', rol: 'EMPELADO', kpis: 5, estado: 'Ausente', colorRol: 'bg-blue-100 text-blue-700' },
+  { id: 7, nombre: 'Christo Ajelo', correo: 'crhisto.a@kpi360.com', rol: 'EMPLEADO', kpis: 5, estado: 'Ausente', colorRol: 'bg-blue-100 text-blue-700' },
   { id: 8, nombre: 'Jorge Hernández', correo: 'jorge.hernandez@kpi360.com', rol: 'AUDITOR', kpis: 0, estado: 'Activo', colorRol: 'bg-gray-100 text-gray-500' }
 ])
 </script>
@@ -71,7 +98,7 @@ const usuarios = ref([
           @click="$router.push('/organizacion/nuevo')"
           class="bg-[#3f2a52] hover:bg-[#77a9d4] text-white font-bold text-xs p-2.5 rounded-lg flex items-center justify-center gap-2 transition-all duration-300 h-[38px] w-full sm:w-auto shadow-sm"
         >
-          + Asignar Rol Usuario
+          + Asignar Rol Colaborador
         </button>
       </div>
 
@@ -134,6 +161,7 @@ const usuarios = ref([
           titulo="Usuarios: Logística Global"
           :encabezados="encabezadosTabla"
           :datos="usuarios"
+          :mostrarAcciones="true"
         >
           <template #default="{ fila }">
             
@@ -158,7 +186,7 @@ const usuarios = ref([
             <td class="p-4 align-middle text-left font-semibold text-gray-800 text-sm">
               <div class="flex items-center gap-1.5">
                 <span>{{ fila.kpis }}</span>
-                <span class="text-gray-400 text-xs"></span>
+                <span class="text-gray-400 text-xs">📋</span>
               </div>
             </td>
 
@@ -181,15 +209,100 @@ const usuarios = ref([
               </div>
             </td>
 
-            <td class="p-4 text-right align-middle">
-              <button class="text-gray-400 hover:text-gray-600 font-bold px-2 text-lg">⋮</button>
-            </td>
+          </template>
 
+          <template #iconos-acciones="{ item }">
+            <button 
+              @click="abrirModificarRol(item)" 
+              title="Modificar Rol"
+              class="text-gray-400 hover:text-[#3f2a52] bg-gray-50 hover:bg-[#3f2a52]/5 p-2 rounded-lg transition-all duration-200 text-sm"
+            >
+              ✏️
+            </button>
+            
+            <button 
+              @click="abrirPanelKpis(item)" 
+              title="Ver KPIs Asignados"
+              class="text-gray-400 hover:text-[#77a9d4] bg-gray-50 hover:bg-[#77a9d4]/10 p-2 rounded-lg transition-all duration-200 text-sm"
+            >
+              📊
+            </button>
+            
+            <button 
+              @click="eliminarUsuarioVisual(item)" 
+              title="Eliminar Colaborador"
+              class="text-gray-400 hover:text-red-500 bg-gray-50 hover:bg-red-50 p-2 rounded-lg transition-all duration-200 text-sm"
+            >
+              🗑️
+            </button>
           </template>
         </plantillatabla>
 
       </div>
 
     </div>
+
+    <div v-if="mostrarPanelKpis" class="fixed inset-0 bg-gray-900/30 backdrop-blur-sm z-40 flex justify-end" @click="mostrarPanelKpis = false">
+      <div class="bg-white w-full max-w-md h-full shadow-2xl border-l border-[#beaed8]/50 flex flex-col justify-between p-6 animate-slideLeft" @click.stop>
+        
+        <div>
+          <div class="flex justify-between items-start border-b border-gray-100 pb-4 mb-6">
+            <div class="text-left">
+              <span class="text-[10px] font-black uppercase tracking-wider text-[#77a9d4]">Panel de Control</span>
+              <h3 class="text-lg font-bold text-[#3f2a52] leading-tight">KPIs de {{ usuarioSeleccionado?.nombre }}</h3>
+              <p class="text-xs text-gray-400 mt-0.5">{{ usuarioSeleccionado?.correo }}</p>
+            </div>
+            <button @click="mostrarPanelKpis = false" class="text-gray-400 hover:text-gray-600 bg-gray-100 p-1 px-2.5 rounded-lg text-sm font-bold">✕</button>
+          </div>
+
+          <div class="flex flex-col gap-3">
+            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider block text-left mb-1">Métricas en Seguimiento ({{ kpisSimulados.length }})</label>
+            
+            <div 
+              v-for="(kpi, index) in kpisSimulados" 
+              :key="index"
+              class="flex items-center justify-between p-3 rounded-xl border border-gray-100 bg-gray-50/60 hover:bg-gray-50 transition-colors"
+            >
+              <div class="flex items-center gap-2.5 text-left">
+                <span class="text-base">📈</span>
+                <div>
+                  <div class="text-xs font-bold text-gray-700">{{ kpi.nombre }}</div>
+                  <div class="text-[10px] text-gray-400">Meta: {{ kpi.meta }}</div>
+                </div>
+              </div>
+              <button @click="kpisSimulados.splice(index, 1)" class="text-gray-400 hover:text-red-500 text-xs p-1 font-bold">
+                ✕
+              </button>
+            </div>
+
+            <div v-if="kpisSimulados.length === 0" class="text-center py-8 text-gray-400 text-xs border border-dashed border-gray-200 rounded-xl">
+              Este usuario no tiene ningún KPI asignado todavía.
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t border-gray-100 pt-4 bg-white">
+          <p class="text-[10px] text-gray-400 text-center mb-3">La asignación oficial de nuevas métricas se realiza desde el módulo de KPIs.</p>
+          <button 
+            @click="$router.push('/kpis'); mostrarPanelKpis = false"
+            class="w-full bg-[#3f2a52] hover:bg-[#77a9d4] text-white font-bold text-xs py-3 rounded-lg transition-all shadow-sm uppercase tracking-wider"
+          >
+            Ir a Gestión de KPIs
+          </button>
+        </div>
+
+      </div>
+    </div>
+
   </div>
 </template>
+
+<style scoped>
+@keyframes slideLeft {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+.animate-slideLeft {
+  animation: slideLeft 0.3s ease-out forwards;
+}
+</style>
