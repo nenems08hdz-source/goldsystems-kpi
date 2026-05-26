@@ -1,5 +1,5 @@
 <script setup>
-// lógica de JavaScript más adelante
+// lógica
 </script>
 
 <template>

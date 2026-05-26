@@ -71,7 +71,7 @@ const usuarios = ref([
           @click="$router.push('/organizacion/nuevo')"
           class="bg-[#3f2a52] hover:bg-[#77a9d4] text-white font-bold text-xs p-2.5 rounded-lg flex items-center justify-center gap-2 transition-all duration-300 h-[38px] w-full sm:w-auto shadow-sm"
         >
-          + Registrar Usuario
+          + Asignar Rol Usuario
         </button>
       </div>
 

@@ -33,12 +33,6 @@ const misIndicadores = ref([
     </div>
 </div>
 
-
 </div>
-
-
-
-
-
 
 </template>
