@@ -1,35 +1,56 @@
 import { createRouter, createWebHistory } from 'vue-router'
-
-// Usamos @/ para que busque directo desde la raíz de src sin importar los puntos
-import Principal from '../pantallas/principal.vue'
-import Kpis from '../pantallas/kpis.vue'
-import Capturas from '../pantallas/capturasmetricas.vue'
+import kpis from '../pantallas/GestionKpis.vue'
+import principal from '../pantallas/PanelPrincipal.vue'
+import capturasmetricas from '../pantallas/capturasmetricas.vue'
+import auditoria from '../pantallas/auditoria.vue'
+import formulariokpi from '../pantallas/FormularioKpis.vue'
+import control from '../pantallas/ControlOrganizacional.vue'
+import FormularioUsuario from '../pantallas/FormularioUsuario.vue'
 import Registro from '../pantallas/registrometricas.vue'
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
       name: 'principal',
-      component: Principal
+      component: principal
     },
     {
       path: '/kpis',
-      name: 'kpis',
-      component: Kpis
+      name: 'gestion-kpis',
+      component: kpis
     },
     {
-      path: '/capturas',
+      path: '/capturasmetricas',
       name: 'capturas',
-      component: Capturas
+      component: capturasmetricas
     },
     {
       path: '/registro',
       name: 'registro',
       component: Registro
+    },
+     {
+      path: '/auditoria',
+      name: 'centro-auditoria',
+      component: auditoria
+    },
+    {
+      path: '/kpis/nuevo', 
+      name: 'nuevo-kpi',
+      component: formulariokpi
+    },
+    {
+      path: '/control', 
+      name: 'control-organizacional',
+      component: control
+    },
+    {
+      path: '/organizacion/nuevo',
+      name: 'nuevo-usuario',
+      component: FormularioUsuario
     }
-  ]
+  ],
 })
 
 export default router
