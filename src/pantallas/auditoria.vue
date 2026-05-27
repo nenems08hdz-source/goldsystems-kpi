@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import plantillatabla from '../components/plantillatabla.vue'
 import tarjetasresumen from '../components/tarjetasresumen.vue'
+
 const misEventos = ref([
   {
     id: 1,
@@ -43,12 +44,10 @@ const misEventos = ref([
     fecha: "24 May 2026, 13:22:45",
     estado: "Exitosa"
   },
-  
 ])
 </script>
 
 <template>
-  
   <div class="p-3 min-h-screen">
     
     <div class="flex justify-between items-center mb-6">
@@ -57,11 +56,11 @@ const misEventos = ref([
         <p class="text-xs text-gray-500 mt-1">Supervisión en tiempo real de la integridad del sistema y actividad del usuario.</p>
       </div>
       <div class="flex gap-3">
-        <button class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 shadow-sm transition-colors">
-         <i class="fi fi-sr-file-pdf"> Exportar PDF</i>
+        <button class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 shadow-sm transition-colors flex items-center gap-2">
+          <i class="fi fi-sr-file-pdf"></i> Exportar PDF
         </button>
-        <button class="px-4 py-2 bg-[#3f2a52] text-white rounded-lg text-xs font-semibold hover:bg-[#15803d] shadow-sm transition-colors">
-         <i class="fi fi-sr-file-excel"> Exportar Excel</i>
+        <button class="px-4 py-2 bg-[#3f2a52] text-white rounded-lg text-xs font-semibold hover:bg-[#15803d] shadow-sm transition-colors flex items-center gap-2">
+          <i class="fi fi-sr-file-excel"></i> Exportar Excel
         </button>
       </div>
     </div>
@@ -72,7 +71,7 @@ const misEventos = ref([
         titulo="Eventos Totales (24h)"
         valor="1,284"
         subtexto="Flujo de datos normal"
-        icono="⚡"
+        icono="fi fi-sr-bolt"
         colorBarra="border-l-[#3f2a52]"
         badgeTexto="+12%"
         badgeColorClass="bg-emerald-50 text-emerald-600"
@@ -82,7 +81,7 @@ const misEventos = ref([
         titulo="Alertas Críticas"
         valor="0"
         subtexto="Sin amenazas activas"
-        icono="⚠️"
+        icono="fi fi-sr-exclamation"
         colorBarra="border-l-red-500"
         badgeTexto="Estable"
         badgeColorClass="bg-gray-100 text-gray-500"
@@ -92,7 +91,7 @@ const misEventos = ref([
         titulo="Usuarios Activos"
         valor="42"
         subtexto="Conexiones simultáneas"
-        icono="👤"
+        icono="fi fi-sr-user"
         colorBarra="border-l-amber-500"
         badgeTexto="Sesiones"
         badgeColorClass="bg-amber-50 text-amber-700"
@@ -102,7 +101,7 @@ const misEventos = ref([
         titulo="Estado del Sistema"
         valor="Estable"
         subtexto="Infraestructura íntegra"
-        icono="🛡️"
+        icono="fi fi-sr-shield-check"
         colorBarra="border-l-[#16a34a]"
       />
 
@@ -161,60 +160,59 @@ const misEventos = ref([
         </td>
         
         <td class="p-4 align-middle text-center">
-          <button class="text-gray-400 hover:text-gray-600 font-bold px-2 text-base">⋮</button>
+          <button class="text-gray-400 hover:text-[#3f2a52] font-bold px-2 text-base transition-colors">⋮</button>
         </td>
-        <div class=" border border-[#beaed8]/20">
-        </div>
       </template>
     </plantillatabla>
 
     <div class="flex items-center gap-4 w-full mb-4 my-4 ">
-  <h2 class="text-xl font-bold text-[#3f2a52] tracking-tight whitespace-nowrap">
-    Resumen de Cambios Operativos
-  </h2>
-  <div class="h-[1.5px] bg-[#3f2a52] flex-grow mt-1"></div>
-</div>
+      <h2 class="text-xl font-bold text-[#3f2a52] tracking-tight whitespace-nowrap">
+        Resumen de Cambios Operativos
+      </h2>
+      <div class="h-[1.5px] bg-[#3f2a52] flex-grow mt-1"></div>
+    </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 border border-[#beaed8] bg-white rounded-xl mt-5 divide-y md:divide-y-0 md:divide-x divide-[#beaed8]/20 overflow-hidden shadow-lg">
-  
-  <div class="p-4 flex justify-between items-end h-20 bg-transparent">
-    <div class="flex flex-col justify-between h-full text-left">
-      <span class="font-bold text-gray-400 uppercase text-[10px] tracking-wider">Metas Editadas</span>
-      <span class="text-2xl font-bold text-black leading-none">24</span>
-    </div>
-    <div class="flex items-end gap-1 pb-1">
-      <div class="w-1 h-3 bg-gray-600 rounded-sm"></div>
-      <div class="w-1 h-5 bg-gray-500 rounded-sm"></div>
-      <div class="w-1 h-7 bg-blue-400/70 rounded-sm"></div>
-      <div class="w-1 h-9 bg-[#77a9d4] rounded-sm"></div>
-    </div>
-  </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 border border-[#beaed8] bg-white rounded-xl mt-5 divide-y md:divide-y-0 md:divide-x divide-[#beaed8]/20 overflow-hidden shadow-lg">
+      
+      <div class="p-4 flex justify-between items-end h-20 bg-transparent">
+        <div class="flex flex-col justify-between h-full text-left">
+          <span class="font-bold text-gray-400 uppercase text-[10px] tracking-wider">Metas Editadas</span>
+          <span class="text-2xl font-bold text-black leading-none">24</span>
+        </div>
+        <div class="flex items-end gap-1 pb-1">
+          <div class="w-1 h-3 bg-gray-600 rounded-sm"></div>
+          <div class="w-1 h-5 bg-gray-500 rounded-sm"></div>
+          <div class="w-1 h-7 bg-blue-400/70 rounded-sm"></div>
+          <div class="w-1 h-9 bg-[#77a9d4] rounded-sm"></div>
+        </div>
+      </div>
 
-  <div class="p-4 flex justify-between items-end h-20 bg-transparent">
-    <div class="flex flex-col justify-between h-full text-left">
-      <span class="font-bold text-gray-400 uppercase text-[10px] tracking-wider">Cambios de Datos</span>
-      <span class="text-2xl font-bold text-black leading-none">112</span>
-    </div>
-    <div class="flex items-end gap-1 pb-1">
-      <div class="w-1 h-6 bg-gray-600 rounded-sm"></div>
-      <div class="w-1 h-4 bg-gray-500 rounded-sm"></div>
-      <div class="w-1 h-8 bg-blue-400/70 rounded-sm"></div>
-      <div class="w-1 h-5 bg-[#77a9d4] rounded-sm"></div>
-    </div>
-  </div>
+      <div class="p-4 flex justify-between items-end h-20 bg-transparent">
+        <div class="flex flex-col justify-between h-full text-left">
+          <span class="font-bold text-gray-400 uppercase text-[10px] tracking-wider">Cambios de Datos</span>
+          <span class="text-2xl font-bold text-black leading-none">112</span>
+        </div>
+        <div class="flex items-end gap-1 pb-1">
+          <div class="w-1 h-6 bg-gray-600 rounded-sm"></div>
+          <div class="w-1 h-4 bg-gray-500 rounded-sm"></div>
+          <div class="w-1 h-8 bg-blue-400/70 rounded-sm"></div>
+          <div class="w-1 h-5 bg-[#77a9d4] rounded-sm"></div>
+        </div>
+      </div>
 
-  <div class="p-4 flex justify-between items-end h-20 bg-transparent">
-    <div class="flex flex-col justify-between h-full text-left">
-      <span class="font-bold text-gray-400 uppercase text-[10px] tracking-wider">Cancelaciones</span>
-      <span class="text-2xl font-bold text-black leading-none">3</span>
+      <div class="p-4 flex justify-between items-end h-20 bg-transparent">
+        <div class="flex flex-col justify-between h-full text-left">
+          <span class="font-bold text-gray-400 uppercase text-[10px] tracking-wider">Cancelaciones</span>
+          <span class="text-2xl font-bold text-black leading-none">3</span>
+        </div>
+        <div class="flex items-end gap-1 pb-1">
+          <div class="w-1 h-2 bg-gray-600 rounded-sm"></div>
+          <div class="w-1 h-3 bg-gray-500 rounded-sm"></div>
+          <div class="w-1 h-1 bg-gray-500 rounded-sm"></div>
+          <div class="w-1 h-4 bg-red-400/60 rounded-sm"></div>
+        </div>
+      </div>
+
     </div>
-    <div class="flex items-end gap-1 pb-1">
-      <div class="w-1 h-2 bg-gray-600 rounded-sm"></div>
-      <div class="w-1 h-3 bg-gray-500 rounded-sm"></div>
-      <div class="w-1 h-1 bg-gray-500 rounded-sm"></div>
-      <div class="w-1 h-4 bg-red-400/60 rounded-sm"></div>
-    </div>
-  </div>
-</div>
   </div>
 </template>

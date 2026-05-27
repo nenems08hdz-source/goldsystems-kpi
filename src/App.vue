@@ -1,6 +1,6 @@
 <script setup>
 import { RouterView } from 'vue-router'
-import { useLayoutStore } from './stores/layout' // Importa tu store
+import { useLayoutStore } from '@/stores/layout' // Importa tu store
 import sidebar from './components/sidebar.vue'
 import navbar from './components/navbar.vue'
 
@@ -8,11 +8,11 @@ const layout = useLayoutStore() // Inicializa el store
 </script>
 
 <template>
-  <div class="flex min-h-screen bg-gray-50 text-gray-800">
+  <div class="flex h-screen w-screen overflow-hidden bg-gray-50 text-gray-800">
     
     <aside 
       :class="layout.isSidebarOpen ? 'w-64' : 'w-20'" 
-      class="bg-[#3f2a52] transition-all duration-300 flex-shrink-0 overflow-hidden"
+      class="transition-all duration-300 ease-in-out flex-shrink-0"
     >
       <sidebar />
     </aside>
