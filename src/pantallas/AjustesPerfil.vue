@@ -7,19 +7,42 @@ const usuario = ref({
   apellidoMaterno: '',
   correo: 'a.rivera@devmetrics.io',
   cargo: 'Lead Technical Architect',
-  avatar: 'https://ui-avatars.com/api/?name=Alejandro+Rivera&background=3f2a52&color=fff'
+  telefono:'9915784361'
 })
 
 const alertasConfig = ref([
-  { id: 'kpi', nombre: 'Alertas de KPI (Crítico)', email: true, push: true },
-  { id: 'sistema', nombre: 'Estado del Sistema / Infraestructura', email: true, push: false },
-  { id: 'resumen', nombre: 'Resúmenes Semanales', email: false, push: false }
+  { 
+    id: 'kpi', 
+    nombre: 'Alertas de KPI (Crítico)', 
+    email: true,
+    push: true 
+},
+  { 
+  id: 'sistema', 
+  nombre: 'Estado del Sistema / Infraestructura', 
+  email: true, 
+  push: false 
+},
+  { 
+  id: 'resumen', 
+  nombre: 'Resúmenes Semanales', 
+  email: false, 
+  push: false 
+}
 ])
+
+const guardarPerfil = () => {
+  console.log("Datos guardados:", usuario.value);
+}
 </script>
 
 <template>
-  <div class="flex flex-col gap-6 w-full bg-white text-black text-left">
-    
+  <div class="w-full bg-white text-[#3f2a52] px-8 min-h-screen flex flex-col">
+
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold tracking-tight mb-1">Configuración de Perfil</h1>
+      </header>
+
     <div class="bg-white border border-gray-200 rounded-2xl shadow-sm w-full overflow-hidden">
       <div class="bg-gray-50/70 px-6 py-4 border-b border-gray-100">
         <h3 class="text-xs font-black text-[#3f2a52] uppercase tracking-wider">Perfil de Usuario</h3>
@@ -29,7 +52,7 @@ const alertasConfig = ref([
         <div class="relative shrink-0 mx-auto sm:mx-0">
           <div class="w-16 h-16 rounded-xl bg-[#3f2a52] text-white font-bold flex items-center justify-center text-xl relative border border-gray-200">
             AR
-            <button type="button" class="absolute -bottom-1 -right-1 bg-[#3f2a52] hover:bg-[#2d1e3b] p-0.5 px-1.5 rounded-md text-white border border-white text-[10px] transition-colors">
+            <button type="button" class="absolute -bottom-1 -right-1 bg-[#3f2a52] p-0.5 px-1.5 rounded-md text-white border border-white text-[10px]">
               +
             </button>
           </div>
@@ -38,37 +61,41 @@ const alertasConfig = ref([
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
           <div class="flex flex-col gap-1.5">
             <label class="text-[9px] font-black text-gray-500 uppercase tracking-wider">Nombre/s</label>
-            <input v-model="usuario.nombre" type="text" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-[#3f2a52] text-xs font-medium text-black shadow-sm" />
+            <input v-model="usuario.nombre" type="text" placeholder="Ej. Alejandro" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none text-xs text-black shadow-sm" />
           </div>
-
           <div class="flex flex-col gap-1.5">
             <label class="text-[9px] font-black text-gray-500 uppercase tracking-wider">Apellido Paterno</label>
-            <input v-model="usuario.apellidoPaterno" type="text" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-[#3f2a52] text-xs font-medium text-black shadow-sm" />
+            <input v-model="usuario.apellidoPaterno" type="text" placeholder="Ej. Rivera" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none text-xs text-black shadow-sm" />
           </div>
-
           <div class="flex flex-col gap-1.5">
             <label class="text-[9px] font-black text-gray-500 uppercase tracking-wider">Apellido Materno</label>
-            <input v-model="usuario.apellidoMaterno" type="text" placeholder="Opcional" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-[#3f2a52] text-xs font-medium text-black shadow-sm" />
+            <input v-model="usuario.apellidoMaterno" type="text" placeholder="Opcional" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none text-xs text-black shadow-sm" />
           </div>
-
           <div class="flex flex-col gap-1.5">
             <label class="text-[9px] font-black text-gray-500 uppercase tracking-wider">Correo Electrónico</label>
-            <input v-model="usuario.correo" type="email" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-[#3f2a52] text-xs font-medium text-black shadow-sm" />
+            <input v-model="usuario.correo" type="email" placeholder="Ej. a.rivera@devmetrics.io" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none text-xs text-black shadow-sm" />
           </div>
-
           <div class="flex flex-col gap-1.5 sm:col-span-2">
             <label class="text-[9px] font-black text-gray-500 uppercase tracking-wider">Cargo / Rol</label>
-            <input v-model="usuario.cargo" type="text" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-[#3f2a52] text-xs font-medium text-black shadow-sm" />
+            <input v-model="usuario.cargo" type="text" placeholder="Ej. Lead Technical Architect" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none text-xs text-black shadow-sm" />
+          </div>
+           <div class="flex flex-col gap-1.5">
+            <label class="text-[9px] font-black text-gray-500 uppercase tracking-wider">Telefono</label>
+            <input v-model="usuario.telefono" type="text" placeholder="Ej. 991..." class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none text-xs text-black shadow-sm" />
           </div>
         </div>
       </div>
+      
+      <div class="p-6 border-t border-gray-100 flex justify-end gap-3">
+        <button type="button" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-black text-xs font-bold rounded-xl transition-colors">Cancelar</button>
+        <button @click="guardarPerfil" type="button" class="px-6 py-2.5 bg-[#3f2a52] hover:bg-[#beaed8] text-white text-xs font-bold rounded-xl shadow-md transition-all duration-300">Guardar Cambios</button>
+      </div>
     </div>
 
-    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm w-full overflow-hidden">
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm w-full overflow-hidden mb-12">
       <div class="bg-gray-50/70 px-6 py-4 border-b border-gray-100">
         <h3 class="text-xs font-black text-[#3f2a52] uppercase tracking-wider">Preferencias de Notificaciones</h3>
       </div>
-
       <div class="overflow-x-auto w-full">
         <table class="w-full text-left border-collapse">
           <thead>
@@ -79,19 +106,18 @@ const alertasConfig = ref([
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 text-xs">
-            <tr v-for="alerta in alertasConfig" :key="alerta.id" class="hover:bg-gray-50/50 transition-colors">
+            <tr v-for="alerta in alertasConfig" :key="alerta.id">
               <td class="p-4 pl-6 font-medium text-gray-900">{{ alerta.nombre }}</td>
-              <td class="p-4 text-center">
-                <input v-model="alerta.email" type="checkbox" class="rounded border-gray-300 text-[#3f2a52] focus:ring-[#3f2a52]/30 w-4 h-4 cursor-pointer" />
-              </td>
-              <td class="p-4 text-center">
-                <input v-model="alerta.push" type="checkbox" class="rounded border-gray-300 text-[#3f2a52] focus:ring-[#3f2a52]/30 w-4 h-4 cursor-pointer" />
-              </td>
+              <td class="p-4 text-center"><input v-model="alerta.email" type="checkbox" class="w-4 h-4 cursor-pointer" /></td>
+              <td class="p-4 text-center"><input v-model="alerta.push" type="checkbox" class="w-4 h-4 cursor-pointer" /></td>
             </tr>
           </tbody>
         </table>
       </div>
+      <div class="p-6 border-t border-gray-100 flex justify-end gap-3">
+        <button type="button" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-black text-xs font-bold rounded-xl transition-colors">Cancelar</button>
+        <button @click="guardarPerfil" type="button" class="px-6 py-2.5 bg-[#3f2a52] hover:bg-[#beaed8] text-white text-xs font-bold rounded-xl shadow-md transition-all duration-300">Guardar Cambios</button>
+      </div>
     </div>
 
-  </div>
-</template>
+  </div> </template>

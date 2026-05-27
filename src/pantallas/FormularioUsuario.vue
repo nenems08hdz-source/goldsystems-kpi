@@ -2,7 +2,6 @@
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-
 const departamentos = [
   { id: 1, nombre: 'Ventas' },
   { id: 2, nombre: 'Finanzas' },
