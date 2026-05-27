@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 import plantillatabla from '../components/plantillatabla.vue'
 
-// 1. Estado para 2FA
 const is2FAEnabled = ref(false)
 const toggle2FA = () => { is2FAEnabled.value = !is2FAEnabled.value }
 

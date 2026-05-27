@@ -6,7 +6,6 @@ import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
 const vistaActual = ref('tabla')
 const nuevaMetrica = ref({ nombre: '', fechaCorte: '', valor: '' })
 
-// Actualizado con las clases web tipográficas de Flaticon
 const metricasAsignadas = ref([
   { id: 1, nombre: "Métrica de Latencia API Gateway", info: "Hace 2 días | Ing. Arantxa", estado: "RETRASADA", claseEstado: "text-red-600 bg-red-50 border-red-200", icono: "fi fi-sr-stats" },
   { id: 2, nombre: "Uso de Memoria (Production Node A)", info: "En 4 horas | Servidor-PRD", estado: "POR VENCER", claseEstado: "text-amber-600 bg-amber-50 border-amber-200", icono: "fi fi-sr-computer" },
