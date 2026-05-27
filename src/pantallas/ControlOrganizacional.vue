@@ -56,7 +56,7 @@ const usuarios = ref([
     
     <div class="mb-6">
       <h1 class="text-4xl font-bold text-[#3f2a52] tracking-tight">
-        Gestión Organizacional
+        Control Organizacional
       </h1>
       <p class="text-xs text-gray-500 mt-1">
         Estructura jerárquica de la planta, control de acceso por roles y asignación de usuarios del sistema.
@@ -123,8 +123,8 @@ const usuarios = ref([
             <div v-if="dept.seleccionado" class="absolute left-0 top-2 bottom-2 w-1 bg-[#3f2a52] rounded-r-md"></div>
 
             <div class="flex items-center gap-2.5 text-xs tracking-wide">
-              <span v-if="dept.nivel === 0" class="text-sm">🌐</span>
-              <span v-else-if="dept.nivel === 1" class="text-[#77a9d4] text-xs">🔹</span>
+              <span v-if="dept.nivel === 0" class="text-sm"><i class="fi fi-sr-globe"></i></span>
+              <span v-else-if="dept.nivel === 1" class="text-[#77a9d4] text-xs"><i class="fi fi-sr-bullet"></i></span>
               <span v-else class="text-gray-300 text-[10px]">└─</span>
               
               <span :class="{ 'text-[#3f2a52] font-semibold': dept.nivel === 0 }">

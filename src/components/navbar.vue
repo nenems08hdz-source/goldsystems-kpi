@@ -1,6 +1,9 @@
 <script setup>
 import { ref } from 'vue'
+import { useRoute } from 'vue-router'
+import FiltrosPrincipal from './FiltrosPrincipal.vue'
 
+const route = useRoute()
 const isDarkMode = ref(false)
 
 const toggleDarkMode = () => {
@@ -10,37 +13,14 @@ const toggleDarkMode = () => {
 </script>
 
 <template>
-  <header class="h-16 bg-white border-b border border-gray-200 px-8 flex items-center justify-between shadow-xl">
+  <header class="h-16 bg-white border-b border-gray-200 px-8 flex items-center justify-between shadow-sm">
     
-    <div class="flex items-center gap-6">
+    <FiltrosPrincipal v-if="route.name === 'principal'" />
 
-      <div class="flex flex-col gap-1">
-        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-          area
-        </label>
-        <select class="bg-white border border-gray-300 rounded-md py-1 px-3 text-sm text-gray-700 focus:outline-none">
-          <option>Todas las Areas</option>
-          <option>Planta Norte</option>
-          <option>Planta Sur</option>
-        </select>
-      </div>
-
-      <div class="flex flex-col gap-1">
-        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-          departamento
-        </label>
-        <select class="bg-white border border-gray-300 rounded-md py-1 px-3 text-sm text-gray-700 focus:outline-none">
-          <option>Todas los departamentos</option>
-          <option>Producción</option>
-          <option>Calidad</option>
-          <option>Mantenimiento</option>
-        </select>
-      </div>
-
-    </div>
+    <div v-else class="flex-1"></div>
 
     <div class="flex items-center gap-5">
-      <button class="bg-[#3f2a52] hover:bg-[#beaed8] text-white text-sm font-medium py-2 px-4 rounded-md focus:outline-none">
+      <button class="bg-[#3f2a52] hover:bg-[#beaed8] text-white text-sm font-medium py-2 px-4 rounded-md focus:outline-none transition-colors">
         Personalizar Dashboard
       </button>
 
@@ -58,9 +38,8 @@ const toggleDarkMode = () => {
         </svg>
       </button>
       
-      <span class="text-gray-400 text-sm font-medium border-l pl-5">perfil</span>
+      <span class="text-gray-400 text-sm font-medium border-l pl-5 uppercase text-[11px] tracking-wider">perfil</span>
     </div>
 
   </header>
 </template>
-

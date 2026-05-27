@@ -7,6 +7,7 @@ const totalSaludables = ref(12)
 const totalAlerta = ref(5)
 const totalCriticos = ref(2)
 
+
 const misIndicadores = ref([
   {
     id: 1,
@@ -108,6 +109,7 @@ onMounted(() => {
       :saludables="totalSaludables"
       :alerta="totalAlerta"
       :criticos="totalCriticos"
+      :eficiencia="eficienciaPlanta"
     />
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-5 bg-white rounded-xl shadow-md border border-[#beaed8]/90 mt-8">

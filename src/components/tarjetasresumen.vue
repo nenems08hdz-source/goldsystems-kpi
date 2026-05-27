@@ -1,5 +1,4 @@
 <script setup>
-
 defineProps({
   titulo: String,
   valor: String,
@@ -15,11 +14,17 @@ defineProps({
   <div class="bg-white p-5 rounded-xl border border-gray-200 border-l-4 shadow-sm flex flex-col justify-between relative overflow-hidden transition-all hover:shadow-md"
        :class="colorBarra">
     
-    <div class="flex justify-between items-start">
+    <div class="flex justify-between items-start gap-2">
       <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
         {{ titulo }}
       </p>
-      <span class="text-sm font-bold">{{ icono }}</span>
+
+      <i v-if="icono && icono.startsWith('fi ')" 
+         :class="[icono, 'text-base text-[#3f2a52] flex-shrink-0']">
+      </i>
+      <span v-else class="text-sm font-bold flex-shrink-0">
+        {{ icono }}
+      </span>
     </div>
     
     <div class="mt-4">

@@ -5,7 +5,7 @@ import navbar from './components/navbar.vue'
 </script>
 
 <template>
-  <div class="flex min-h-screen bg-gray-50 text-gray-800">
+  <div class="flex h-screen w-screen overflow-hidden bg-gray-50 text-gray-800">
     <sidebar />
 
     <div class="flex-1 flex flex-col w-full">
