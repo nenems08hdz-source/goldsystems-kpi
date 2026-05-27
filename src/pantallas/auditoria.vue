@@ -164,10 +164,7 @@ const misEventos = ref([
           <button class="text-gray-400 hover:text-gray-600 font-bold px-2 text-base">⋮</button>
         </td>
         <div class=" border border-[#beaed8]/20">
-
         </div>
-        
-
       </template>
     </plantillatabla>
 
@@ -218,8 +215,6 @@ const misEventos = ref([
       <div class="w-1 h-4 bg-red-400/60 rounded-sm"></div>
     </div>
   </div>
-
 </div>
-
   </div>
 </template>

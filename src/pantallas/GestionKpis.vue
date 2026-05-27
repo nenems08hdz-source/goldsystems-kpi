@@ -2,6 +2,7 @@
 import { ref, onMounted} from 'vue'
 import plantillatabla from '../components/plantillatabla.vue'
 import tarjetaskpi from '../components/tarjetasestado.vue'
+
 const totalSaludables = ref(12)
 const totalAlerta = ref(5)
 const totalCriticos = ref(2)
@@ -106,7 +107,7 @@ onMounted(() => {
         Visualización analítica, seguimiento de metas corporativas y estado actual de los procesos de la planta.
       </p>
     </div>
-  <!--tarjetas kpis-->
+  
   <tarjetaskpi 
     :saludables="totalSaludables"
     :alerta="totalAlerta"
@@ -152,7 +153,6 @@ onMounted(() => {
 Crear Nuevo KPI
 </button>
     </div>
-
   </div>
 
   <plantillatabla 

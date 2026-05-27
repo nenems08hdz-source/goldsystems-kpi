@@ -27,7 +27,7 @@ import { RouterLink } from 'vue-router'
           </li>
           
           <li>
-            <RouterLink to="/capturasmetricas" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-200 hover:bg-[#beaed8] hover:text-[#3f2a52] transition-colors font-medium">
+            <RouterLink to="/capturasmetricas" active-class="bg-[#beaed8] text-[#3f2a52]" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-200 hover:bg-[#beaed8] hover:text-[#3f2a52] transition-colors font-medium">
               <i class="fi fi-sr-document-signed w-5 text-center flex items-center justify-center"></i> 
               Captura de Métricas
             </RouterLink>
@@ -40,24 +40,23 @@ import { RouterLink } from 'vue-router'
             </RouterLink>
           </li>
 
-            <li>
-            <RouterLink to="/control" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-200 hover:bg-[#beaed8] hover:text-[#3f2a52] transition-colors font-medium">
+          <li>
+            <RouterLink to="/control" active-class="bg-[#beaed8] text-[#3f2a52]" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-200 hover:bg-[#beaed8] hover:text-[#3f2a52] transition-colors font-medium">
               <i class="fi fi-sr-document-signed w-5 text-center flex items-center justify-center"></i> 
-              Organizacón Empresarial
+              Organización Empresarial
             </RouterLink>
           </li>
         </ul>
       </nav>
     </div>
 
-      <div>
-        <RouterLink to= "/Ajustes" class= "flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-200 hover:bg-[#beaed8] hover:text-[#3f2a52] transition-colors font-medium">
-          <i class="fi fi-sr-settings w-5 text-center flex items-center justify-center"></i> 
-          Ajustes
-        </RouterLink>
+    <div>
+      <RouterLink to="/Ajustes" active-class="bg-[#beaed8] text-[#3f2a52]" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-200 hover:bg-[#beaed8] hover:text-[#3f2a52] transition-colors font-medium mb-1">
+        <i class="fi fi-sr-settings w-5 text-center flex items-center justify-center"></i> 
+        Ajustes
+      </RouterLink>
       
-      
-      <RouterLink class= "flex items-center gap-3 px-4 py-2.5 rounded-lg text-red-400 hover:bg-red-900/30 transition-colors font-medium">
+      <RouterLink to="/" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-red-400 hover:bg-red-900/30 transition-colors font-medium">
         <i class="fi fi-sr-exit w-5 text-center flex items-center justify-center"></i> 
         Cerrar Sesión
       </RouterLink>

@@ -1,6 +1,5 @@
 <script setup>
 import { ref } from 'vue'
-// RUTA CORREGIDA: '../' sube un nivel para entrar correctamente a 'components'
 import plantillatabla from '../components/plantillatabla.vue' 
 
 const encabezados = ['Indicador', 'Fecha', 'Valor', 'Acciones']

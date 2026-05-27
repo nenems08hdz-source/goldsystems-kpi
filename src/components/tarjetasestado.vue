@@ -66,8 +66,6 @@ defineProps({
       </div>
     </div>
     
-    <!--Tarjeta de la grafica-->
-
     <div class="bg-white rounded-xl shadow-lg p-5 border border-[#beaed8]/50 flex flex-col justify-between h-full">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-full bg-[#beaed8]/20 flex items-center justify-center text-[#3f2a52] font-bold text-lg">

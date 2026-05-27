@@ -8,6 +8,10 @@ import control from '../pantallas/ControlOrganizacional.vue'
 import FormularioUsuario from '../pantallas/FormularioUsuario.vue'
 import Registro from '../pantallas/registrometricas.vue'
 import Ajustes from '../components/Ajustes.vue'
+import ConfiguracionNotificacion from '../pantallas/ConfiguracionNotificacion.vue'
+import ConfiguracionSeguridad from '../pantallas/ConfiguracionSeguridad.vue'
+
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -55,7 +59,17 @@ const router = createRouter({
       path: '/ajustes',
       name: 'ajustes',
       component: Ajustes 
-    }
+    },
+    {
+    path: '/ConfiguracionNotificacion', 
+    name: 'ConfiguracionNotificacion',
+    component: ConfiguracionNotificacion
+  },
+   {
+    path: '/ConfiguracionSeguridad', 
+    name: 'ConfiguracionSeguridad',
+    component: ConfiguracionSeguridad
+  },
   ],
 })
 

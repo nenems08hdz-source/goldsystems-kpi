@@ -1,9 +1,7 @@
 <script setup>
 import { ref } from 'vue'
-// Reutilizamos tu componente estrella de tabla (asegúrate de que la ruta sea correcta)
 import plantillatabla from '../components/plantillatabla.vue'
 
-// 1. Estructura de Datos para el Árbol Jerárquico (Diseño Premium)
 const departamentos = ref([
   { id: 1, nombre: 'Corporativo KPI360', abierto: true, nivel: 0 },
   { id: 2, nombre: 'Finanzas', abierto: true, nivel: 1 },
@@ -14,10 +12,7 @@ const departamentos = ref([
   { id: 7, nombre: 'Recursos Humanos', abierto: false, nivel: 1 },
 ])
 
-// 2. Datos que alimentarán los encabezados de tu plantilla de tabla
 const encabezadosTabla = ['Usuario', 'Rol', 'KPI Propios', 'Estado', 'Acciones']
-
-// 3. Arreglo de usuarios que se pintará dinámicamente mediante el slot
 const usuarios = ref([
   { id: 1, nombre: 'Ana López', correo: 'ana.lopez@kpi360.com', rol: 'EMPLEADO', kpis: 12, estado: 'Activo', colorRol: 'bg-[#3f2a52]/10 text-[#3f2a52]' },
   { id: 2, nombre: 'Carlos Ruiz', correo: 'carlos.ruiz@kpi360.com', rol: 'LÍDER', kpis: 8, estado: 'Activo', colorRol: 'bg-emerald-100 text-emerald-700' },
