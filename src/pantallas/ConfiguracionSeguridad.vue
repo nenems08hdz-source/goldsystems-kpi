@@ -67,8 +67,10 @@ const eliminarRegistro = (id) => {
     
     <section class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
       <h2 class="text-lg font-bold text-[#3f2a52] mb-4 flex items-center gap-2">
-        <span class="text-xl">🔒</span> Autenticación
+        <i class="fi fi-sr-lock"></i> 
+         Autenticación
       </h2>
+
       <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl mb-4">
         <div>
           <p class="text-sm font-bold">Doble Factor (2FA)</p>
@@ -85,10 +87,6 @@ const eliminarRegistro = (id) => {
     </section>
 
     <section>
-      <div class="flex justify-between items-center mb-2 px-1">
-        <h2 class="text-lg font-bold text-[#3f2a52]">💻 Sesiones Activas</h2>
-        <button @click="cerrarTodas" class="text-xs font-bold text-[#3f2a52] hover:text-[#beaed8] transition-colors">Cerrar todas</button>
-      </div>
       <plantillatabla titulo="Sesiones Activas" :encabezados="encabezadosSesiones" :datos="sesiones">
         <template #default="{ fila }">
           <td class="p-4"><p class="text-sm font-bold text-[#3f2a52]">{{ fila.dispositivo }}</p></td>
@@ -102,7 +100,7 @@ const eliminarRegistro = (id) => {
     </section>
 
     <section>
-      <h2 class="text-lg font-bold text-[#3f2a52] mb-2 px-1">🕒 Actividad</h2>
+      
       <plantillatabla titulo="Actividad" :encabezados="encabezadosActividad" :datos="registrosActividad">
         <template #default="{ fila }">
           <td class="p-4"><p class="text-sm font-bold text-gray-700">{{ fila.accion }}</p></td>

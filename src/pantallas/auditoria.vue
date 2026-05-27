@@ -163,13 +163,8 @@ const misEventos = ref([
         <td class="p-4 align-middle text-center">
           <button class="text-gray-400 hover:text-gray-600 font-bold px-2 text-base">⋮</button>
         </td>
-<<<<<<< HEAD
-        
-
-=======
         <div class=" border border-[#beaed8]/20">
         </div>
->>>>>>> ba8a8ba59b4f8e6df05c526792ae61e6e1d66b32
       </template>
     </plantillatabla>
 

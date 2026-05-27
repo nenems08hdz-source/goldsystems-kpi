@@ -18,7 +18,7 @@ defineProps({
     </h1>
     
     <p v-if="descripcion" class="text-xs text-gray-500 mt-1">
-      {{ description || descripcion }}
+      {{ descripcion }}
     </p>
   </div>
 </template>

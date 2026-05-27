@@ -5,6 +5,12 @@ import ConfiguracionNotificacion from '../pantallas/ConfiguracionNotificacion.vu
 import ConfiguracionSeguridad from '../pantallas/ConfiguracionSeguridad.vue'
 
 const categoriaActiva = ref('perfil')
+
+const categorias = [
+  { id: 'perfil', nombre: 'Perfil', icono: 'fi-sr-user-pen' },
+  { id: 'seguridad', nombre: 'Seguridad', icono: 'fi-sr-shield-check' },
+  { id: 'notificaciones', nombre: 'Notificaciones', icono: 'fi fi-sr-bell-notification-social-media' }
+]
 </script>
 
 <template>
@@ -18,16 +24,18 @@ const categoriaActiva = ref('perfil')
             Categorías
           </span>
           
-          <button v-for="cat in ['perfil', 'seguridad', 'notificaciones']" 
-                  :key="cat"
-                  @click="categoriaActiva = cat"
-                  type="button"
-                  :class="[
-                    'flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 w-full text-left',
-                    categoriaActiva === cat ? 'bg-[#beaed8] text-[#3f2a52] shadow-sm' : 'bg-[#3f2a52] text-white hover:bg-[#2d1e3b]'
-                  ]">
-            {{ cat === 'perfil' ? '👤 Perfil' : cat === 'seguridad' ? '🔒 Seguridad' : '🔔 Notificaciones' }}
-          </button>
+          <button v-for="cat in categorias" 
+           :key="cat.id"
+          @click="categoriaActiva = cat.id"
+           type="button"
+           :class="[
+           'flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 w-full text-left',
+           categoriaActiva === cat.id ? 'bg-[#beaed8] text-[#3f2a52] shadow-sm' : 'bg-[#3f2a52] text-white hover:bg-[#2d1e3b]'
+        ]">
+  
+     <i :class="['fi', cat.icono, 'w-5 text-center flex items-center justify-center']"></i>
+     {{ cat.nombre }}
+        </button>
         </div>
       </div>
  

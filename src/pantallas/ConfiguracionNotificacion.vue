@@ -72,7 +72,11 @@ const descartarCambios = () => {
       </header>
 
       <section class="mb-8">
-        <h2 class="text-sm font-bold mb-4 flex items-center gap-2">🔗 Canales de Notificación</h2>
+        <h2 class="text-sm font-bold mb-4 flex items-center gap-2">
+         <i class="fi fi-sr-link-alt text-base"></i> 
+         Canales de Notificación
+        </h2>
+
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div v-for="canal in canales" :key="canal.nombre" 
                @click="canal.activo = !canal.activo"
@@ -99,8 +103,13 @@ const descartarCambios = () => {
       </plantillatabla>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-        <section>
-          <h2 class="text-sm font-bold mb-3">📄 Frecuencia de Resúmenes</h2>
+
+        <section class="mb-8">
+        <h2 class="text-sm font-bold mb-4 flex items-center gap-2">
+         <i class="fi fi-sr-document"></i> 
+         Frecuencia de Resumenes
+        </h2>
+
           <div class="flex flex-col gap-2">
             <button v-for="opc in ['Diario', 'Semanal', 'Mensual']" :key="opc"
                     @click="frecuenciaSeleccionada = opc"
@@ -112,7 +121,11 @@ const descartarCambios = () => {
         </section>
         
         <section class="bg-[#3f2a52] text-white p-5 rounded-xl">
-          <h2 class="text-sm font-bold mb-3">⊖ Silenciar Notificaciones</h2>
+         <h2 class="text-sm font-bold mb-4 flex items-center gap-2">
+         <i class="fi fi-sr-circle-xmark"></i> 
+         Silenciar Notificaciones
+        </h2>
+
           <div class="flex gap-4 mb-3">
             <div class="flex-1">
               <label class="text-[10px] opacity-70 uppercase">Inicio</label>

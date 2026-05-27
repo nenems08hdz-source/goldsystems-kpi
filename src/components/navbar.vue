@@ -1,6 +1,8 @@
 <script setup>
 import { ref } from 'vue'
+import { useLayoutStore } from '@/stores/layout'
 
+const layout = useLayoutStore()
 const isDarkMode = ref(false)
 
 const toggleDarkMode = () => {
@@ -13,6 +15,13 @@ const toggleDarkMode = () => {
   <header class="h-16 bg-white border-b border border-gray-200 px-8 flex items-center justify-between shadow-xl">
     
     <div class="flex items-center gap-6">
+      <button 
+        @click="layout.toggleSidebar" 
+        class="p-2 rounded-lg hover:bg-gray-100 text-[#3f2a52] transition-all"
+        title="Ocultar/Mostrar Menú"
+      >
+        <i class="fi fi-sr-menu-burger text-lg"></i>
+      </button>
 
       <div class="flex flex-col gap-1">
         <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
