@@ -210,18 +210,18 @@ onMounted(() => {
           title="Editar KPI" 
           class="text-gray-400 hover:text-[#3f2a52] bg-gray-50 hover:bg-[#3f2a52]/5 p-1.5 rounded-lg transition-colors text-sm"
         >
-          ✏️
+          <i class="fi fi-sr-pencil"></i>
         </button>
         <button 
           @click="alert(`Eliminar KPI: ${item.nombre}`)"
           title="Eliminar KPI" 
           class="text-gray-400 hover:text-red-500 bg-gray-50 hover:bg-red-50 p-1.5 rounded-lg transition-colors text-sm"
         >
-          🗑️
+          <i class="fi fi-sr-trash"></i>
         </button>
       </template>
 
     </plantillatabla>
-
+  
   </div>
 </template>

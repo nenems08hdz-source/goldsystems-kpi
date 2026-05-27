@@ -58,10 +58,10 @@ const misEventos = ref([
       </div>
       <div class="flex gap-3">
         <button class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 shadow-sm transition-colors">
-          📄 Exportar PDF
+         <i class="fi fi-sr-file-pdf"> Exportar PDF</i>
         </button>
         <button class="px-4 py-2 bg-[#3f2a52] text-white rounded-lg text-xs font-semibold hover:bg-[#15803d] shadow-sm transition-colors">
-          📊 Exportar Excel
+         <i class="fi fi-sr-file-excel"> Exportar Excel</i>
         </button>
       </div>
     </div>
@@ -117,7 +117,7 @@ const misEventos = ref([
         
         <td class="p-4 align-middle">
           <div class="flex items-center gap-3">
-            <div class="w-7 h-7 rounded bg-[#3f2a52] text-white flex items-center justify-center font-bold text-xs uppercase">
+            <div class="w-8 h-8 rounded-full bg-[#3f2a52] text-white flex-shrink-0 flex items-center justify-center font-bold text-xs uppercase">
               {{ fila.usuario.charAt(0) }}
             </div>
             <div>
@@ -163,9 +163,6 @@ const misEventos = ref([
         <td class="p-4 align-middle text-center">
           <button class="text-gray-400 hover:text-gray-600 font-bold px-2 text-base">⋮</button>
         </td>
-        <div class=" border border-[#beaed8]/20">
-
-        </div>
         
 
       </template>

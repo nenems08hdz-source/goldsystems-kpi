@@ -27,7 +27,7 @@ import { RouterLink } from 'vue-router'
           </li>
           
           <li>
-            <RouterLink to="/capturasmetricas" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-200 hover:bg-[#beaed8] hover:text-[#3f2a52] transition-colors font-medium">
+            <RouterLink to="/capturasmetricas" active-class="bg-[#beaed8] text-[#3f2a52]" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-200 hover:bg-[#beaed8] hover:text-[#3f2a52] transition-colors font-medium">
               <i class="fi fi-sr-document-signed w-5 text-center flex items-center justify-center"></i> 
               Captura de Métricas
             </RouterLink>
@@ -41,9 +41,9 @@ import { RouterLink } from 'vue-router'
           </li>
 
             <li>
-            <RouterLink to="/control" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-200 hover:bg-[#beaed8] hover:text-[#3f2a52] transition-colors font-medium">
-              <i class="fi fi-sr-document-signed w-5 text-center flex items-center justify-center"></i> 
-              Organizacón Empresarial
+            <RouterLink to="/control" active-class="bg-[#beaed8] text-[#3f2a52]" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-200 hover:bg-[#beaed8] hover:text-[#3f2a52] transition-colors font-medium">
+              <i class="fi fi-sr-building w-5 text-center flex items-center justify-center"></i> 
+              Control Empresarial
             </RouterLink>
           </li>
         </ul>
@@ -51,7 +51,7 @@ import { RouterLink } from 'vue-router'
     </div>
 
       <div>
-        <RouterLink to= "/Ajustes" class= "flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-200 hover:bg-[#beaed8] hover:text-[#3f2a52] transition-colors font-medium">
+        <RouterLink to= "/Ajustes" active-class="bg-[#beaed8] text-[#3f2a52]" class= "flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-200 hover:bg-[#beaed8] hover:text-[#3f2a52] transition-colors font-medium">
           <i class="fi fi-sr-settings w-5 text-center flex items-center justify-center"></i> 
           Ajustes
         </RouterLink>

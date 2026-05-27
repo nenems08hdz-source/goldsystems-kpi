@@ -161,7 +161,7 @@ const usuarios = ref([
             
             <td class="p-4 align-middle text-left">
               <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-[#3f2a52] text-white flex items-center justify-center text-[10px] font-bold shadow-sm">
+                <div class="w-8 h-8 rounded-full bg-[#3f2a52] text-white flex items-center justify-center text-[10px] font-bold shadow-sm flex-shrink-0">
                   {{ fila.nombre.substring(0, 2).toUpperCase() }}
                 </div>
                 <div>
@@ -211,7 +211,7 @@ const usuarios = ref([
               title="Modificar Rol"
               class="text-gray-400 hover:text-[#3f2a52] bg-gray-50 hover:bg-[#3f2a52]/5 p-2 rounded-lg transition-all duration-200 text-sm"
             >
-              ✏️
+              <i class="fi fi-sr-pencil"></i>
             </button>
             
             <button 
@@ -219,7 +219,7 @@ const usuarios = ref([
               title="Ver KPIs Asignados"
               class="text-gray-400 hover:text-[#77a9d4] bg-gray-50 hover:bg-[#77a9d4]/10 p-2 rounded-lg transition-all duration-200 text-sm"
             >
-              📊
+              <i class="fi fi-sr-stats"></i>
             </button>
             
             <button 
@@ -227,7 +227,7 @@ const usuarios = ref([
               title="Eliminar Colaborador"
               class="text-gray-400 hover:text-red-500 bg-gray-50 hover:bg-red-50 p-2 rounded-lg transition-all duration-200 text-sm"
             >
-              🗑️
+              <i class="fi fi-sr-trash"></i>
             </button>
           </template>
         </plantillatabla>
