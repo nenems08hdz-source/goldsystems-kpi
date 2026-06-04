@@ -20,7 +20,8 @@ defineProps({
     </div>
     
     <div class="overflow-x-auto max-h-[450px] overflow-y-auto">
-      <table class="w-full text-left border-collapse table-fixed"> <thead class="bg-gray-50 border-b border-[#beaed8]/40">
+      <table class="w-full text-left border-collapse table-auto"> 
+        <thead class="bg-gray-50 border-b border-[#beaed8]/40">
           <tr class="sticky top-0 bg-gray-50 z-10">
             <th 
               v-for="header in encabezados" 
@@ -29,7 +30,10 @@ defineProps({
             >
               {{ header }}
             </th>
-            <th v-if="mostrarAcciones" class="p-4 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-right pr-6 w-24">
+            <th 
+              v-if="mostrarAcciones" 
+              class="p-4 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-right pr-6 w-24"
+            >
               Acciones
             </th>
           </tr>
@@ -39,7 +43,7 @@ defineProps({
           <tr 
             v-for="(item, index) in datos" 
             :key="index" 
-            class="hover:bg-[#3f2a52]/30 transition-colors duration-200"
+            class="hover:bg-[#3f2a52]/10 transition-colors duration-200"
           >
             <slot :fila="item"></slot>
 
@@ -50,7 +54,6 @@ defineProps({
                 </slot>
               </div>
             </td>
-
           </tr>
         </tbody>
       </table>

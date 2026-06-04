@@ -44,7 +44,8 @@ const guardarMetrica = () => { console.log("Datos:", nuevaMetrica.value); regres
           class="bg-white shadow-md border border-[#beaed8]/60 rounded-xl overflow-hidden mt-6 w-full"
         >
           <template #default="{ fila }">
-            <td class="p-4 flex items-center gap-4 text-left w-7/12">
+            
+            <td class="p-4 flex items-center gap-4 text-left md:w-7/12 min-w-[220px]">
               <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-gray-50 shadow-sm flex-shrink-0">
                 <i :class="[fila.icono, 'text-base text-[#3f2a52]']"></i>
               </div>
@@ -54,13 +55,13 @@ const guardarMetrica = () => { console.log("Datos:", nuevaMetrica.value); regres
               </div>
             </td>
             
-            <td class="p-4 align-middle text-left w-3/12">
+            <td class="p-4 align-middle text-left md:w-3/12 min-w-[120px]">
               <span class="text-[10px] font-bold px-2.5 py-1 rounded-full border uppercase tracking-wide inline-block" :class="fila.claseEstado">
                 {{ fila.estado }}
               </span>
             </td>
 
-            <td class="p-4 align-middle w-2/12">
+            <td class="p-4 align-middle md:w-2/12 min-w-[100px]">
               <div class="flex items-center justify-center gap-3">
                 <button 
                   @click="alert(`Editar métrica: ${fila.nombre}`)"

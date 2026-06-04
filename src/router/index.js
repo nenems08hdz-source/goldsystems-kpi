@@ -10,7 +10,7 @@ import Registro from '../pantallas/registrometricas.vue'
 import Ajustes from '../components/Ajustes.vue'
 import ConfiguracionNotificacion from '../pantallas/ConfiguracionNotificacion.vue'
 import ConfiguracionSeguridad from '../pantallas/ConfiguracionSeguridad.vue'
-
+import PersonalizarPanel from '../pantallas/PersonalizarPantalla.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -19,7 +19,7 @@ const router = createRouter({
       path: '/',
       name: 'principal',
       component: principal
-    },
+    }, 
     {
       path: '/kpis',
       name: 'gestion-kpis',
@@ -70,6 +70,11 @@ const router = createRouter({
     name: 'ConfiguracionSeguridad',
     component: ConfiguracionSeguridad
   },
+  {
+  path: '/personalizar',
+  name: 'personalizar',
+  component: PersonalizarPanel
+}
   ],
 })
 

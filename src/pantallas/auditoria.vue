@@ -107,63 +107,63 @@ const misEventos = ref([
 
     </div>
 
-    <plantillatabla 
-      titulo="Registro Histórico"
-      :encabezados="['Usuario', 'Acción', 'Fecha / Hora', 'Departamento', 'Detalle', 'Estado', 'Acciones']"
-      :datos="misEventos"
-    >
-      <template #default="{ fila }">
-        
-        <td class="p-4 align-middle">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-[#3f2a52] text-white flex-shrink-0 flex items-center justify-center font-bold text-xs uppercase">
-              {{ fila.usuario.charAt(0) }}
-            </div>
-            <div>
-              <div class="font-bold text-gray-800 text-xs">{{ fila.usuario }}</div>
-              <div class="text-[11px] text-gray-400">{{ fila.correo }}</div>
-            </div>
-          </div>
-        </td>
-        
-        <td class="p-4 align-middle text-gray-800 text-xs font-medium">
-          {{ fila.accion }}
-        </td>
-        
-        <td class="p-4 align-middle text-gray-500 text-xs whitespace-nowrap">
-          {{ fila.fecha }}
-        </td>
+   <plantillatabla 
+  titulo="Registro Histórico"
+  :encabezados="['Usuario', 'Acción', 'Fecha / Hora', 'Departamento', 'Detalle', 'Estado', 'Acciones']"
+  :datos="misEventos"
+>
+  <template #default="{ fila }">
+    
+    <td class="p-4 align-middle md:w-3/12 min-w-[200px]">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-[#3f2a52] text-white flex-shrink-0 flex items-center justify-center font-bold text-xs uppercase">
+          {{ fila.usuario.charAt(0) }}
+        </div>
+        <div>
+          <div class="font-bold text-gray-800 text-xs">{{ fila.usuario }}</div>
+          <div class="text-[11px] text-gray-400">{{ fila.correo }}</div>
+        </div>
+      </div>
+    </td>
+    
+    <td class="p-4 align-middle text-gray-800 text-xs font-medium md:w-2/12 min-w-[130px]">
+      {{ fila.accion }}
+    </td>
+    
+    <td class="p-4 align-middle text-gray-500 text-xs whitespace-nowrap md:w-1/12 min-w-[110px]">
+      {{ fila.fecha }}
+    </td>
 
-        <td class="p-4 align-middle">
-          <span class="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded border border-gray-200 uppercase tracking-wide">
-            {{ fila.modulo }}
-          </span>
-        </td>
-        
-        <td class="p-4 align-middle text-gray-500 text-xs max-w-xs truncate">
-          {{ fila.detalle }}
-        </td>
-        
-        <td class="p-4 align-middle">
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide flex items-center gap-1 w-fit"
-                :class="{
-                  'bg-emerald-50 text-emerald-700 border border-emerald-200': fila.estado === 'Exitosa',
-                  'bg-amber-50 text-amber-700 border border-amber-200': fila.estado === 'Revisión'
-                }">
-            <span class="w-1.5 h-1.5 rounded-full" 
-                  :class="{
-                    'bg-emerald-500': fila.estado === 'Exitosa',
-                    'bg-amber-500': fila.estado === 'Revisión'
-                  }"></span>
-            {{ fila.estado }}
-          </span>
-        </td>
-        
-        <td class="p-4 align-middle text-center">
-          <button class="text-gray-400 hover:text-[#3f2a52] font-bold px-2 text-base transition-colors">⋮</button>
-        </td>
-      </template>
-    </plantillatabla>
+    <td class="p-4 align-middle md:w-1/12 min-w-[120px]">
+      <span class="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded border border-gray-200 uppercase tracking-wide inline-block">
+        {{ fila.modulo }}
+      </span>
+    </td>
+    
+    <td class="p-4 align-middle text-gray-500 text-xs max-w-xs truncate md:w-2/12 min-w-[150px]">
+      {{ fila.detalle }}
+    </td>
+    
+    <td class="p-4 align-middle md:w-2/12 min-w-[110px]">
+      <span class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide flex items-center gap-1 w-fit"
+            :class="{
+              'bg-emerald-50 text-emerald-700 border border-emerald-200': fila.estado === 'Exitosa',
+              'bg-amber-50 text-amber-700 border border-amber-200': fila.estado === 'Revisión'
+            }">
+        <span class="w-1.5 h-1.5 rounded-full" 
+              :class="{
+                'bg-emerald-500': fila.estado === 'Exitosa',
+                'bg-amber-500': fila.estado === 'Revisión'
+              }"></span>
+        {{ fila.estado }}
+      </span>
+    </td>
+    
+    <td class="p-4 align-middle text-center md:w-1/12 min-w-[70px]">
+      <button class="text-gray-400 hover:text-[#3f2a52] font-bold px-2 text-base transition-colors">⋮</button>
+    </td>
+  </template>
+</plantillatabla>
 
     <div class="flex items-center gap-4 w-full mb-4 my-4 ">
       <h2 class="text-xl font-bold text-[#3f2a52] tracking-tight whitespace-nowrap">
