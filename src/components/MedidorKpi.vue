@@ -1,7 +1,13 @@
 <script setup>
 import apexchart from 'vue3-apexcharts'
+import { computed } from 'vue'
+import { usePanelStore } from '../stores/panelStore'
 
-const series = [76] 
+const store = usePanelStore()
+
+// En lugar de [76] fijo, usamos el porcentaje real de KPIs saludables.
+// computed() hace que la gráfica se actualice automáticamente si los datos cambian.
+const series = computed(() => [store.promedioSaludKpis])
 
 const chartOptions = {
   chart: {
@@ -13,7 +19,7 @@ const chartOptions = {
       startAngle: -90,
       endAngle: 90,
       track: {
-        background: "#334155",
+        background: '#334155',
         strokeWidth: '97%',
       },
       dataLabels: {
@@ -22,7 +28,9 @@ const chartOptions = {
           offsetY: -2,
           fontSize: '30px',
           color: '#ffffff',
-          fontWeight: 'bold'
+          fontWeight: 'bold',
+          // Añadimos el símbolo % al valor mostrado
+          formatter: (val) => val + '%'
         }
       }
     }
@@ -32,7 +40,7 @@ const chartOptions = {
     gradient: {
       shade: 'dark',
       type: 'horizontal',
-      gradientToColors: ['#beaed8'], 
+      gradientToColors: ['#beaed8'],
       stops: [0, 100]
     }
   }
@@ -40,12 +48,16 @@ const chartOptions = {
 </script>
 
 <template>
-  <div class="flex justify-center">
-    <apexchart 
-      type="radialBar" 
-      width="350"
-      :options="chartOptions" 
-      :series="series" 
+  <div class="flex flex-col items-center justify-center gap-1">
+    <apexchart
+      type="radialBar"
+      width="280"
+      :options="chartOptions"
+      :series="series"
     />
+    <!-- Leyenda debajo de la gráfica explicando qué significa el número -->
+    <p class="text-[10px] text-[#beaed8] uppercase tracking-widest font-semibold">
+      KPIs en estado saludable
+    </p>
   </div>
 </template>

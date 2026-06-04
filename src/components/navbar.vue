@@ -35,6 +35,9 @@ const toggleDarkMode = () => {
     <button @click="toggleDarkMode" class="p-2 rounded-full hover:bg-gray-100  text-[#3f2a52] dark:text-yellow-400 ">
         <i :class="isDarkMode ? 'fi fi-sr-sun' : 'fi fi-sr-moon-stars'"></i>
       </button>
+ 
+    <button @click="toggleDarkMode" class="p-2 rounded-full hover:bg-gray-100">
+       </button>
     
     <span class="text-gray-400 text-[11px] font-bold border-l pl-4 uppercase tracking-wider">Perfil</span>
   </div>

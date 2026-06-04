@@ -8,7 +8,7 @@ import './main.css'
 // 1. Importa tu clase de notificaciones
 import Notify from './utils/Notify' 
 // 2. Importa el CSS de toastr (necesario para que se vea bien)
-import 'toastr/build/toastr.min.css' 
+import 'toastr/build/toastr.min.css'
 
 const app = createApp(App)
 

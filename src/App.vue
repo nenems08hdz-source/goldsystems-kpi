@@ -1,10 +1,10 @@
 <script setup>
 import { RouterView } from 'vue-router'
-import { useLayoutStore } from '@/stores/layout' // Importa tu store
+import { useLayoutStore } from '@/stores/layout' 
 import sidebar from './components/sidebar.vue'
 import navbar from './components/navbar.vue'
 
-const layout = useLayoutStore() // Inicializa el store
+const layout = useLayoutStore() 
 </script>
 
 <template>
@@ -32,7 +32,7 @@ const layout = useLayoutStore() // Inicializa el store
 </template>
 
 <style>
-/* Tus estilos de transición existentes permanecen intactos */
+
 .slide-fade-enter-active {
   transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
 }

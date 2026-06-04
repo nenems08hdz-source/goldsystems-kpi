@@ -10,9 +10,8 @@ import RegistroMetricas from '../pantallas/RegistroMetricas.vue'
 import Ajustes from '../components/Ajustes.vue'
 import ConfiguracionNotificacion from '../pantallas/ConfiguracionNotificacion.vue'
 import ConfiguracionSeguridad from '../pantallas/ConfiguracionSeguridad.vue'
-import DetallesKpis from '../pantallas/DetallesKpis.vue'
-import GraficaDetalles from '../components/GraficaDetalles.vue'
-import FormularioDepartamento from '../pantallas/FormularioDepartamento.vue'
+import PersonalizarPanel from '../pantallas/PersonalizarPantalla.vue'
+import DetallesKpis from '@/pantallas/DetallesKpis.vue'
 
 
 const router = createRouter({
@@ -22,7 +21,7 @@ const router = createRouter({
       path: '/',
       name: 'principal',
       component: principal
-    },
+    }, 
     {
       path: '/kpis',
       name: 'gestion-kpis',
@@ -73,31 +72,17 @@ const router = createRouter({
     name: 'ConfiguracionSeguridad',
     component: ConfiguracionSeguridad
   },
-   {
-    path: '/DetallesKpis', 
-    name: 'DetallesKpis',
-    component: DetallesKpis
-  },
   {
-    path: '/GraficaDetalles', 
-    name: 'GraficaDetalles',
-    component: GraficaDetalles
-  },
-  {
-    path: '/ControlOrganizacional', 
-    name: 'ControlOrganizacional',
-    component: ControlOrganizacional
-  },
-   {
-    path: '/RegistroMetricas', 
-    name: 'RegistroMetricas',
-    component: RegistroMetricas
-  },
-   {
-    path: '/FormularioDepartamento', 
-    name: 'FormularioDepartamento',
-    component: FormularioDepartamento
-  },
+  path: '/personalizar',
+  name: 'personalizar',
+  component: PersonalizarPanel
+},
+{
+  path: '/DetallesKpis',
+  name: 'DetallesKpis',
+  component: DetallesKpis
+}
+
   ],
 })
 
