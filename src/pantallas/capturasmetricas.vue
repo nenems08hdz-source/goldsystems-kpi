@@ -1,21 +1,63 @@
 <script setup>
 import { ref } from 'vue'
+import { getCurrentInstance } from 'vue'
 import plantillatabla from '../components/plantillatabla.vue'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
+import ModalConfirmacion from '../components/ModalConfirmacion.vue'
 
 const vistaActual = ref('tabla')
 const nuevaMetrica = ref({ nombre: '', fechaCorte: '', valor: '' })
 
-// Actualizado con las clases web tipográficas de Flaticon
 const metricasAsignadas = ref([
-  { id: 1, nombre: "Métrica de Latencia API Gateway", info: "Hace 2 días | Ing. Arantxa", estado: "RETRASADA", claseEstado: "text-red-600 bg-red-50 border-red-200", icono: "fi fi-sr-stats" },
-  { id: 2, nombre: "Uso de Memoria (Production Node A)", info: "En 4 horas | Servidor-PRD", estado: "POR VENCER", claseEstado: "text-amber-600 bg-amber-50 border-amber-200", icono: "fi fi-sr-computer" },
-  { id: 3, nombre: "Tasa de Error HTTP 5xx", info: "Hoy, 18:00 | Monitoring Lab", estado: "A TIEMPO", claseEstado: "text-emerald-600 bg-emerald-50 border-emerald-200", icono: "fi fi-sr-shield-check" }
+  { 
+    id: 1,
+    nombre: "Métrica de Latencia API Gateway", 
+    info: "Hace 2 días | Ing. Arantxa", 
+    estado: "RETRASADA", 
+    claseEstado: "text-red-600 bg-red-50 border-red-200",
+    icono: "fi fi-sr-stats"
+  },
+  { 
+    id: 2, 
+    nombre: "Uso de Memoria (Production Node A)",
+    info: "En 4 horas | Servidor-PRD", 
+    estado: "POR VENCER", 
+    claseEstado: "text-amber-600 bg-amber-50 border-amber-200",
+    icono: "fi fi-sr-computer" 
+  },
+  { 
+    id: 3, 
+    nombre: "Tasa de Error HTTP 5xx", 
+    info: "Hoy, 18:00 | Monitoring Lab", 
+    estado: "A TIEMPO", 
+    claseEstado: "text-emerald-600 bg-emerald-50 border-emerald-200",
+    icono: "fi fi-sr-shield-check"
+  }
 ])
+
+const { proxy } = getCurrentInstance()
+
+const showModal = ref(false)
+const kpiAEliminar = ref(null)
 
 const irAFormulario = () => vistaActual.value = 'formulario'
 const regresarATabla = () => vistaActual.value = 'tabla'
 const guardarMetrica = () => { console.log("Datos:", nuevaMetrica.value); regresarATabla(); }
+
+// CORRECCIÓN: Recibimos el objeto fila completo
+const prepararEliminacion = (kpi) => {
+  kpiAEliminar.value = kpi
+  showModal.value = true
+}
+
+// CORRECCIÓN: Ya no recibe parámetros, usa el objeto kpiAEliminar directamente
+const eliminarMetrica = () => {
+  if (kpiAEliminar.value) {
+    metricasAsignadas.value = metricasAsignadas.value.filter(i => i.id !== kpiAEliminar.value.id)
+    proxy.$notify.success('El KPI ha sido eliminado', 'Éxito')
+    showModal.value = false
+  }
+}
 </script>
 
 <template>
@@ -62,18 +104,11 @@ const guardarMetrica = () => { console.log("Datos:", nuevaMetrica.value); regres
             </td>
 
             <td class="p-4 align-middle w-2/12">
-              <div class="flex items-center justify-center gap-3">
+              <div class="flex items-center justify gap-3">
                 <button 
-                  @click="alert(`Editar métrica: ${fila.nombre}`)"
-                  title="Editar Métrica" 
-                  class="text-gray-400 hover:text-[#3f2a52] bg-gray-50 hover:bg-[#3f2a52]/5 p-1.5 rounded-lg transition-colors text-sm"
-                >
-                  <i class="fi fi-sr-pencil"></i>
-                </button>
-                <button 
-                  @click="alert(`Eliminar métrica: ${fila.nombre}`)"
-                  title="Eliminar Métrica" 
-                  class="text-gray-400 hover:text-red-500 bg-gray-50 hover:bg-red-50 p-1.5 rounded-lg transition-colors text-sm"
+                 @click="prepararEliminacion(fila)"
+                 title="Eliminar Métrica" 
+                 class="text-gray-400 hover:text-red-500 bg-gray-50 hover:bg-red-50 p-1.5 rounded-lg transition-colors text-sm"
                 >
                   <i class="fi fi-sr-trash"></i>
                 </button>
@@ -81,6 +116,14 @@ const guardarMetrica = () => { console.log("Datos:", nuevaMetrica.value); regres
             </td>
           </template>
         </plantillatabla>
+        
+        <ModalConfirmacion 
+      :isOpen="showModal"
+      titulo="¿Estás seguro?"
+      mensaje="Esta acción borrará el registro permanentemente."
+      @confirmar="eliminarMetrica"
+      @cancelar="showModal = false"
+    />
       </div>
 
       <div v-else class="bg-white p-8 rounded-xl border border-[#beaed8]/60 shadow-md w-full mt-6">

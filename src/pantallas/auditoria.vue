@@ -159,7 +159,7 @@ const misEventos = ref([
           </span>
         </td>
         
-        <td class="p-4 align-middle text-center">
+        <td class="p-4 align-middle">
           <button class="text-gray-400 hover:text-[#3f2a52] font-bold px-2 text-base transition-colors">⋮</button>
         </td>
       </template>

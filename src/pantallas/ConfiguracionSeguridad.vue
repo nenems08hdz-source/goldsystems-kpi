@@ -1,8 +1,9 @@
 <script setup>
 import { ref } from 'vue'
+import { getCurrentInstance } from 'vue'
 import plantillatabla from '../components/plantillatabla.vue'
+import ModalConfirmacion from '../components/ModalConfirmacion.vue'
 
-// 1. Estado para 2FA
 const is2FAEnabled = ref(false)
 const toggle2FA = () => { is2FAEnabled.value = !is2FAEnabled.value }
 
@@ -29,7 +30,6 @@ const sesiones = ref([
 const encabezadosSesiones = ['Dispositivo', 'Ubicación', 'Tiempo', 'Acción']
 
 const cerrarSesion = (id) => { sesiones.value = sesiones.value.filter(s => s.id !== id) }
-const cerrarTodas = () => { sesiones.value = [] }
 
 const registrosActividad = ref([
   { 
@@ -56,11 +56,29 @@ const encabezadosActividad = ['Acción', 'Detalle', 'Hora', 'Acción']
 const eliminarRegistro = (id) => {
   registrosActividad.value = registrosActividad.value.filter(r => r.id !== id)
 }
+const { proxy } = getCurrentInstance() 
+
+const mensajeExito = ref(false) // Nuevo estado
+
+// Dentro de tu <script setup> en AjustesPerfil.vue
+const guardarcambios  = async () => {
+  try {
+    // 1. Aquí va tu lógica para enviar datos al servidor
+    // await api.put('/perfil', datos.value);
+
+    // 2. DISPARA LA NOTIFICACIÓN CON EL MISMO DISEÑO
+    proxy.$notify.success('Los cambios han sido guardados correctamente', 'Éxito');
+    
+  } catch (error) {
+    // 3. Si hay error, puedes usar el mismo estilo pero en rojo
+    proxy.$notify.error('Hubo un error al guardar', 'Error');
+  }
+}
 </script>
 
 <template>
    <div class="w-full bg-white text-[#3f2a52] px-8 min-h-screen flex flex-col">
-
+       
     <header class="mb-8">
         <h1 class="text-3xl font-bold tracking-tight mb-1">Configuración de Seguridad</h1>
       </header>
@@ -76,6 +94,7 @@ const eliminarRegistro = (id) => {
           <p class="text-sm font-bold">Doble Factor (2FA)</p>
           <p class="text-xs text-gray-500">Protección extra para tu cuenta</p>
         </div>
+
         <button @click="toggle2FA" :class="['w-11 h-6 rounded-full relative transition-colors duration-200', is2FAEnabled ? 'bg-green-600' : 'bg-[#3f2a52]']">
           <div :class="['absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-200', is2FAEnabled ? 'left-6' : 'left-1']"></div>
         </button>
@@ -87,7 +106,7 @@ const eliminarRegistro = (id) => {
     </section>
 
     <section>
-      <plantillatabla titulo="Sesiones Activas" :encabezados="encabezadosSesiones" :datos="sesiones">
+      <plantillatabla titulo="Sesiones Activas" :encabezados="encabezadosSesiones" :datos="sesiones" icon="fi-sr-computer-speaker">
         <template #default="{ fila }">
           <td class="p-4"><p class="text-sm font-bold text-[#3f2a52]">{{ fila.dispositivo }}</p></td>
           <td class="p-4 text-xs text-gray-500">{{ fila.ubicacion }}</td>
@@ -101,7 +120,7 @@ const eliminarRegistro = (id) => {
 
     <section>
       
-      <plantillatabla titulo="Actividad" :encabezados="encabezadosActividad" :datos="registrosActividad">
+      <plantillatabla titulo="Actividad" :encabezados="encabezadosActividad" :datos="registrosActividad" icon="fi-sr-clock-three">
         <template #default="{ fila }">
           <td class="p-4"><p class="text-sm font-bold text-gray-700">{{ fila.accion }}</p></td>
           <td class="p-4 text-xs text-gray-500">{{ fila.detalle }}</td>
@@ -115,7 +134,7 @@ const eliminarRegistro = (id) => {
 
 <div class="p-6 border-t border-gray-100 flex justify-end gap-3">
         <button type="button" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-black text-xs font-bold rounded-xl transition-colors">Cancelar</button>
-        <button @click="guardarPerfil" type="button" class="px-6 py-2.5 bg-[#3f2a52] hover:bg-[#beaed8] text-white text-xs font-bold rounded-xl shadow-md transition-all duration-300">Guardar Cambios</button>
+        <button @click="guardarcambios" type="button" class="px-6 py-2.5 bg-[#3f2a52] hover:bg-[#beaed8] text-white text-xs font-bold rounded-xl shadow-md transition-all duration-300">Guardar Cambios</button>
       </div>
 
 

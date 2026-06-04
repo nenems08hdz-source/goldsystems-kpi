@@ -4,8 +4,18 @@ import plantillatabla from '../components/plantillatabla.vue'
 
 const encabezados = ['Indicador', 'Fecha', 'Valor', 'Acciones']
 const metricas = ref([
-  { id: 1, nombre: "Latencia API Gateway", fecha: "2026-05-22", valor: "0.14 ms" },
-  { id: 2, nombre: "Uso de Memoria (Node A)", fecha: "2026-05-24", valor: "78.4 GB" }
+  { 
+    id: 1, 
+    nombre: "Latencia API Gateway", 
+    fecha: "2026-05-22",
+    valor: "0.14 ms"
+ },
+  { 
+    id: 2, 
+    nombre: "Uso de Memoria (Node A)", 
+    fecha: "2026-05-24", 
+    valor: "78.4 GB" 
+}
 ])
 </script>
 

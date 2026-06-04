@@ -1,6 +1,7 @@
 <script setup>
 defineProps({
   titulo: String,
+  icon: String,
   encabezados: Array,
   datos: Array,
   mostrarAcciones: {
@@ -15,6 +16,7 @@ defineProps({
     
     <div class="p-4 bg-gray-50/50 border-b border-[#beaed8]/30">
       <h2 class="text-xl font-bold text-gray-800 tracking-tight">
+         <i v-if="icon" :class="`fi ${icon}`"></i> 
         {{ titulo }}
       </h2>
     </div>

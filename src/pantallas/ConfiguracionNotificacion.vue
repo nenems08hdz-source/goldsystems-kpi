@@ -1,7 +1,10 @@
 <script setup>
 import { ref } from 'vue'
+import { getCurrentInstance } from 'vue'
 import plantillatabla from '../components/plantillatabla.vue' 
+import ModalConfirmacion from '../components/ModalConfirmacion.vue'
 
+const mensajeExito = ref(false)
 const canales = ref([
   { 
   nombre:'Correo Electrónico', 
@@ -51,9 +54,21 @@ const kpisIniciales = [
 const kpis = ref(JSON.parse(JSON.stringify(kpisIniciales)))
 const frecuenciaSeleccionada = ref('Semanal')
 
-const guardarCambios = () => {
-  console.log("Datos guardados:", kpis.value)
-  alert("Configuración actualizada correctamente.")
+const { proxy } = getCurrentInstance() 
+
+// Dentro de tu <script setup> en AjustesPerfil.vue
+const guardarNotificacion = async () => {
+  try {
+    // 1. Aquí va tu lógica para enviar datos al servidor
+    // await api.put('/perfil', datos.value);
+
+    // 2. DISPARA LA NOTIFICACIÓN CON EL MISMO DISEÑO
+    proxy.$notify.success('Los cambios han sido guardados correctamente', 'Éxito');
+    
+  } catch (error) {
+    // 3. Si hay error, puedes usar el mismo estilo pero en rojo
+    proxy.$notify.error('Hubo un error al guardar', 'Error');
+  }
 }
 
 const descartarCambios = () => {
@@ -63,6 +78,11 @@ const descartarCambios = () => {
 
 <template>
   <div class="w-full bg-white text-[#3f2a52] px-8 min-h-screen flex flex-col">
+
+     <div v-if="mensajeExito" 
+         class="fixed bottom-6 right-6 bg-emerald-600 text-white px-6 py-3 rounded-xl shadow-lg font-bold text-xs z-50">
+        ✅ Cambios de Notificacion guardados
+       </div>
     
     <div class="max-w-5xl mx-auto w-full flex-grow">
       
@@ -93,7 +113,7 @@ const descartarCambios = () => {
         </div>
       </section>
 
-      <plantillatabla titulo="📊 Alertas de KPI" :encabezados="encabezados" :datos="kpis">
+      <plantillatabla titulo="Alertas de KPI" :encabezados="encabezados" :datos="kpis">
         <template #default="{ fila }">
           <td class="p-4 font-semibold text-gray-700 text-sm">{{ fila.nombre }}</td>
           <td class="p-4 text-center"><input type="checkbox" v-model="fila.critico" class="accent-[#3f2a52] w-4 h-4 cursor-pointer" /></td>
@@ -145,7 +165,7 @@ const descartarCambios = () => {
       <button @click="descartarCambios" class="px-5 py-2 text-sm font-bold text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
         Descartar
       </button>
-      <button @click="guardarCambios" class="px-5 py-2 text-sm font-bold text-white bg-[#3f2a52] rounded-lg hover:bg-[#2a1d37] transition-colors shadow-sm">
+      <button @click="guardarNotificacion" class="px-5 py-2 text-sm font-bold text-white bg-[#3f2a52] rounded-lg hover:bg-[#2a1d37] transition-colors shadow-sm">
         Guardar Cambios
       </button>
     </div>

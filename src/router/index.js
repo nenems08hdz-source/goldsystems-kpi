@@ -1,15 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import kpis from '../pantallas/GestionKpis.vue'
 import principal from '../pantallas/PanelPrincipal.vue'
-import capturasmetricas from '../pantallas/capturasmetricas.vue'
-import auditoria from '../pantallas/auditoria.vue'
-import formulariokpi from '../pantallas/FormularioKpis.vue'
-import control from '../pantallas/ControlOrganizacional.vue'
+import CapturasMetricas from '../pantallas/CapturasMetricas.vue'
+import Auditoria from '../pantallas/Auditoria.vue'
+import FormularioKpis from '../pantallas/FormularioKpis.vue'
+import ControlOrganizacional from '../pantallas/ControlOrganizacional.vue'
 import FormularioUsuario from '../pantallas/FormularioUsuario.vue'
-import Registro from '../pantallas/registrometricas.vue'
+import RegistroMetricas from '../pantallas/RegistroMetricas.vue'
 import Ajustes from '../components/Ajustes.vue'
 import ConfiguracionNotificacion from '../pantallas/ConfiguracionNotificacion.vue'
 import ConfiguracionSeguridad from '../pantallas/ConfiguracionSeguridad.vue'
+import DetallesKpis from '../pantallas/DetallesKpis.vue'
+import GraficaDetalles from '../components/GraficaDetalles.vue'
+import FormularioDepartamento from '../pantallas/FormularioDepartamento.vue'
 
 
 const router = createRouter({
@@ -28,27 +31,27 @@ const router = createRouter({
     {
       path: '/capturasmetricas',
       name: 'capturas',
-      component: capturasmetricas
+      component: CapturasMetricas
     },
     {
-      path: '/registro',
-      name: 'registro',
-      component: Registro
+      path: '/registroMetricas',
+      name: 'registroMetricas',
+      component: RegistroMetricas
     },
      {
       path: '/auditoria',
       name: 'centro-auditoria',
-      component: auditoria
+      component: Auditoria
     },
     {
       path: '/kpis/nuevo', 
       name: 'nuevo-kpi',
-      component: formulariokpi
+      component: FormularioKpis
     },
     {
       path: '/control', 
       name: 'control-organizacional',
-      component: control
+      component: ControlOrganizacional
     },
     {
       path: '/organizacion/nuevo',
@@ -69,6 +72,31 @@ const router = createRouter({
     path: '/ConfiguracionSeguridad', 
     name: 'ConfiguracionSeguridad',
     component: ConfiguracionSeguridad
+  },
+   {
+    path: '/DetallesKpis', 
+    name: 'DetallesKpis',
+    component: DetallesKpis
+  },
+  {
+    path: '/GraficaDetalles', 
+    name: 'GraficaDetalles',
+    component: GraficaDetalles
+  },
+  {
+    path: '/ControlOrganizacional', 
+    name: 'ControlOrganizacional',
+    component: ControlOrganizacional
+  },
+   {
+    path: '/RegistroMetricas', 
+    name: 'RegistroMetricas',
+    component: RegistroMetricas
+  },
+   {
+    path: '/FormularioDepartamento', 
+    name: 'FormularioDepartamento',
+    component: FormularioDepartamento
   },
   ],
 })

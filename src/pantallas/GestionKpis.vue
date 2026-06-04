@@ -1,12 +1,14 @@
 <script setup>
 import { ref, onMounted} from 'vue'
+import { getCurrentInstance } from 'vue'
 import plantillatabla from '../components/plantillatabla.vue'
 import tarjetaskpi from '../components/tarjetasestado.vue'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
+import ModalConfirmacion from '../components/ModalConfirmacion.vue'
+
 const totalSaludables = ref(12)
 const totalAlerta = ref(5)
 const totalCriticos = ref(2)
-
 
 const misIndicadores = ref([
   {
@@ -91,10 +93,26 @@ const misIndicadores = ref([
   }
 ])
 
-onMounted(() => {
-  const filas = document.querySelectorAll('.tabla-kpis table tbody tr')
-  filas.forEach(tr => tr.classList.add('group'))
-})
+const { proxy } = getCurrentInstance() // Acceso a tu $notify global
+
+const showModal = ref(false)
+const kpiAEliminar = ref(null)
+
+const prepararEliminacion = (kpi) => {
+  kpiAEliminar.value = kpi
+  showModal.value = true
+}
+
+const ejecutarEliminacion = () => {
+  // 1. Aquí eliminas el elemento de tu array 'misIndicadores'
+  misIndicadores.value = misIndicadores.value.filter(i => i.id !== kpiAEliminar.value.id)
+  
+  // 2. Aquí disparas la notificación elegante de Toastr que configuraste
+  proxy.$notify.success('El KPI ha sido eliminado', 'Éxito')
+  
+  showModal.value = false
+}
+
 </script>
 
 <template>
@@ -207,23 +225,31 @@ onMounted(() => {
       </template>
 
       <template #iconos-acciones="{ item }">
+      <button 
+      @click="$router.push(`DetallesKpis`)"
+      title="Ver Detalles" 
+      class="text-gray-400 hover:text-[#3f2a52] bg-gray-50 hover:bg-[#3f2a52]/5 p-1.5 rounded-lg transition-colors text-sm"
+       >
+       <i class="fi fi fi-sr-eye"></i>
+      </button>
+
         <button 
-          @click="alert(`Editar KPI: ${item.nombre}`)"
-          title="Editar KPI" 
-          class="text-gray-400 hover:text-[#3f2a52] bg-gray-50 hover:bg-[#3f2a52]/5 p-1.5 rounded-lg transition-colors text-sm"
-        >
-          <i class="fi fi-sr-pencil"></i>
-        </button>
-        <button 
-          @click="alert(`Eliminar KPI: ${item.nombre}`)"
+          @click="prepararEliminacion(item)"
           title="Eliminar KPI" 
           class="text-gray-400 hover:text-red-500 bg-gray-50 hover:bg-red-50 p-1.5 rounded-lg transition-colors text-sm"
-        >
+           >
           <i class="fi fi-sr-trash"></i>
         </button>
       </template>
-
     </plantillatabla>
-  
+    
+    <ModalConfirmacion 
+      :isOpen="showModal"
+      titulo="¿Estás seguro?"
+      mensaje="Esta acción borrará el registro permanentemente."
+      @confirmar="ejecutarEliminacion"
+      @cancelar="showModal = false"
+    />
+    
   </div>
 </template>

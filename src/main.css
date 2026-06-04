@@ -1,6 +1,23 @@
-@import "tailwindcss";
+@import "tailwindcss";s
 
 @theme {
     --color-kpi-morado: beaed8;
     --color-pi-azul: 77a9d4;
+},
+
+/* Forzamos el radio de borde en todos los elementos de Toastr */
+#toast-container > div,
+#toast-container > .toast,
+.toast-success,
+.toast-error,
+.toast-info,
+.toast-warning {
+    border-radius: 16px !important; /* Aumenté a 16px para que se note más ovalado */
+    overflow: hidden; /* Esto es clave: asegura que nada se salga del borde redondeado */
+}
+
+/* Para la barra de progreso */
+.toast-progress {
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
 }

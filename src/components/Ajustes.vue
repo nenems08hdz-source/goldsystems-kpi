@@ -7,9 +7,21 @@ import ConfiguracionSeguridad from '../pantallas/ConfiguracionSeguridad.vue'
 const categoriaActiva = ref('perfil')
 
 const categorias = [
-  { id: 'perfil', nombre: 'Perfil', icono: 'fi-sr-user-pen' },
-  { id: 'seguridad', nombre: 'Seguridad', icono: 'fi-sr-shield-check' },
-  { id: 'notificaciones', nombre: 'Notificaciones', icono: 'fi fi-sr-bell-notification-social-media' }
+  { 
+    id: 'perfil', 
+    nombre: 'Perfil', 
+    icono: 'fi-sr-user-pen' 
+},
+  { 
+    id: 'seguridad', 
+    nombre: 'Seguridad', 
+    icono: 'fi-sr-shield-check'
+},
+  {
+     id: 'notificaciones', 
+     nombre: 'Notificaciones', 
+     icono: 'fi fi-sr-bell-notification-social-media' 
+}
 ]
 </script>
 

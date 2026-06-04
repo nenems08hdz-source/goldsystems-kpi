@@ -1,5 +1,7 @@
 <script setup>
+import { getCurrentInstance } from 'vue'
 import { ref } from 'vue'
+import ModalConfirmacion from '../components/ModalConfirmacion.vue'
 
 const usuario = ref({
   nombre: 'Alejandro',
@@ -30,15 +32,30 @@ const alertasConfig = ref([
   push: false 
 }
 ])
+const { proxy } = getCurrentInstance() 
 
-const guardarPerfil = () => {
-  console.log("Datos guardados:", usuario.value);
+const mensajeExito = ref(false) // Nuevo estado
+
+// Dentro de tu <script setup> en AjustesPerfil.vue
+const guardarPerfil = async () => {
+  try {
+    // 1. Aquí va tu lógica para enviar datos al servidor
+    // await api.put('/perfil', datos.value);
+
+    // 2. DISPARA LA NOTIFICACIÓN CON EL MISMO DISEÑO
+    proxy.$notify.success('Los cambios han sido guardados correctamente', 'Éxito');
+    
+  } catch (error) {
+    // 3. Si hay error, puedes usar el mismo estilo pero en rojo
+    proxy.$notify.error('Hubo un error al guardar', 'Error');
+  }
 }
 </script>
 
 <template>
   <div class="w-full bg-white text-[#3f2a52] px-8 min-h-screen flex flex-col">
 
+      
     <header class="mb-8">
         <h1 class="text-3xl font-bold tracking-tight mb-1">Configuración de Perfil</h1>
       </header>

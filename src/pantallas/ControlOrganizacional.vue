@@ -1,53 +1,186 @@
 <script setup>
 import { ref } from 'vue'
-
+import { getCurrentInstance } from 'vue'
 import plantillatabla from '../components/plantillatabla.vue'
+import ModalConfirmacion from '../components/ModalConfirmacion.vue'
 
+// Estados para los paneles
 const mostrarPanelKpis = ref(false)
+const mostrarPanelRol = ref(false)
 const usuarioSeleccionado = ref(null)
 
+
 const kpisSimulados = ref([
-  { nombre: 'Eficiencia de Entrega (OTIF)', meta: '> 95%' },
-  { nombre: 'Costo por Kilómetro Recorrido', meta: '< $12.50' },
-  { nombre: 'Rotación de Inventario en Almacén', meta: '12 Veces/Año' }
+  {
+    nombre: 'Eficiencia de Entrega (OTIF)',
+     meta: '> 95%' 
+},
+  { 
+   nombre: 'Costo por Kilómetro Recorrido',
+   meta: '< $12.50' 
+},
+  { 
+    nombre: 'Rotación de Inventario en Almacén',
+    meta: '12 Veces/Año' 
+}
 ])
 
+// Función para abrir KPIs y cerrar Rol
 const abrirPanelKpis = (usuario) => {
   usuarioSeleccionado.value = usuario
+  mostrarPanelRol.value = false 
   mostrarPanelKpis.value = true
 }
 
+// Función para abrir Rol y cerrar KPIs
 const abrirModificarRol = (usuario) => {
-  alert(`Abrir modal para modificar el rol de: ${usuario.nombre}`)
+  usuarioSeleccionado.value = usuario
+  mostrarPanelKpis.value = false
+  mostrarPanelRol.value = true
 }
 
-const eliminarUsuarioVisual = (usuario) => {
-  alert(`¿Seguro que deseas eliminar a: ${usuario.nombre}?`)
+// --- NUEVO: Estados para el Modal ---
+const showModal = ref(false)
+const usuarioAEliminar = ref(null)
+
+const { proxy } = getCurrentInstance()
+
+// Función que abre el modal en lugar de eliminar directamente
+const confirmarEliminacion = (usuario) => {
+  usuarioAEliminar.value = usuario
+  showModal.value = true
 }
 
+const ejecutarEliminacion = () => {
+  if (usuarioAEliminar.value) {
+    usuarios.value = usuarios.value.filter(u => u.id !== usuarioAEliminar.value.id)
+    proxy.$notify.success('El usuario ha sido eliminado correctamente', 'Éxito')
+  }
+  showModal.value = false
+}
+
+// ... (El resto de tus datos como departamentos y usuarios permanecen igual)
 const departamentos = ref([
-  { id: 1, nombre: 'Corporativo KPI360', abierto: true, nivel: 0 },
-  { id: 2, nombre: 'Finanzas', abierto: true, nivel: 1 },
-  { id: 3, nombre: 'Tesorería', abierto: false, nivel: 2 },
-  { id: 4, nombre: 'Operaciones', abierto: true, nivel: 1, badge: 15 },
-  { id: 5, nombre: 'Logística Global', seleccionado: true, nivel: 2 },
-  { id: 6, nombre: 'Control de Calidad', abierto: false, nivel: 2 },
-  { id: 7, nombre: 'Recursos Humanos', abierto: false, nivel: 1 },
+  { 
+    id: 1, 
+    nombre: 'Corporativo KPI360', 
+    abierto: true, 
+    nivel: 0 
+},
+  { 
+    id: 2, 
+    nombre: 'Finanzas', 
+    abierto: true,
+    nivel: 1
+},
+  {
+     id: 3,
+     nombre: 'Tesorería',
+     abierto: false, 
+     nivel: 2
+},
+  { 
+    id: 4, 
+    nombre: 'Operaciones',
+    abierto: true, 
+    nivel: 1, 
+    badge: 15 
+},
+  { 
+    id: 5, 
+    nombre: 'Logística Global',
+    seleccionado: true, 
+    nivel: 2 
+},
+  { 
+    id: 6, 
+    nombre: 'Control de Calidad',
+    abierto: false,
+    nivel: 2 
+},
+  { 
+    id: 7, 
+    nombre: 'Recursos Humanos', 
+    abierto: false, 
+    nivel: 1 
+},
 ])
-
 
 const encabezadosTabla = ['Usuario', 'Rol', 'KPI Propios', 'Estado']
 
-
 const usuarios = ref([
-  { id: 1, nombre: 'Ana López', correo: 'ana.lopez@kpi360.com', rol: 'EMPLEADO', kpis: 12, estado: 'Activo', colorRol: 'bg-[#3f2a52]/10 text-[#3f2a52]' },
-  { id: 2, nombre: 'Carlos Ruiz', correo: 'carlos.ruiz@kpi360.com', rol: 'LÍDER', kpis: 8, estado: 'Activo', colorRol: 'bg-emerald-100 text-emerald-700' },
-  { id: 3, nombre: 'Sofía Martínez', correo: 'sofia.m@kpi360.com', rol: 'EMPLEADO', kpis: 5, estado: 'Ausente', colorRol: 'bg-blue-100 text-blue-700' },
-  { id: 4, nombre: 'Jorge Rivas', correo: 'jorge.rivas@kpi360.com', rol: 'EMPLEADO', kpis: 0, estado: 'Bloqueado', colorRol: 'bg-gray-100 text-gray-500' },
-  { id: 5, nombre: 'Pablo Chable', correo: 'pablo.chable@kpi360.com', rol: 'EMPLEADO', kpis: 12, estado: 'Activo', colorRol: 'bg-[#3f2a52]/10 text-[#3f2a52]' },
-  { id: 6, nombre: 'Arantxa Sanchez', correo: 'arantxa.sanchez@kpi360.com', rol: 'GERENTE', kpis: 8, estado: 'Activo', colorRol: 'bg-emerald-100 text-emerald-700' },
-  { id: 7, nombre: 'Christo Ajelo', correo: 'crhisto.a@kpi360.com', rol: 'EMPLEADO', kpis: 5, estado: 'Ausente', colorRol: 'bg-blue-100 text-blue-700' },
-  { id: 8, nombre: 'Jorge Hernández', correo: 'jorge.hernandez@kpi360.com', rol: 'AUDITOR', kpis: 0, estado: 'Activo', colorRol: 'bg-gray-100 text-gray-500' }
+  { 
+    id: 1, 
+    nombre: 'Ana López',
+    correo: 'ana.lopez@kpi360.com',
+    rol: 'EMPLEADO', 
+    kpis: 12, 
+    estado: 'Activo', 
+    colorRol: 'bg-[#3f2a52]/10 text-[#3f2a52]' 
+},
+  { 
+    id: 2,
+    nombre: 'Carlos Ruiz', 
+    correo: 'carlos.ruiz@kpi360.com', 
+    rol: 'LÍDER', 
+    kpis: 8, 
+    estado: 'Activo', 
+    colorRol: 'bg-emerald-100 text-emerald-700'
+},
+  { 
+    id: 3, 
+    nombre: 'Sofía Martínez', 
+    correo: 'sofia.m@kpi360.com',
+    rol: 'EMPLEADO', 
+    kpis: 5, 
+    estado: 'Ausente', 
+    colorRol: 'bg-blue-100 text-blue-700' 
+},
+  { 
+    id: 4, 
+    nombre: 'Jorge Rivas', 
+    correo: 'jorge.rivas@kpi360.com', 
+    rol: 'EMPLEADO', 
+    kpis: 0, 
+    estado: 'Bloqueado', 
+    colorRol: 'bg-gray-100 text-gray-500'
+},
+  { 
+    id: 5, 
+    nombre: 'Pablo Chable', 
+    correo: 'pablo.chable@kpi360.com', 
+    rol: 'EMPLEADO',
+    kpis: 12, 
+    estado: 'Activo', 
+    colorRol: 'bg-[#3f2a52]/10 text-[#3f2a52]' 
+},
+  { 
+    id: 6, 
+    nombre: 'Arantxa Sanchez', 
+    correo: 'arantxa.sanchez@kpi360.com', 
+    rol: 'GERENTE', 
+    kpis: 8, 
+    estado: 'Activo', 
+    colorRol: 'bg-emerald-100 text-emerald-700' 
+},
+  { 
+    id: 7, 
+    nombre: 'Christo Ajelo', 
+    correo: 'crhisto.a@kpi360.com', 
+    rol: 'EMPLEADO', 
+    kpis: 5, 
+    estado: 'Ausente', 
+    colorRol: 'bg-blue-100 text-blue-700' 
+},
+  { 
+    id: 8, 
+    nombre: 'Jorge Hernández', 
+    correo: 'jorge.hernandez@kpi360.com', 
+    rol: 'AUDITOR', 
+    kpis: 0,
+    estado: 'Activo', 
+    colorRol: 'bg-gray-100 text-gray-500' 
+}
 ])
 </script>
 
@@ -138,15 +271,12 @@ const usuarios = ref([
           </div>
         </div>
 
-        <div class="p-3.5 border-t border-[#beaed8]/20 bg-gray-50/50 flex gap-2">
-          <button class="flex-1 bg-white hover:bg-gray-50 text-[#3f2a52] border border-[#beaed8]/80 text-[10px] font-bold uppercase tracking-wider py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all shadow-sm">
-            <span class="text-xs text-[#77a9d4]">+</span> Añadir Área
-          </button>
-          <button class="bg-white hover:bg-gray-50 text-gray-400 hover:text-gray-600 border border-gray-200 text-[10px] font-bold uppercase tracking-wider p-2 rounded-lg flex items-center justify-center transition-all shadow-sm" title="Añadir Raíz">
-            +
-          </button>
-        </div>
-
+        <button 
+         @click="$router.push('/FormularioDepartamento')"
+         class="flex-1 bg-white hover:bg-gray-50 text-[#3f2a52] border border-[#beaed8]/80 text-[10px] font-bold uppercase tracking-wider py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all shadow-sm"
+        >
+        <span class="text-xs text-[#77a9d4]">+</span> Añadir Departamento
+         </button>
       </div>
 
       <div class="lg:col-span-8">
@@ -223,7 +353,7 @@ const usuarios = ref([
             </button>
             
             <button 
-              @click="eliminarUsuarioVisual(item)" 
+              @click="confirmarEliminacion(item)" 
               title="Eliminar Colaborador"
               class="text-gray-400 hover:text-red-500 bg-gray-50 hover:bg-red-50 p-2 rounded-lg transition-all duration-200 text-sm"
             >
@@ -231,10 +361,9 @@ const usuarios = ref([
             </button>
           </template>
         </plantillatabla>
-
       </div>
-
     </div>
+    
 
     <div v-if="mostrarPanelKpis" class="fixed inset-0 bg-gray-900/30 backdrop-blur-sm z-40 flex justify-end" @click="mostrarPanelKpis = false">
       <div class="bg-white w-full max-w-md h-full shadow-2xl border-l border-[#beaed8]/50 flex flex-col justify-between p-6 animate-slideLeft" @click.stop>
@@ -284,11 +413,45 @@ const usuarios = ref([
             Ir a Gestión de KPIs
           </button>
         </div>
-
       </div>
     </div>
 
-  </div>
+    <div v-if="mostrarPanelRol" class="fixed inset-0 bg-gray-900/30 backdrop-blur-sm z-50 flex justify-end" @click="mostrarPanelRol = false">
+  <div class="bg-white w-full max-w-sm h-full shadow-2xl border-l border-[#beaed8]/50 flex flex-col p-6 animate-slideLeft" @click.stop>
+    
+    <div class="flex justify-between items-start border-b border-gray-100 pb-4 mb-6">
+      <div>
+        <h3 class="text-lg font-bold text-[#3f2a52]">Modificar Rol</h3>
+        <p class="text-xs text-gray-400">Asignar rol a {{ usuarioSeleccionado?.nombre }}</p>
+      </div>
+      <button @click="mostrarPanelRol = false" class="text-gray-400 hover:text-gray-600">✕</button>
+    </div>
+
+           <select class="w-full bg-white text-gray-700 text-sm rounded-lg border border-[#beaed8]/80 p-3 outline-none cursor-pointer">
+             <option value="usuario">Usuario</option>
+             <option value="jefe">Jefe de Departamento</option>
+              <option value="lider">Líder de Empresa</option>
+              <option value="lider">Auditor</option>
+             </select>
+
+         <div class="flex flex-col h-full p-6">
+         <button 
+         @click="$router.push('/ControlOrganizacional'); mostrarPanelRol = false"
+          class="mt-auto w-full bg-[#3f2a52] hover:bg-[#77a9d4] text-white font-bold text-xs py-3 rounded-lg transition-all shadow-sm uppercase tracking-wider"
+          >
+          Guardar Cambios 
+         </button>
+       </div>
+     </div>
+    </div>
+    <ModalConfirmacion 
+      :isOpen="showModal"
+      titulo="¿Estás seguro?"
+      mensaje="Esta acción borrará el registro de este usuario permanentemente."
+      @confirmar="ejecutarEliminacion"
+      @cancelar="showModal = false"
+    />
+ </div>
 </template>
 
 <style scoped>
