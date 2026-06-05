@@ -15,7 +15,7 @@ const guardarDepartamento = () => {
   
   alert('¡Departamento registrado con éxito!')
   
-  router.push('/ControlOrganizacional')
+  router.push('/Control')
 }
 </script>
 

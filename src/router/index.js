@@ -12,6 +12,7 @@ import ConfiguracionNotificacion from '../pantallas/ConfiguracionNotificacion.vu
 import ConfiguracionSeguridad from '../pantallas/ConfiguracionSeguridad.vue'
 import PersonalizarPanel from '../pantallas/PersonalizarPantalla.vue'
 import DetallesKpis from '@/pantallas/DetallesKpis.vue'
+import FormularioDepartamento from '../pantallas/FormularioDepartamento.vue'
 
 
 const router = createRouter({
@@ -81,6 +82,11 @@ const router = createRouter({
   path: '/DetallesKpis',
   name: 'DetallesKpis',
   component: DetallesKpis
+},
+{
+  path: '/FormularioDepartamento',
+  name: 'FormularioDepartamento',
+  component: FormularioDepartamento
 }
 
   ],
