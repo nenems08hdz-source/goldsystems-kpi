@@ -1,31 +1,32 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import kpis from '../pantallas/GestionKpis.vue'
-import principal from '../pantallas/PanelPrincipal.vue'
-import CapturasMetricas from '../pantallas/CapturasMetricas.vue'
-import Auditoria from '../pantallas/Auditoria.vue'
-import FormularioKpis from '../pantallas/FormularioKpis.vue'
-import ControlOrganizacional from '../pantallas/ControlOrganizacional.vue'
-import FormularioUsuario from '../pantallas/FormularioUsuario.vue'
-import RegistroMetricas from '../pantallas/RegistroMetricas.vue'
 import Ajustes from '../components/Ajustes.vue'
+import Auditoria from '../pantallas/Auditoria.vue'
+import CapturasMetricas from '../pantallas/CapturasMetricas.vue'
 import ConfiguracionNotificacion from '../pantallas/ConfiguracionNotificacion.vue'
 import ConfiguracionSeguridad from '../pantallas/ConfiguracionSeguridad.vue'
-import PersonalizarPanel from '../pantallas/PersonalizarPantalla.vue'
+import ControlOrganizacional from '../pantallas/ControlOrganizacional.vue'
 import DetallesKpis from '../pantallas/DetallesKpis.vue'
+import FormularioDepartamento from '@/pantallas/FormularioDepartamento.vue'
+import FormularioKpis from '../pantallas/FormularioKpis.vue'
+import FormularioUsuario from '../pantallas/FormularioUsuario.vue'
+import GestionKpis from '../pantallas/GestionKpis.vue'
+import PanelPrincipal from '../pantallas/PanelPrincipal.vue'
+import PersonalizarPanel from '../pantallas/PersonalizarPantalla.vue'
+import RegistroMetricas from '../pantallas/RegistroMetricas.vue'
 
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/',
-      name: 'principal',
-      component: principal
-    }, 
+      path: '/ajustes',
+      name: 'ajustes',
+      component: Ajustes 
+    },
     {
-      path: '/kpis',
-      name: 'gestion-kpis',
-      component: kpis
+      path: '/auditoria',
+      name: 'centro-auditoria',
+      component: Auditoria
     },
     {
       path: '/capturasmetricas',
@@ -33,19 +34,14 @@ const router = createRouter({
       component: CapturasMetricas
     },
     {
-      path: '/registroMetricas',
-      name: 'registroMetricas',
-      component: RegistroMetricas
-    },
-     {
-      path: '/auditoria',
-      name: 'centro-auditoria',
-      component: Auditoria
+      path: '/ConfiguracionNotificacion', 
+      name: 'ConfiguracionNotificacion',
+      component: ConfiguracionNotificacion
     },
     {
-      path: '/kpis/nuevo', 
-      name: 'nuevo-kpi',
-      component: FormularioKpis
+      path: '/ConfiguracionSeguridad', 
+      name: 'ConfiguracionSeguridad',
+      component: ConfiguracionSeguridad
     },
     {
       path: '/control', 
@@ -53,36 +49,40 @@ const router = createRouter({
       component: ControlOrganizacional
     },
     {
+      path: '/kpis/detalle/:id',
+      name: 'detalles-kpi',
+      component: DetallesKpis
+    },
+    {
+      path: '/kpis/nuevo', 
+      name: 'nuevo-kpi',
+      component: FormularioKpis
+    },
+     {
       path: '/organizacion/nuevo',
       name: 'nuevo-usuario',
       component: FormularioUsuario
     },
     {
-      path: '/ajustes',
-      name: 'ajustes',
-      component: Ajustes 
+      path: '/kpis',
+      name: 'gestion-kpis',
+      component: GestionKpis
     },
     {
-    path: '/ConfiguracionNotificacion', 
-    name: 'ConfiguracionNotificacion',
-    component: ConfiguracionNotificacion
-  },
-   {
-    path: '/ConfiguracionSeguridad', 
-    name: 'ConfiguracionSeguridad',
-    component: ConfiguracionSeguridad
-  },
-  {
-  path: '/personalizar',
-  name: 'personalizar',
-  component: PersonalizarPanel
-},
-{
-  path: '/kpis/detalle/:id',
-  name: 'detalles-kpi',
-  component: DetallesKpis
-}
-
+      path: '/',
+      name: 'principal',
+      component: PanelPrincipal
+    }, 
+     {
+      path: '/personalizar',
+      name: 'personalizar',
+      component: PersonalizarPanel
+    },
+    {
+      path: '/registroMetricas',
+      name: 'registroMetricas',
+      component: RegistroMetricas
+    }
   ],
 })
 
