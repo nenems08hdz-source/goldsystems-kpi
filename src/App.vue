@@ -1,8 +1,8 @@
 <script setup>
 import { RouterView } from 'vue-router'
 import { useLayoutStore } from '@/stores/layout' 
-import sidebar from './components/sidebar.vue'
-import navbar from './components/navbar.vue'
+import sidebar from './components/Sidebar.vue'
+import navbar from './components/Navbar.vue'
 
 const layout = useLayoutStore() 
 </script>

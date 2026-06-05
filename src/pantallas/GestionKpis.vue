@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import { getCurrentInstance } from 'vue'
 import plantillatabla from '../components/plantillatabla.vue'
-import tarjetasestado from '../components/tarjetasestado.vue'
+import tarjetasestado from '../components/TarjetasEstado.vue'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
 import ModalConfirmacion from '../components/ModalConfirmacion.vue'
 import { usePanelStore } from '../stores/panelStore'
