@@ -5,7 +5,7 @@ import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
 import GraficaKpiEspecifica from '../components/GraficaKpiEspecifica.vue'
 import MedidorKpi from '../components/MedidorKpi.vue'
 import ProgresoKpi from '../components/ProgresoKpi.vue'
-import plantillatabla from '../components/plantillatabla.vue'
+import plantillatabla from '../components/PlantillaTabla.vue/index.js'
 import TarjetasKpi from '../components/TarjetasKpi.vue'
 
 

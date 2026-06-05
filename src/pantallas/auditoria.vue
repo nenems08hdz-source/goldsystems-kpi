@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
-import plantillatabla from '../components/plantillatabla.vue'
-import tarjetasresumen from '../components/tarjetasresumen.vue'
+import plantillatabla from '../components/PlantillaTabla.vue/index.js'
+import tarjetasresumen from '../components/TarjetasResumen.vue/index.js'
 
 const misEventos = ref([
   {
