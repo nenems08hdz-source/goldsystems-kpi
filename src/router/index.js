@@ -11,7 +11,7 @@ import Ajustes from '../components/Ajustes.vue'
 import ConfiguracionNotificacion from '../pantallas/ConfiguracionNotificacion.vue'
 import ConfiguracionSeguridad from '../pantallas/ConfiguracionSeguridad.vue'
 import PersonalizarPanel from '../pantallas/PersonalizarPantalla.vue'
-import DetallesKpis from '@/pantallas/DetallesKpis.vue'
+import DetallesKpis from '../pantallas/DetallesKpis.vue'
 
 
 const router = createRouter({
@@ -78,8 +78,8 @@ const router = createRouter({
   component: PersonalizarPanel
 },
 {
-  path: '/DetallesKpis',
-  name: 'DetallesKpis',
+  path: '/kpis/detalle/:id',
+  name: 'detalles-kpi',
   component: DetallesKpis
 }
 

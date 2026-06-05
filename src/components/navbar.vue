@@ -28,7 +28,6 @@ const toggleDarkMode = () => {
   </div>
 
   <div class="flex items-center gap-6">
-    
     <button @click="toggleDarkMode" class="p-2 rounded-full hover:bg-gray-100  text-[#3f2a52] dark:text-yellow-400 ">
         <i :class="isDarkMode ? 'fi fi-sr-sun' : 'fi fi-sr-moon-stars'"></i>
       </button>
