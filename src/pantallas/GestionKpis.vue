@@ -5,7 +5,7 @@ import plantillatabla from '../components/plantillatabla.vue'
 import tarjetasestado from '../components/TarjetasEstado.vue'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
 import ModalConfirmacion from '../components/ModalConfirmacion.vue'
-import { usePanelStore } from '../stores/panelStore'
+import { usePanelStore } from '../stores/panelStore.js'
 
 const { proxy } = getCurrentInstance()
 const store = usePanelStore()
