@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import kpis from '../pantallas/GestionKpis.vue'
 import principal from '../pantallas/PanelPrincipal.vue'
-import CapturasMetricas from '../pantallas/CapturasMetricas.vue'
+import CapturasMetricas from '../pantallas/capturasmetricas.vue'
 import Auditoria from '../pantallas/Auditoria.vue'
 import FormularioKpis from '../pantallas/FormularioKpis.vue'
 import ControlOrganizacional from '../pantallas/ControlOrganizacional.vue'
@@ -11,7 +11,7 @@ import Ajustes from '../components/Ajustes.vue'
 import ConfiguracionNotificacion from '../pantallas/ConfiguracionNotificacion.vue'
 import ConfiguracionSeguridad from '../pantallas/ConfiguracionSeguridad.vue'
 import PersonalizarPanel from '../pantallas/PersonalizarPantalla.vue'
-import DetallesKpis from '@/pantallas/DetallesKpis.vue'
+import DetallesKpis from '../pantallas/DetallesKpis.vue'
 import FormularioDepartamento from '../pantallas/FormularioDepartamento.vue'
 
 
@@ -49,7 +49,7 @@ const router = createRouter({
       component: FormularioKpis
     },
     {
-      path: '/control', 
+      path: '/ControlOrganizacional', 
       name: 'control-organizacional',
       component: ControlOrganizacional
     },

@@ -436,7 +436,7 @@ const usuarios = ref([
 
          <div class="flex flex-col h-full p-6">
          <button 
-         @click="$router.push('/control'); mostrarPanelRol = false"
+         @click="$router.push('/ControlOrganizacional'); mostrarPanelRol = false"
           class="mt-auto w-full bg-[#3f2a52] hover:bg-[#77a9d4] text-white font-bold text-xs py-3 rounded-lg transition-all shadow-sm uppercase tracking-wider"
           >
           Guardar Cambios 
