@@ -59,7 +59,7 @@ const layout = useLayoutStore()
           </li>
 
           <li>
-            <RouterLink to="/control" active-class="bg-[#beaed8] text-[#3f2a52]" 
+            <RouterLink to="/ControlOrganizacional" active-class="bg-[#beaed8] text-[#3f2a52]" 
               class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-200 hover:bg-[#beaed8] hover:text-[#3f2a52] transition-colors font-medium"
               :class="{'justify-center': !layout.isSidebarOpen}">
               <i class="fi fi-sr-building w-5 text-center"></i> 

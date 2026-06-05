@@ -22,67 +22,72 @@ const router = createRouter({
       path: '/ajustes',
       name: 'ajustes',
       component: Ajustes 
-    },
+  },
     {
       path: '/auditoria',
       name: 'centro-auditoria',
       component: Auditoria
-    },
+  },
     {
       path: '/capturasmetricas',
       name: 'capturas',
       component: CapturasMetricas
-    },
+  },
     {
       path: '/ConfiguracionNotificacion', 
       name: 'ConfiguracionNotificacion',
       component: ConfiguracionNotificacion
-    },
+  },
     {
       path: '/ConfiguracionSeguridad', 
       name: 'ConfiguracionSeguridad',
       component: ConfiguracionSeguridad
-    },
+  },
     {
-      path: '/control', 
+      path: '/ControlOrganizacional', 
       name: 'control-organizacional',
       component: ControlOrganizacional
-    },
+  },
     {
       path: '/kpis/detalle/:id',
       name: 'detalles-kpi',
       component: DetallesKpis
-    },
+  },
+    {
+      path: '/FormularioDepartamento',
+      name: 'FormularioDepartamento',
+      component: FormularioDepartamento
+  },
     {
       path: '/kpis/nuevo', 
       name: 'nuevo-kpi',
       component: FormularioKpis
-    },
+  },
      {
       path: '/organizacion/nuevo',
       name: 'nuevo-usuario',
       component: FormularioUsuario
-    },
+  },
     {
       path: '/kpis',
       name: 'gestion-kpis',
       component: GestionKpis
-    },
+  },
     {
       path: '/',
       name: 'principal',
       component: PanelPrincipal
-    }, 
+  }, 
      {
-      path: '/personalizar',
-      name: 'personalizar',
-      component: PersonalizarPanel
-    },
+        path: '/personalizar',
+        name: 'personalizar',
+        component: PersonalizarPanel
+  },
     {
       path: '/registroMetricas',
       name: 'registroMetricas',
       component: RegistroMetricas
-    }
+  }
   ],
 })
 

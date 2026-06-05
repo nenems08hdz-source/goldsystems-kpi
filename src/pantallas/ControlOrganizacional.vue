@@ -365,7 +365,7 @@ const usuarios = ref([
     </div>
     
 
-    <div v-if="mostrarPanelKpis" class="fixed inset-0 bg-gray-900/30 backdrop-blur-sm z-40 flex justify-end" @click="mostrarPanelKpis = false">
+    <div v-if="mostrarPanelKpis" class="fixed inset-0 bg-gray-900/30 z-40 flex justify-end" @click="mostrarPanelKpis = false">
       <div class="bg-white w-full max-w-md h-full shadow-2xl border-l border-[#beaed8]/50 flex flex-col justify-between p-6 animate-slideLeft" @click.stop>
         
         <div>
@@ -416,7 +416,7 @@ const usuarios = ref([
       </div>
     </div>
 
-    <div v-if="mostrarPanelRol" class="fixed inset-0 bg-gray-900/30 backdrop-blur-sm z-50 flex justify-end" @click="mostrarPanelRol = false">
+    <div v-if="mostrarPanelRol" class="fixed inset-0 bg-gray-900/30 z-50 flex justify-end" @click="mostrarPanelRol = false">
   <div class="bg-white w-full max-w-sm h-full shadow-2xl border-l border-[#beaed8]/50 flex flex-col p-6 animate-slideLeft" @click.stop>
     
     <div class="flex justify-between items-start border-b border-gray-100 pb-4 mb-6">
@@ -436,7 +436,7 @@ const usuarios = ref([
 
          <div class="flex flex-col h-full p-6">
          <button 
-         @click="$router.push('/control'); mostrarPanelRol = false"
+         @click="$router.push('/ControlOrganizacional'); mostrarPanelRol = false"
           class="mt-auto w-full bg-[#3f2a52] hover:bg-[#77a9d4] text-white font-bold text-xs py-3 rounded-lg transition-all shadow-sm uppercase tracking-wider"
           >
           Guardar Cambios 

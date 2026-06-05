@@ -51,10 +51,10 @@ const departamentos = [
       </div>
 
       <div class="p-6 border-t border-[#beaed8]/20 bg-gray-50/50 flex justify-end gap-3">
-        <button @click="router.push('/control')" class="bg-white hover:bg-gray-100 text-gray-600 border border-gray-300 font-bold text-xs py-3 px-6 rounded-lg transition-all">
+        <button @click="router.push('/ControlOrganizacional')" class="bg-white hover:bg-gray-100 text-gray-600 border border-gray-300 font-bold text-xs py-3 px-6 rounded-lg transition-all">
           Cancelar
         </button>
-        <button @click="router.push('/control')" class="bg-[#3f2a52] hover:bg-[#77a9d4] text-white font-bold text-xs py-3 px-8 rounded-lg transition-all shadow-sm">
+        <button @click="router.push('/ControlOrganizacional')" class="bg-[#3f2a52] hover:bg-[#77a9d4] text-white font-bold text-xs py-3 px-8 rounded-lg transition-all shadow-sm">
           Guardar Colaborador
         </button>
       </div>

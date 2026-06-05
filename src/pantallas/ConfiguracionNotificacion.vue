@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { getCurrentInstance } from 'vue'
-import plantillatabla from '../components/plantillatabla.vue' 
+import plantillatabla from '../components/PlantillaTabla.vue' 
 import ModalConfirmacion from '../components/ModalConfirmacion.vue'
 
 const mensajeExito = ref(false)
