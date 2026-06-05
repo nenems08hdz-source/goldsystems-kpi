@@ -18,18 +18,48 @@ const is2FAEnabled = ref(false)
 const toggle2FA = () => { is2FAEnabled.value = !is2FAEnabled.value }
 
 const sesiones = ref([
-    { id: 1, dispositivo: 'MacBook Pro 16', ubicacion: 'CDMX, MX', tiempo: 'Ahora' },
-    { id: 2, dispositivo: 'Hp', ubicacion: 'Veracruz', tiempo: 'Hace 15 hrs' },
-    { id: 3, dispositivo: 'Lenovo', ubicacion: 'Oaxaca', tiempo: 'Hace 12 hrs' },
+    { 
+      id: 1,
+      dispositivo: 'MacBook Pro 16', 
+      ubicacion: 'CDMX, MX', 
+      tiempo: 'Ahora' 
+},
+    { 
+      id: 2, 
+      dispositivo: 'Hp', 
+      ubicacion: 'Veracruz', 
+      tiempo: 'Hace 15 hrs'
+},
+    { 
+      id: 3, 
+      dispositivo: 'Lenovo', 
+      ubicacion: 'Oaxaca', 
+      tiempo: 'Hace 12 hrs' 
+},
 ])
 const encabezadosSesiones = ['Dispositivo', 'Ubicación', 'Tiempo', 'Acción']
 
 const cerrarSesion = (id) => { sesiones.value = sesiones.value.filter(s => s.id !== id) }
 
 const registrosActividad = ref([
-    { id: 1, accion: 'Login exitoso', detalle: 'macOS (192.168.1.45)', hora: '14:22' },
-    { id: 2, accion: '2FA completada', detalle: 'SMS verificado', hora: '14:21' },
-    { id: 3, accion: 'Nueva clave', detalle: 'Contraseña actualizada', hora: 'Nov 28' }
+    { 
+      id: 1, 
+      accion: 'Login exitoso', 
+      detalle: 'macOS (192.168.1.45)', 
+      hora: '14:22' 
+},
+    { 
+      id: 2, 
+      accion: '2FA completada', 
+      detalle: 'SMS verificado', 
+      hora: '14:21' 
+},
+    { 
+      id: 3, 
+      accion: 'Nueva clave', 
+      detalle: 'Contraseña actualizada', 
+      hora: 'Nov 28' 
+}
 ])
 const encabezadosActividad = ['Acción', 'Detalle', 'Hora', 'Acción']
 
@@ -105,6 +135,7 @@ const guardarcambios = () => {
     </section>
 
     <section class="mb-6">
+      
       <plantillatabla titulo="Sesiones Activas" :encabezados="encabezadosSesiones" :datos="sesiones" icon="fi-sr-computer-speaker">
         <template #default="{ fila }">
           <td class="p-4"><p class="text-sm font-bold text-[#3f2a52]">{{ fila.dispositivo }}</p></td>

@@ -55,18 +55,12 @@ const kpis = ref(JSON.parse(JSON.stringify(kpisIniciales)))
 const frecuenciaSeleccionada = ref('Semanal')
 
 const { proxy } = getCurrentInstance() 
-
-// Dentro de tu <script setup> en AjustesPerfil.vue
 const guardarNotificacion = async () => {
   try {
-    // 1. Aquí va tu lógica para enviar datos al servidor
-    // await api.put('/perfil', datos.value);
-
-    // 2. DISPARA LA NOTIFICACIÓN CON EL MISMO DISEÑO
     proxy.$notify.success('Los cambios han sido guardados correctamente', 'Éxito');
-    
-  } catch (error) {
-    // 3. Si hay error, puedes usar el mismo estilo pero en rojo
+
+  } 
+    catch (error) {
     proxy.$notify.error('Hubo un error al guardar', 'Error');
   }
 }
@@ -74,6 +68,19 @@ const guardarNotificacion = async () => {
 const descartarCambios = () => {
   kpis.value = JSON.parse(JSON.stringify(kpisIniciales))
 }
+
+// Dentro de tu <script setup>
+const horarioSilencio = ref({
+    inicio: '22:00', // Formato 24h para el input type="time"
+    fin: '08:00'
+});
+
+const guardarcambios = () => {
+    // Aquí envías 'horarioSilencio' a tu base de datos o API
+    console.log("Nuevo horario guardado:", horarioSilencio.value);
+    proxy.$notify.success('Horario de silencio actualizado', 'Éxito');
+}
+
 </script>
 
 <template>
@@ -140,23 +147,38 @@ const descartarCambios = () => {
           </div>
         </section>
         
-        <section class="bg-[#3f2a52] text-white p-5 rounded-xl">
-         <h2 class="text-sm font-bold mb-4 flex items-center gap-2">
-         <i class="fi fi-sr-circle-xmark"></i> 
-         Silenciar Notificaciones
-        </h2>
+        
+       <section class="bg-[#3f2a52] text-white p-5 rounded-xl">
+       <h2 class="text-sm font-bold mb-4 flex items-center gap-2">
+          <i class="fi fi-sr-circle-xmark"></i> 
+            Silenciar Notificaciones
+         </h2>
 
-          <div class="flex gap-4 mb-3">
-            <div class="flex-1">
-              <label class="text-[10px] opacity-70 uppercase">Inicio</label>
-              <div class="bg-white/10 p-2 mt-1 rounded-lg text-sm">10:00 p. m.</div>
+        <div class="flex gap-4 mb-3">
+        <div class="flex-1">
+            <label class="text-[10px] opacity-70 uppercase">Inicio</label>
+            <input 
+               type="time" 
+               v-model="horarioSilencio.inicio"
+               class="w-full bg-white/10 p-2 mt-1 rounded-lg text-sm border-none focus:ring-2 focus:ring-white/30 outline-none transition-all"
+               />
+        </div>
+    
+      <div class="flex-1">
+           <label class="text-[10px] opacity-70 uppercase">Fin</label>
+           <input 
+                type="time" 
+                v-model="horarioSilencio.fin"
+                class="w-full bg-white/10 p-2 mt-1 rounded-lg text-sm border-none focus:ring-2 focus:ring-white/30 outline-none transition-all"
+               />
+         </div>
+       </div>
+
+        <p class="text-[10px] opacity-60">Solo alertas críticas durante este periodo.</p>
+            <div class="p-6 border-t border-gray-100 flex justify-end gap-3 mt-6">
+                <button class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-black text-xs font-bold rounded-xl transition-colors">Cancelar</button>
+                <button @click="guardarcambios" class="px-6 py-2.5 bg-[#3f2a52] hover:bg-[#beaed8] text-white text-xs font-bold rounded-xl shadow-md transition-all">Guardar Cambios</button>
             </div>
-            <div class="flex-1">
-              <label class="text-[10px] opacity-70 uppercase">Fin</label>
-              <div class="bg-white/10 p-2 mt-1 rounded-lg text-sm">08:00 a. m.</div>
-            </div>
-          </div>
-          <p class="text-[10px] opacity-60">Solo alertas críticas durante este periodo.</p>
         </section>
       </div>
     </div>
