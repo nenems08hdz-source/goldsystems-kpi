@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import plantillatabla from '../components/PlantillaTabla.vue/index.js' 
+import plantillatabla from '../components/PlantillaTabla.vue' 
 
 const encabezados = ['Indicador', 'Fecha', 'Valor', 'Acciones']
 const metricas = ref([

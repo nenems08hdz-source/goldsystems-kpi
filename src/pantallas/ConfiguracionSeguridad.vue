@@ -1,6 +1,6 @@
 <script setup>
 import { ref, getCurrentInstance } from 'vue'
-import plantillatabla from '../components/PlantillaTabla.vue/index.js'
+import plantillatabla from '../components/PlantillaTabla.vue'
 import ModalConfirmacion from '../components/ModalConfirmacion.vue'
 
 const { proxy } = getCurrentInstance()
