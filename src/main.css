@@ -1,12 +1,10 @@
 @import "tailwindcss";
 
 @theme {
-    /* Agregamos el símbolo # y quitamos la coma que sobraba al final */
     --color-kpi-morado: #beaed8;
     --color-kpi-azul: #77a9d4;
 }
 
-/* El resto de tu código de toastr está bien */
 #toast-container > div,
 #toast-container > .toast,
 .toast-success,
@@ -14,11 +12,11 @@
 .toast-info,
 .toast-warning {
     border-radius: 16px !important;
-    overflow: hidden !important; /* Asegúrate que este sea potente */
+    overflow: hidden !important;
 }
 
 .toast-progress {
     border-bottom-left-radius: 16px;
     border-bottom-right-radius: 16px;
 }
- 
+

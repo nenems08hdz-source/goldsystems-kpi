@@ -1,8 +1,10 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 import { useLayoutStore } from '@/stores/layout'
+import { usePanelStore } from '@/stores/panelStore' 
 
 const layout = useLayoutStore()
+const store = usePanelStore()  
 </script>
 
 <template>
@@ -57,6 +59,15 @@ const layout = useLayoutStore()
               <span v-if="layout.isSidebarOpen">Auditoría y Resumen</span>
             </RouterLink>
           </li>
+
+          <li v-if="store.usuarioActual.rol === 'developer'">
+          <RouterLink to="/GestionEmpresas" active-class="bg-[#beaed8] text-[#3f2a52]"
+            class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-200 hover:bg-[#beaed8] hover:text-[#3f2a52] transition-colors font-medium"
+            :class="{'justify-center': !layout.isSidebarOpen}">
+            <i class="fi fi-sr-globe w-5 text-center"></i>
+            <span v-if="layout.isSidebarOpen">Gestión de Empresas</span>
+          </RouterLink>
+        </li>
 
           <li>
             <RouterLink to="/ControlOrganizacional" active-class="bg-[#beaed8] text-[#3f2a52]" 

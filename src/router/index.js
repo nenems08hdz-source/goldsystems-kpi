@@ -7,8 +7,11 @@ import ConfiguracionSeguridad from '../pantallas/ConfiguracionSeguridad.vue'
 import ControlOrganizacional from '../pantallas/ControlOrganizacional.vue'
 import DetallesKpis from '../pantallas/DetallesKpis.vue'
 import FormularioDepartamento from '@/pantallas/FormularioDepartamento.vue'
+import FormularioEmpresa from '../pantallas/FormularioEmpresa.vue'
+import FormularioEquipo from '../pantallas/FormularioEquipo.vue'
 import FormularioKpis from '../pantallas/FormularioKpis.vue'
 import FormularioUsuario from '../pantallas/FormularioUsuario.vue'
+import GestionEmpresas from '../pantallas/GestionEmpresas.vue'
 import GestionKpis from '../pantallas/GestionKpis.vue'
 import PanelPrincipal from '../pantallas/PanelPrincipal.vue'
 import PersonalizarPanel from '../pantallas/PersonalizarPantalla.vue'
@@ -60,6 +63,16 @@ const router = createRouter({
       component: FormularioDepartamento
   },
     {
+      path: '/GestionEmpresas/nueva',
+      name: 'nueva-empresa',
+      component: FormularioEmpresa
+  },
+    {
+      path: '/FormularioEquipo',
+      name: 'FormularioEquipo',
+      component: FormularioEquipo
+  },
+    {
       path: '/kpis/nuevo', 
       name: 'nuevo-kpi',
       component: FormularioKpis
@@ -68,6 +81,11 @@ const router = createRouter({
       path: '/organizacion/nuevo',
       name: 'nuevo-usuario',
       component: FormularioUsuario
+  },
+    {
+      path: '/GestionEmpresas',
+      name: 'GestionEmpresas',
+      component: GestionEmpresas
   },
     {
       path: '/kpis',
