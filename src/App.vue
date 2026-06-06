@@ -8,7 +8,11 @@ const layout = useLayoutStore()
 </script>
 
 <template>
-  <div class="flex h-screen w-screen overflow-hidden bg-gray-50 text-gray-800">
+  <!-- transition-colors hace que el cambio de modo sea suave -->
+  <div 
+    class="flex h-screen w-screen overflow-hidden transition-colors duration-300"
+    style="background-color: var(--layout-bg); color: var(--layout-text);"
+  >
     
     <aside 
       :class="layout.isSidebarOpen ? 'w-64' : 'w-20'" 
@@ -32,7 +36,6 @@ const layout = useLayoutStore()
 </template>
 
 <style>
-
 .slide-fade-enter-active {
   transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
 }

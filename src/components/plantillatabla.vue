@@ -12,47 +12,45 @@ defineProps({
 </script>
 
 <template>
-  <div class="bg-white rounded-xl shadow-md border border-[#beaed8]/80 mt-6 overflow-hidden">
-    
-    <div class="p-4 bg-gray-50/50 border-b border-[#beaed8]/30">
-      <h2 class="text-xl font-bold text-gray-800 tracking-tight">
-         <i v-if="icon" :class="`fi ${icon}`"></i> 
+  <div class="rounded-xl shadow-md mt-6 overflow-hidden"
+    style="background: var(--tabla-bg); border: 1px solid var(--tabla-borde);">
+
+    <div class="p-4 border-b"
+      style="background: var(--tabla-header-bg); border-color: var(--tabla-borde);">
+      <h2 class="text-xl font-bold tracking-tight" style="color: var(--card-text);">
+        <i v-if="icon" :class="`fi ${icon}`"></i>
         {{ titulo }}
       </h2>
     </div>
-    
+
     <div class="overflow-x-auto max-h-[450px] overflow-y-auto">
-      <table class="w-full text-left border-collapse table-auto"> 
-        <thead class="bg-gray-50 border-b border-[#beaed8]/40">
-          <tr class="sticky top-0 bg-gray-50 z-10">
-            <th 
-              v-for="header in encabezados" 
-              :key="header" 
-              class="p-4 text-[11px] font-bold text-gray-500 uppercase tracking-wider"
-            >
+      <table class="w-full text-left border-collapse table-auto">
+        <thead style="background: var(--tabla-header-bg); border-bottom: 1px solid var(--tabla-borde);">
+          <tr class="sticky top-0 z-10" style="background: var(--tabla-header-bg);">
+            <th v-for="header in encabezados" :key="header"
+              class="p-4 text-[11px] font-bold uppercase tracking-wider"
+              style="color: var(--tabla-header-text);">
               {{ header }}
             </th>
-            <th 
-              v-if="mostrarAcciones" 
-              class="p-4 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-right pr-6 w-24"
-            >
+            <th v-if="mostrarAcciones"
+              class="p-4 text-[11px] font-bold uppercase tracking-wider text-right pr-6 w-24"
+              style="color: var(--tabla-header-text);">
               Acciones
             </th>
           </tr>
         </thead>
 
-        <tbody class="divide-y divide-[#beaed8]/20">
-          <tr 
-            v-for="(item, index) in datos" 
-            :key="index" 
-            class="hover:bg-[#3f2a52]/10 transition-colors duration-200"
-          >
+        <tbody>
+          <tr v-for="(item, index) in datos" :key="index"
+            class="transition-colors duration-200"
+            style="border-bottom: 1px solid var(--tabla-borde);"
+            @mouseover="$event.currentTarget.style.background = 'var(--tabla-hover)'"
+            @mouseleave="$event.currentTarget.style.background = 'transparent'">
             <slot :fila="item"></slot>
-
             <td v-if="mostrarAcciones" class="p-4 text-right align-middle pr-6 w-24">
               <div class="flex items-center justify-end gap-2">
                 <slot name="iconos-acciones" :item="item">
-                  <button class="text-gray-400 font-bold px-1">⋮</button>
+                  <button class="font-bold px-1" style="color: var(--card-text-muted);">⋮</button>
                 </slot>
               </div>
             </td>
@@ -60,6 +58,5 @@ defineProps({
         </tbody>
       </table>
     </div>
-
   </div>
 </template>

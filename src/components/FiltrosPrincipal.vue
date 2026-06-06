@@ -6,16 +6,20 @@ const departamentoSeleccionado = ref('')
 
 <template>
   <div class="flex items-center gap-4 transition-all duration-300">
-      <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Departamento:</label>
-      <select 
-        v-model="departamentoSeleccionado" 
-        class="bg-white text-gray-700 text-xs rounded-lg border border-slate-200 p-2 outline-none focus:border-[#77a9d4] cursor-pointer"
-      >
-        <option value="">Todos los departamentos</option>
-        <option value="finanzas">Tecnolgias</option>
-        <option value="operaciones">Operaciones</option>
-        <option value="operaciones">Calidad</option>
-        <option value="ventas">Finanzas</option>
-      </select>
-    </div>
+    <label class="text-[10px] font-bold uppercase tracking-wider"
+      style="color: var(--card-text-hint);">Departamento:</label>
+    <select v-model="departamentoSeleccionado"
+      class="text-xs rounded-lg p-2 outline-none cursor-pointer transition-colors"
+      style="
+        background: var(--input-bg);
+        color: var(--input-text);
+        border: 1px solid var(--input-border);
+      ">
+      <option value="">Todos los departamentos</option>
+      <option value="tecnologias">Tecnologías</option>
+      <option value="operaciones">Operaciones</option>
+      <option value="calidad">Calidad</option>
+      <option value="finanzas">Finanzas</option>
+    </select>
+  </div>
 </template>
