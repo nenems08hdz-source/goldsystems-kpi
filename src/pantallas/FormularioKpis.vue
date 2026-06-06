@@ -62,6 +62,7 @@ function guardarKpi() {
   proxy.$notify.success('KPI registrado correctamente', 'Éxito')
   router.push('/kpis')
 }
+
 </script>
 
 <template>
