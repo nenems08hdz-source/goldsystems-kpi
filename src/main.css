@@ -1,12 +1,10 @@
 @import "tailwindcss";
 
 @theme {
-    /* Agregamos el símbolo # y quitamos la coma que sobraba al final */
     --color-kpi-morado: #beaed8;
     --color-kpi-azul: #77a9d4;
 }
 
-/* El resto de tu código de toastr está bien */
 #toast-container > div,
 #toast-container > .toast,
 .toast-success,
@@ -14,11 +12,91 @@
 .toast-info,
 .toast-warning {
     border-radius: 16px !important;
-    overflow: hidden !important; /* Asegúrate que este sea potente */
+    overflow: hidden !important;
 }
 
 .toast-progress {
     border-bottom-left-radius: 16px;
     border-bottom-right-radius: 16px;
 }
+/* ── MODO CLARO (por defecto) ── */
+:root {
+  /* Colores de marca */
+  --color-primario: #3f2a52;
+  --color-primario-hover: #2c1d3a;
+  --color-acento: #beaed8;
+  --color-acento-suave: #beaed8/20;
+
+  /* Fondos */
+  --color-fondo-app: #f8fafc;
+  --color-fondo-tarjeta: #ffffff;
+  --color-fondo-sidebar: #3f2a52;
+  --color-fondo-input: #ffffff;
+  --color-fondo-tabla-header: #f9fafb;
+  --color-fondo-hover: #f1f5f9;
+
+  /* Textos */
+  --color-texto-principal: #1e293b;
+  --color-texto-secundario: #64748b;
+  --color-texto-suave: #94a3b8;
+
+  /* Bordes */
+  --color-borde: #e2e8f0;
+  --color-borde-acento: rgba(190, 174, 216, 0.5);
+
+  /* Sombras */
+  --sombra-tarjeta: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* ── MODO OSCURO ── */
+html.dark {
+  /* Colores de marca — el morado se aclara un poco para verse bien en oscuro */
+  --color-primario: #9b7ec8;
+  --color-primario-hover: #b39ad6;
+  --color-acento: #9b7ec8;
+
+  /* Fondos */
+  --color-fondo-app: #0f172a;
+  --color-fondo-tarjeta: #1e293b;
+  --color-fondo-sidebar: #0f172a;
+  --color-fondo-input: #1e293b;
+  --color-fondo-tabla-header: #1e293b;
+  --color-fondo-hover: #334155;
+
+  /* Textos */
+  --color-texto-principal: #f1f5f9;
+  --color-texto-secundario: #94a3b8;
+  --color-texto-suave: #64748b;
+
+  /* Bordes */
+  --color-borde: #334155;
+  --color-borde-acento: rgba(155, 126, 200, 0.3);
+
+  /* Sombras */
+  --sombra-tarjeta: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+/* ── CLASES UTILITARIAS que usan las variables ── */
+/* Estas son las clases que reemplazarán tus colores hardcodeados */
+
+.app-bg        { background-color: var(--color-fondo-app); }
+.card-bg       { background-color: var(--color-fondo-tarjeta); }
+.sidebar-bg    { background-color: var(--color-fondo-sidebar); }
+.input-bg      { background-color: var(--color-fondo-input); }
+.hover-bg:hover { background-color: var(--color-fondo-hover); }
+
+.text-main     { color: var(--color-texto-principal); }
+.text-sub      { color: var(--color-texto-secundario); }
+.text-soft     { color: var(--color-texto-suave); }
+
+.border-theme  { border-color: var(--color-borde); }
+.border-accent { border-color: var(--color-borde-acento); }
+
+.shadow-theme  { box-shadow: var(--sombra-tarjeta); }
+
+/* Transición suave al cambiar de modo */
+* {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
  

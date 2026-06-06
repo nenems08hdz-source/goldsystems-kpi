@@ -263,7 +263,7 @@ const usuarioActual = ref({
   id: 1,
   nombre: 'Admin Demo',
   email: 'admin@kpi360.com',
-  rol: 'admin',       // ← cambia esto para simular roles
+  rol: 'developer',       // ← cambia esto para simular roles
   empresa_id: 1,
 })
 

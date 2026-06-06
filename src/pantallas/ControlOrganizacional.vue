@@ -136,6 +136,26 @@ function contarUsuarios(nodo) {
   }
   return store.usuarios.length
 }
+
+// Elimina un nodo del árbol (departamento o equipo)
+// También elimina todos sus hijos para no dejar nodos huérfanos
+function eliminarNodo(nodo) {
+  // Primero recogemos los IDs de los hijos directos
+  const hijosIds = store.estructuraOrganizacional
+    .filter(n => n.padre_id === nodo.id)
+    .map(n => n.id)
+
+  // Eliminamos el nodo y todos sus hijos en un solo filter
+  store.estructuraOrganizacional = store.estructuraOrganizacional
+    .filter(n => n.id !== nodo.id && !hijosIds.includes(n.id))
+
+  // Si el nodo eliminado era el seleccionado, limpiamos la selección
+  if (nodoSeleccionado.value?.id === nodo.id) {
+    nodoSeleccionado.value = null
+  }
+
+  proxy.$notify.success(`${nodo.nombre} eliminado correctamente`, 'Éxito')
+}
 </script>
 
 <template>
@@ -225,77 +245,87 @@ function contarUsuarios(nodo) {
         </div>
 
         <div class="p-3 flex flex-col gap-1 max-h-[420px] overflow-y-auto">
-          <div
-            v-for="nodo in store.estructuraOrganizacional"
-            :key="nodo.id"
-            :style="{ paddingLeft: (nodo.nivel * 16) + 'px' }"
-            @click="nodo.tipo !== 'empresa' && seleccionarNodo(nodo)"
-            class="group flex items-center justify-between p-2.5 rounded-xl transition-all duration-200 relative"
-            :class="[
-              nodo.tipo === 'empresa'
-                ? 'cursor-default'
-                : 'cursor-pointer hover:bg-gray-50',
-              nodoSeleccionado?.id === nodo.id
-                ? 'bg-[#3f2a52]/5 ring-1 ring-[#3f2a52]/20'
-                : ''
-            ]"
-          >
-            <!--
-              Barra izquierda que aparece en el nodo seleccionado
-              Es el mismo efecto que tenías antes
-            -->
-            <div
-              v-if="nodoSeleccionado?.id === nodo.id"
-              class="absolute left-0 top-2 bottom-2 w-1 bg-[#3f2a52] rounded-r-md"
-            ></div>
+  <div
+    v-for="nodo in store.estructuraOrganizacional"
+    :key="nodo.id"
+    :style="{ paddingLeft: (nodo.nivel * 20) + 'px' }"
+    class="group flex items-center justify-between p-2.5 rounded-xl transition-all duration-200 relative"
+    :class="[
+      nodo.tipo !== 'empresa' ? 'cursor-pointer hover:bg-gray-50' : 'cursor-default',
+      nodoSeleccionado?.id === nodo.id ? 'bg-[#3f2a52]/5 ring-1 ring-[#3f2a52]/20' : ''
+    ]"
+    @click="nodo.tipo !== 'empresa' && seleccionarNodo(nodo)"
+  >
+    <div
+      v-if="nodoSeleccionado?.id === nodo.id"
+      class="absolute left-0 top-2 bottom-2 w-1 bg-[#3f2a52] rounded-r-md"
+    ></div>
 
-            <div class="flex items-center gap-2 text-xs">
-              <span>{{ iconoNodo(nodo) }}</span>
-              <div class="flex flex-col">
-                <span
-                  class="font-semibold tracking-wide"
-                  :class="nodo.tipo === 'empresa'
-                    ? 'text-[#3f2a52] font-bold text-sm'
-                    : nodoSeleccionado?.id === nodo.id
-                      ? 'text-[#3f2a52]'
-                      : 'text-gray-700'"
-                >
-                  {{ nodo.nombre }}
-                </span>
-                <!--
-                  Subtítulo con el responsable o líder del nodo
-                -->
-                <span v-if="nodo.responsable || nodo.lider" class="text-[9px] text-gray-400">
-                  {{ nodo.tipo === 'equipo' ? 'Líder:' : 'Resp:' }}
-                  {{ nodo.responsable ?? nodo.lider }}
-                </span>
-              </div>
-            </div>
+    <div class="flex items-center gap-2.5 text-xs">
+      <span v-if="nodo.nivel === 0" class="text-sm">
+        <i class="fi fi-sr-globe text-[#beaed8]"></i>
+      </span>
+      <span v-else-if="nodo.nivel === 1" class="text-[#77a9d4]">
+        <i class="fi fi-sr-bullet"></i>
+      </span>
+      <span v-else class="text-gray-300 text-[10px] font-bold">└─</span>
 
-            <!--
-              Badge con el conteo de usuarios de ese nodo.
-              Solo aparece en departamentos y equipos.
-            -->
-            <span
-              v-if="nodo.tipo !== 'empresa'"
-              class="text-[9px] px-2 py-0.5 rounded-md font-black tracking-wider flex-shrink-0"
-              :class="nodoSeleccionado?.id === nodo.id
-                ? 'bg-[#3f2a52] text-white'
-                : 'bg-gray-100 text-gray-500'"
-            >
-              {{ contarUsuarios(nodo) }} usuarios
-            </span>
-          </div>
-        </div>
+      <div class="flex flex-col">
+        <span
+          class="tracking-wide"
+          :class="[
+            nodo.nivel === 0 ? 'text-[#3f2a52] font-bold text-sm'
+              : nodo.nivel === 1 ? 'text-gray-700 font-semibold'
+              : 'text-gray-500 font-medium',
+            nodoSeleccionado?.id === nodo.id ? 'text-[#3f2a52]' : ''
+          ]"
+        >
+          {{ nodo.nombre }}
+        </span>
+        <span v-if="nodo.responsable || nodo.lider" class="text-[9px] text-gray-400">
+          {{ nodo.tipo === 'equipo' ? 'Líder:' : 'Resp:' }}
+          {{ nodo.responsable ?? nodo.lider }}
+        </span>
+      </div>
+    </div>
 
-        <div class="p-3 border-t border-[#beaed8]/20">
-          <button
-            @click="$router.push('/FormularioDepartamento')"
-            class="w-full bg-white hover:bg-gray-50 text-[#3f2a52] border border-[#beaed8]/80 text-[10px] font-bold uppercase tracking-wider py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all"
-          >
-            <span class="text-xs text-[#beaed8]">+</span> Añadir Departamento
-          </button>
-        </div>
+    <div class="flex items-center gap-1.5 flex-shrink-0">
+      <span
+        v-if="nodo.tipo !== 'empresa'"
+        class="text-[9px] px-2 py-0.5 rounded-md font-black tracking-wider"
+        :class="nodoSeleccionado?.id === nodo.id
+          ? 'bg-[#3f2a52] text-white'
+          : 'bg-gray-100 text-gray-500'"
+      >
+        {{ contarUsuarios(nodo) }}
+      </span>
+      <button
+        v-if="nodo.tipo !== 'empresa'"
+        @click.stop="eliminarNodo(nodo)"
+        title="Eliminar"
+        class="opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-500 hover:bg-red-50 p-1 rounded-lg transition-all text-xs"
+      >
+        <i class="fi fi-sr-trash"></i>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+       <div class="p-3 border-t border-[#beaed8]/20 flex gap-2">
+  <button
+    @click="$router.push('/FormularioDepartamento')"
+    class="flex-1 bg-white hover:bg-gray-50 text-[#3f2a52] border border-[#beaed8]/80 text-[10px] font-bold uppercase tracking-wider py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all"
+  >
+    <span class="text-[#beaed8]">+</span> Departamento
+  </button>
+  <button
+    @click="$router.push('/FormularioEquipo')"
+    class="flex-1 bg-white hover:bg-gray-50 text-[#3f2a52] border border-[#beaed8]/80 text-[10px] font-bold uppercase tracking-wider py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all"
+  >
+    <span class="text-[#beaed8]">+</span> Equipo
+  </button>
+</div>
 
       </div>
 

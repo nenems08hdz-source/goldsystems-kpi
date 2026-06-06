@@ -8,30 +8,33 @@ const router = useRouter()
 const store = usePanelStore()
 const { proxy } = getCurrentInstance()
 
-const nuevoDepartamento = ref({
+const nuevoEquipo = ref({
   nombre: '',
-  responsable: '',
+  lider: '',
+  departamento_id: null,
   descripcion: '',
 })
 
-function guardarDepartamento() {
-  // Construimos el nodo compatible con estructuraOrganizacional
+// Solo los departamentos del árbol para elegir a cuál pertenece el equipo
+const departamentosDisponibles = store.estructuraOrganizacional
+  .filter(n => n.tipo === 'departamento')
+
+function guardarEquipo() {
   const nodoNuevo = {
-    // ID temporal — el backend lo asignará después
     id: store.estructuraOrganizacional.length + 10,
-    nombre: nuevoDepartamento.value.nombre,
-    tipo: 'departamento',
-    nivel: 1,              // nivel 1 = departamento directo de la empresa
-    padre_id: 1,           // por ahora siempre hijo de la empresa raíz
+    nombre: nuevoEquipo.value.nombre,
+    tipo: 'equipo',
+    nivel: 2,   // nivel 2 = equipo dentro de un departamento
+    padre_id: nuevoEquipo.value.departamento_id
+      ? Number(nuevoEquipo.value.departamento_id)
+      : null,
     abierto: false,
-    responsable: nuevoDepartamento.value.responsable || null,
+    lider: nuevoEquipo.value.lider || null,
   }
 
-  // Agregamos al árbol del store
-  // La lista en ControlOrganizacional se actualiza sola
   store.estructuraOrganizacional.push(nodoNuevo)
 
-  proxy.$notify.success('Departamento registrado correctamente', 'Éxito')
+  proxy.$notify.success('Equipo registrado correctamente', 'Éxito')
   router.push('/ControlOrganizacional')
 }
 </script>
@@ -41,8 +44,8 @@ function guardarDepartamento() {
 
     <div class="mb-6 flex justify-between items-center">
       <div>
-        <h1 class="text-4xl font-bold text-[#3f2a52] tracking-tight">Nuevo Departamento</h1>
-        <p class="text-xs text-gray-500 mt-1">Registra una nueva área organizativa dentro de la empresa.</p>
+        <h1 class="text-4xl font-bold text-[#3f2a52] tracking-tight">Nuevo Equipo</h1>
+        <p class="text-xs text-gray-500 mt-1">Registra un equipo de trabajo dentro de un departamento.</p>
       </div>
       <button
         @click="router.push('/ControlOrganizacional')"
@@ -54,46 +57,65 @@ function guardarDepartamento() {
     </div>
 
     <form
-      @submit.prevent="guardarDepartamento"
+      @submit.prevent="guardarEquipo"
       class="w-full max-w-2xl bg-white rounded-xl shadow-md border border-[#beaed8]/50 overflow-hidden"
     >
 
       <div class="p-4 bg-gray-50/50 border-b border-[#beaed8]/30">
-        <h2 class="text-sm font-bold text-gray-700 uppercase tracking-wider">Información del Departamento</h2>
+        <h2 class="text-sm font-bold text-gray-700 uppercase tracking-wider">Información del Equipo</h2>
       </div>
 
       <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
 
-        <!-- Nombre -->
+        <!-- Nombre del equipo -->
         <div class="flex flex-col gap-1.5">
-          <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Nombre del Departamento *</label>
+          <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Nombre del Equipo *</label>
           <input
-            v-model="nuevoDepartamento.nombre"
+            v-model="nuevoEquipo.nombre"
             type="text"
-            placeholder="Ej. Recursos Humanos"
+            placeholder="Ej. Equipo Backend"
             required
             class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 transition-colors"
           />
         </div>
 
-        <!-- Responsable -->
+        <!-- Líder del equipo -->
         <div class="flex flex-col gap-1.5">
-          <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Responsable</label>
+          <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Líder del Equipo</label>
           <input
-            v-model="nuevoDepartamento.responsable"
+            v-model="nuevoEquipo.lider"
             type="text"
-            placeholder="Ej. Ana López"
+            placeholder="Ej. Carlos Méndez"
             class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 transition-colors"
           />
+        </div>
+
+        <!-- Departamento al que pertenece -->
+        <div class="flex flex-col gap-1.5 md:col-span-2">
+          <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Departamento *</label>
+          <select
+            v-model="nuevoEquipo.departamento_id"
+            required
+            class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] cursor-pointer transition-colors"
+          >
+            <option :value="null" disabled>Selecciona el departamento</option>
+            <option
+              v-for="dept in departamentosDisponibles"
+              :key="dept.id"
+              :value="dept.id"
+            >
+              {{ dept.nombre }}
+            </option>
+          </select>
         </div>
 
         <!-- Descripción -->
         <div class="flex flex-col gap-1.5 md:col-span-2">
           <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Descripción</label>
           <textarea
-            v-model="nuevoDepartamento.descripcion"
+            v-model="nuevoEquipo.descripcion"
             rows="3"
-            placeholder="Describe las funciones principales del área..."
+            placeholder="Describe las responsabilidades del equipo..."
             class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 resize-none transition-colors"
           ></textarea>
         </div>
@@ -112,7 +134,7 @@ function guardarDepartamento() {
           type="submit"
           class="bg-[#3f2a52] hover:bg-[#beaed8] text-white font-bold text-xs py-3 px-8 rounded-lg transition-all shadow-sm"
         >
-          Guardar Departamento
+          Guardar Equipo
         </button>
       </div>
 
