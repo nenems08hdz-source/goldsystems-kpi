@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { getCurrentInstance } from 'vue'
 import { usePanelStore } from '../stores/panelStore'
@@ -7,68 +7,26 @@ import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
 import ModalConfirmacion from '../components/ModalConfirmacion.vue'
 
 const router = useRouter()
-const store = usePanelStore()
+const store  = usePanelStore()
 const { proxy } = getCurrentInstance()
 
-// Lista simulada de empresas registradas en el sistema
-// Cuando llegue el backend, esto vendrá de una llamada a la API
-const empresas = ref([
-  {
-    id: 1,
-    nombre: 'KPI360 Corp',
-    razonSocial: 'KPI360 Corporation S.A. de C.V.',
-    rfc: 'KPI2024010101',
-    email: 'contacto@kpi360.com',
-    telefono: '+52 999 000 0001',
-    estado: 'activo',
-    plan: 'Enterprise',
-    usuarios: 8,
-    kpis: 8,
-    fechaRegistro: '2024-01-15',
-  },
-  {
-    id: 2,
-    nombre: 'TechSol SA',
-    razonSocial: 'TechSol Soluciones S.A.',
-    rfc: 'TSO2023050202',
-    email: 'admin@techsol.com',
-    telefono: '+52 55 000 0002',
-    estado: 'activo',
-    plan: 'Pro',
-    usuarios: 15,
-    kpis: 22,
-    fechaRegistro: '2024-03-10',
-  },
-  {
-    id: 3,
-    nombre: 'Infranet',
-    razonSocial: 'Infranet Servicios S.C.',
-    rfc: 'INF2022080303',
-    email: 'sistemas@infranet.mx',
-    telefono: '+52 81 000 0003',
-    estado: 'inactivo',
-    plan: 'Básico',
-    usuarios: 3,
-    kpis: 5,
-    fechaRegistro: '2023-08-22',
-  },
-])
-
-// Filtros
+// ── FILTROS ─────
 const filtroBusqueda = ref('')
-const filtroEstado = ref('')
-const filtroPlan = ref('')
+const filtroEstado   = ref('')
 
-const empresasFiltradas = empresas.value.filter(e => {
-  const pasaBusqueda = filtroBusqueda.value === '' ||
-    e.nombre.toLowerCase().includes(filtroBusqueda.value.toLowerCase())
-  const pasaEstado = filtroEstado.value === '' || e.estado === filtroEstado.value
-  const pasaPlan = filtroPlan.value === '' || e.plan === filtroPlan.value
-  return pasaBusqueda && pasaEstado && pasaPlan
-})
+const empresasFiltradas = computed(() =>
+  store.empresas.filter(e => {
+    const textoBusqueda = filtroBusqueda.value.toLowerCase()
+    const pasaBusqueda  = textoBusqueda === '' ||
+      e.nombre.toLowerCase().includes(textoBusqueda) ||
+      e.razonSocial.toLowerCase().includes(textoBusqueda)
+    const pasaEstado = filtroEstado.value === '' || e.estado === filtroEstado.value
+    return pasaBusqueda && pasaEstado
+  })
+)
 
-// Modal de eliminación
-const showModal = ref(false)
+// ── MODAL DE ELIMINACIÓN ─────
+const showModal        = ref(false)
 const empresaAEliminar = ref(null)
 
 function confirmarEliminacion(empresa) {
@@ -77,15 +35,16 @@ function confirmarEliminacion(empresa) {
 }
 
 function ejecutarEliminacion() {
-  const index = empresas.value.findIndex(e => e.id === empresaAEliminar.value.id)
-  if (index !== -1) empresas.value.splice(index, 1)
+  const index = store.empresas.findIndex(e => e.id === empresaAEliminar.value.id)
+  if (index !== -1) store.empresas.splice(index, 1)
   proxy.$notify.success('Empresa eliminada correctamente', 'Éxito')
   showModal.value = false
 }
 
+// ── HELPERS DE ESTILO ────────
 function colorPlan(plan) {
   if (plan === 'Enterprise') return 'bg-violet-100 text-violet-700 border-violet-200'
-  if (plan === 'Pro') return 'bg-blue-100 text-blue-700 border-blue-200'
+  if (plan === 'Pro')        return 'bg-blue-100 text-blue-700 border-blue-200'
   return 'bg-gray-100 text-gray-600 border-gray-200'
 }
 </script>
@@ -98,25 +57,14 @@ function colorPlan(plan) {
       descripcion="Panel exclusivo del Developer. Administra todas las empresas registradas en el sistema."
     />
 
-    <!-- Aviso visual de que es una vista de Developer -->
-    <div class="flex items-center gap-3 bg-violet-50 border border-violet-200 rounded-xl px-4 py-3 mt-4 mb-6">
-      <span class="text-violet-500 text-lg">🛡️</span>
-      <div>
-        <p class="text-xs font-bold text-violet-700 uppercase tracking-wider">Vista exclusiva — Developer</p>
-        <p class="text-[11px] text-violet-500 mt-0.5">Solo los usuarios con rol Developer pueden acceder a esta pantalla.</p>
-      </div>
-    </div>
-
-    <!-- Filtros -->
-    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 p-5 bg-white rounded-xl shadow-md border border-[#beaed8]/90 mb-6">
-
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 p-5 bg-white rounded-xl shadow-md border border-[#beaed8]/90 mt-6 mb-6">
       <div class="flex flex-col gap-1.5 sm:col-span-2">
         <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Buscar empresa</label>
         <input
           v-model="filtroBusqueda"
           type="text"
-          placeholder="Nombre de la empresa..."
-          class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] transition-colors"
+          placeholder="Nombre o razón social..."
+          class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 transition-colors"
         />
       </div>
 
@@ -124,132 +72,121 @@ function colorPlan(plan) {
         <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Estado</label>
         <select
           v-model="filtroEstado"
-          class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] cursor-pointer transition-colors"
+          class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 cursor-pointer transition-colors"
         >
-          <option value="">Todos</option>
-          <option value="activo">Activa</option>
-          <option value="inactivo">Inactiva</option>
+          <option value="">Todas</option>
+          <option value="activo">Solo activas</option>
+          <option value="inactivo">Solo inactivas</option>
         </select>
       </div>
 
-      <div class="flex flex-col gap-1.5">
-        <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Plan</label>
-        <select
-          v-model="filtroPlan"
-          class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] cursor-pointer transition-colors"
-        >
-          <option value="">Todos</option>
-          <option value="Enterprise">Enterprise</option>
-          <option value="Pro">Pro</option>
-          <option value="Básico">Básico</option>
-        </select>
+      <div class="flex items-end pb-0.5">
+        <p class="text-xs text-gray-400">
+          <strong class="text-gray-600">{{ empresasFiltradas.length }}</strong>
+          de {{ store.empresas.length }} empresas
+        </p>
       </div>
-
     </div>
 
-    <!-- Tarjetas de empresas -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
       <div
-        v-for="empresa in empresas"
+        v-for="empresa in empresasFiltradas"
         :key="empresa.id"
-        class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all overflow-hidden"
+        class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col"
       >
-        <!-- Cabecera de la tarjeta -->
         <div class="p-4 border-b border-gray-100 flex justify-between items-start">
           <div>
             <h3 class="text-sm font-bold text-gray-800">{{ empresa.nombre }}</h3>
             <p class="text-[10px] text-gray-400 mt-0.5">{{ empresa.razonSocial }}</p>
           </div>
-          <div class="flex flex-col items-end gap-1">
-            <!-- Badge del plan -->
+          <div class="flex flex-col items-end gap-1.5">
             <span
               class="text-[10px] font-bold px-2 py-0.5 rounded border uppercase tracking-wide"
               :class="colorPlan(empresa.plan)"
             >
               {{ empresa.plan }}
             </span>
-            <!-- Estado activo/inactivo -->
             <span
               class="text-[9px] font-bold uppercase tracking-wider inline-flex items-center gap-1"
               :class="empresa.estado === 'activo' ? 'text-emerald-500' : 'text-gray-400'"
             >
-              <span class="w-1.5 h-1.5 rounded-full" :class="empresa.estado === 'activo' ? 'bg-emerald-500' : 'bg-gray-300'"></span>
+              <span
+                class="w-1.5 h-1.5 rounded-full"
+                :class="empresa.estado === 'activo' ? 'bg-emerald-500 animate-pulse' : 'bg-gray-300'"
+              ></span>
               {{ empresa.estado }}
             </span>
           </div>
         </div>
 
-        <!-- Datos de la empresa -->
-        <div class="p-4 flex flex-col gap-2">
-          <div class="flex justify-between text-[11px]">
-            <span class="text-gray-400">RFC</span>
-            <span class="font-semibold text-gray-700">{{ empresa.rfc }}</span>
+        <!-- Cuerpo: datos de contacto -->
+        <div class="p-4 space-y-1.5 flex-grow">
+          <p class="text-[11px] text-gray-500 flex items-center gap-2">
+            <i class="fi fi-sr-envelope text-gray-300 text-[10px]"></i>
+            {{ empresa.email }}
+          </p>
+          <p class="text-[11px] text-gray-500 flex items-center gap-2">
+            <i class="fi fi-sr-phone-call text-gray-300 text-[10px]"></i>
+            {{ empresa.telefono || '—' }}
+          </p>
+          <p class="text-[11px] text-gray-500 flex items-center gap-2">
+            <i class="fi fi-sr-id-card text-gray-300 text-[10px]"></i>
+            RFC: {{ empresa.rfc }}
+          </p>
+        </div>
+
+        <!-- Estadísticas: usuarios y KPIs -->
+        <div class="px-4 py-3 bg-gray-50/60 border-t border-gray-100 flex items-center gap-4">
+          <div class="text-center">
+            <p class="text-base font-black text-[#3f2a52]">{{ empresa.usuarios }}</p>
+            <p class="text-[9px] text-gray-400 uppercase tracking-wide">Usuarios</p>
           </div>
-          <div class="flex justify-between text-[11px]">
-            <span class="text-gray-400">Email</span>
-            <span class="font-semibold text-gray-700">{{ empresa.email }}</span>
+          <div class="text-center">
+            <p class="text-base font-black text-[#3f2a52]">{{ empresa.kpis }}</p>
+            <p class="text-[9px] text-gray-400 uppercase tracking-wide">KPIs</p>
           </div>
-          <div class="flex justify-between text-[11px]">
-            <span class="text-gray-400">Usuarios</span>
-            <span class="font-semibold text-gray-700">{{ empresa.usuarios }}</span>
-          </div>
-          <div class="flex justify-between text-[11px]">
-            <span class="text-gray-400">KPIs registrados</span>
-            <span class="font-semibold text-gray-700">{{ empresa.kpis }}</span>
-          </div>
-          <div class="flex justify-between text-[11px]">
-            <span class="text-gray-400">Fecha de registro</span>
-            <span class="font-semibold text-gray-700">{{ empresa.fechaRegistro }}</span>
+          <div class="text-center">
+            <p class="text-[10px] font-bold text-gray-500">{{ empresa.fechaRegistro }}</p>
+            <p class="text-[9px] text-gray-400 uppercase tracking-wide">Registro</p>
           </div>
         </div>
 
-        <!-- Acciones -->
-        <div class="p-3 border-t border-gray-100 flex gap-2">
-          <!--
-            "Entrar" simula que el Developer entra a gestionar
-            esa empresa específica. Lleva al ControlOrganizacional
-            que muestra los datos de esa empresa.
-            Cuando llegue el backend, aquí se pasaría el empresa_id
-            para que el store cargue los datos correctos.
-          -->
-          <button
-            @click="router.push('/ControlOrganizacional')"
-            class="flex-1 bg-[#3f2a52] hover:bg-[#beaed8] text-white text-[10px] font-bold py-2 rounded-lg transition-all uppercase tracking-wider"
-          >
-            Entrar
-          </button>
-          <button
-            @click="router.push('/GestionEmpresas/editar')"
-            class="px-3 py-2 border border-gray-200 text-gray-400 hover:text-[#3f2a52] hover:border-[#3f2a52] rounded-lg transition-all text-sm"
-            title="Editar empresa"
-          >
-            <i class="fi fi-sr-pencil"></i>
-          </button>
+        <div class="px-4 py-3 border-t border-gray-100 flex items-center justify-end gap-2">
           <button
             @click="confirmarEliminacion(empresa)"
-            class="px-3 py-2 border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 rounded-lg transition-all text-sm"
             title="Eliminar empresa"
+            class="text-gray-400 hover:text-red-500 bg-gray-50 hover:bg-red-50 p-1.5 rounded-lg transition-colors text-sm"
           >
             <i class="fi fi-sr-trash"></i>
           </button>
         </div>
       </div>
 
-      <!-- Tarjeta para agregar nueva empresa -->
       <button
         @click="router.push('/GestionEmpresas/nueva')"
         class="bg-white rounded-xl border-2 border-dashed border-[#beaed8] hover:border-[#3f2a52] hover:bg-purple-50/30 transition-all flex flex-col items-center justify-center gap-2 p-8 text-center min-h-[200px]"
       >
         <span class="text-3xl text-[#beaed8]">+</span>
         <p class="text-xs font-bold text-[#3f2a52] uppercase tracking-wider">Registrar Nueva Empresa</p>
-        <p class="text-[10px] text-gray-400">Añade una empresa al sistema</p>
+        <p class="text-[10px] text-gray-400">Agregar al sistema</p>
       </button>
+
+    </div>
+
+    <div
+      v-if="empresasFiltradas.length === 0 && store.empresas.length > 0"
+      class="bg-amber-50 border border-amber-200 rounded-xl p-6 text-center mb-6"
+    >
+      <p class="text-sm font-bold text-amber-700">Sin resultados</p>
+      <p class="text-xs text-amber-600 mt-1">
+        Ninguna empresa coincide con los filtros aplicados.
+      </p>
     </div>
 
     <ModalConfirmacion
       :isOpen="showModal"
-      titulo="¿Eliminar empresa?"
-      mensaje="Esta acción eliminará la empresa y todos sus datos permanentemente."
+      titulo="¿Estás seguro?"
+      mensaje="Esta acción eliminará la empresa permanentemente del sistema."
       @confirmar="ejecutarEliminacion"
       @cancelar="showModal = false"
     />

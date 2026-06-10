@@ -5,6 +5,18 @@ const handleLogin = () => {
 </script>
 
 <template>
+  <div class="absolute top-8 left-8 flex items-center gap-3 z-50">
+  <div class="w-10 h-10 bg-[#3f2a52] text-white rounded-xl flex items-center justify-center text-xl shadow-md border border-white/10">
+    <i class="fi fi-sr-speedometer-kpi"></i>
+  </div>
+  
+  <div class="flex flex-col text-left">
+    <span class="text-white font-black tracking-tight text-lg leading-none">
+      KPI360 <span class="text-gray-400 font-medium text-xs block mt-0.5 tracking-wider uppercase">Enterprise</span>
+    </span>
+  </div>
+</div>
+
   <div class="login-page">
     <div class="main-container">
       <div class="welcome-side">
@@ -37,6 +49,9 @@ const handleLogin = () => {
       </div>
     </div>
   </div>
+   <div class="absolute bottom-8 left-8 text-[11px] text-white font-medium tracking-wider uppercase opacity-60 z-50">
+  v1.0.0
+</div>
 </template>
 
 <style scoped>

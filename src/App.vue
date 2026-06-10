@@ -4,6 +4,13 @@ import { useLayoutStore } from '@/stores/layout'
 import sidebar from './components/Sidebar.vue'
 import navbar from './components/Navbar.vue'
 
+import { onMounted } from 'vue';
+
+onMounted(() => {
+  // Esto agrega la clase .dark al body apenas carga la app
+  document.documentElement.classList.add('dark');
+});
+
 const layout = useLayoutStore()
 const route = useRoute()
 </script>
