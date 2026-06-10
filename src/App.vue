@@ -25,11 +25,7 @@ const layout = useLayoutStore()
       <navbar />
 
       <main class="flex-1 p-8 overflow-y-auto">
-        <RouterView v-slot="{ Component }">
-          <transition name="slide-fade" mode="out-in">
-            <component :is="Component" />
-          </transition>
-        </RouterView>
+      <RouterView />
       </main>
     </div>
   </div>

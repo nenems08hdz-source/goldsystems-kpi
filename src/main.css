@@ -1,101 +1,141 @@
 @import "tailwindcss";
+/* main.css */
 
-/* =============================================
-   VARIABLES DE COLOR — MODO CLARO (default)
-   Estas variables se aplican cuando NO hay 
-   clase "dark" en el elemento <html>
-   ============================================= */
+.apexcharts-canvas {
+  transition: opacity 0.2s ease;
+}
+
+/* MODO CLARO */
+
 :root {
+
+  
   /* Sidebar */
   --sidebar-bg:        #3f2a52;
-  --sidebar-text:      #e2e8f0;   /* slate-200 */
+  --sidebar-text:      #e2e8f0;   
   --sidebar-active-bg: #beaed8;
   --sidebar-active-text: #3f2a52;
   --sidebar-hover-bg:  #beaed8;
-  --sidebar-hover-text: #3f2a52;
+  --tsidebar-hover-tex: #3f2a52;
+
+   
+  /* boton */
+  --botton-n2:          #beaed8;
+  --botton-on:           #beaed8;
+  --botton-off:          #3f2a52;
 
   /* Navbar */
   --navbar-bg:         #ffffff;
-  --navbar-border:     #e5e7eb;   /* gray-200 */
+  --navbar-border:     #e5e7eb;  
   --navbar-icon:       #3f2a52;
 
+    /* Encabezado */
+  --text-encabezado: #3f2a52;
+  --subtext-encabezado: oklch(20.8% 0.042 265.755);
+
+  /* Texto en general: tablas, cards, filtros */
+  --text-general:      #1f2937;
+  --subtext-general:   oklch(37.2% 0.044 257.287);
+
+  /* Graficas */
+  --grafics-bg: #3f2a52;
+  --grafics-border: #3f2a52;
+
   /* Layout / fondo principal */
-  --layout-bg:         #f9fafb;   /* gray-50 */
-  --layout-text:       #1f2937;   /* gray-800 */
+  --layout-bg:         #f9fafb;   
+  --layout-text:       #1f2937;  
 
   /* Acento de marca */
   --color-kpi-morado:  #beaed8;
   --color-kpi-azul:    #77a9d4;
 
   /* Tarjetas y superficies */
---card-bg:           #ffffff;
---card-text:         #1f2937;   /* gray-800 */
---card-text-muted:   #6b7280;   /* gray-500 */
---card-text-hint:    #9ca3af;   /* gray-400 */
---card-border:       #f3f4f6;   /* gray-100 */
+  --card-bg:           #ffffff;
+  --card2-bg:          #3f2a52;
+  --card2-text:        #9ca3af;
+  --card-estado:        #0ce27bee;   
+  --card-text:         #3f2a52; 
+  --card-text-muted:   #6b7280;  
+  --card-text-hint:    #9ca3af;   
+  --card-border:       #f3f4f6;   
 
-/* Tabla */
---tabla-bg:          #ffffff;
---tabla-header-bg:   #f9fafb;   /* gray-50 */
---tabla-header-text: #6b7280;   /* gray-500 */
---tabla-borde:       #e5e7eb;   /* gray-200 */
---tabla-hover:       rgba(63, 42, 82, 0.08);
+  /* Tablas */
+  --tabla-bg:          #ffffff;
+  --tabla-header-bg:   #f9fafb;  
+  --tabla-header-text: #6b7280;  
+  --tabla-borde:       #e5e7eb;   
+  --tabla-hover:       rgba(63, 42, 82, 0.08);
 
-/* Inputs / selects */
---input-bg:          #ffffff;
---input-text:        #374151;   /* gray-700 */
---input-border:      #e2e8f0;   /* slate-200 */
+  /* Inputs / selects */
+  --input-bg:          #ffffff;
+  --input-text:        #374151;   
+  --input-border:      #e2e8f0;   
 }
 
-/* =============================================
-   VARIABLES DE COLOR — MODO OSCURO
-   Estas variables SOBREESCRIBEN las de arriba
-   cuando el <html> tiene la clase "dark"
-   ============================================= */
+/* MODO OSCURO */
+
 .dark {
+
   /* Sidebar */
-  --sidebar-bg:         #1e1327;  /* más oscuro que el morado original */
-  --sidebar-text:       #cbd5e1;  /* slate-300 */
+  --sidebar-bg:         #23182c;  
+  --sidebar-text:       #cbd5e1;  
   --sidebar-active-bg:  #6d4e8a;
   --sidebar-active-text: #f1e9ff;
   --sidebar-hover-bg:   #6d4e8a;
   --sidebar-hover-text: #f1e9ff;
+  --botton-n2:          #1e1327;
 
   /* Navbar */
-  --navbar-bg:          #1f2937;  /* gray-800 */
-  --navbar-border:      #374151;  /* gray-700 */
+  --navbar-bg:          #1f2937;  
+  --navbar-border:      #374151;  
   --navbar-icon:        #beaed8;
 
-  /* Layout / fondo principal */
-  --layout-bg:          #111827;  /* gray-900 */
-  --layout-text:        #f9fafb;  /* gray-50 */
+   /* Texto en general: tablas, cards, filtros */
+  --text-general: #e2e8f0;
+  --subtext-general: oklch(86.9% 0.022 252.894);
 
-  /* Acento de marca (se mantiene similar) */
+  /* Encabezado */
+  --text-encabezado: #beaed8;
+  --subtext-encabezado: oklch(81.1% 0.111 293.571);
+
+   /* Graficas */
+  --grafics-bg: #1e1327;
+  --grafics-border: #beaed8;
+
+  /* Layout / fondo principal */
+  --layout-bg:          #111827;  
+  --layout-text:        #f9fafb;  
+
+  /* Acento de marca */
   --color-kpi-morado:   #beaed8;
   --color-kpi-azul:     #77a9d4;
+
   /* Tarjetas y superficies */
---card-bg:           #1f2937;   /* gray-800 */
---card-text:         #f9fafb;   /* gray-50 */
---card-text-muted:   #9ca3af;   /* gray-400 */
---card-text-hint:    #6b7280;   /* gray-500 */
---card-border:       #374151;   /* gray-700 */
+  --card-bg:           #1f2937;
+  --card2-bg:          #6d4e8a;
+  --card2-text:        #e2e8f0; 
+  --card-estado:       #06ff87ee;    
+  --card-text:         #9ca3af;   
+  --card-text-muted:   #9ca3af;   
+  --card-text-hint:    #6b7280; 
+  --card-border:       #374151;  
 
-/* Tabla */
---tabla-bg:          #1f2937;
---tabla-header-bg:   #111827;   /* gray-900 */
---tabla-header-text: #9ca3af;   /* gray-400 */
---tabla-borde:       #374151;   /* gray-700 */
---tabla-hover:       rgba(190, 174, 216, 0.08);
+  /* Texto tablas y cards */
+  --text-general: #e2e8f0;
+  --subtext-general: oklch(86.9% 0.022 252.894);
+   /* Tabla */
+  --tabla-bg:          #1f2937;
+  --tabla-header-bg:   #111827;  
+  --tabla-header-text: #9ca3af;   
+  --tabla-borde:       #374151;  
+  --tabla-hover:       rgba(190, 174, 216, 0.08);
 
-/* Inputs / selects */
---input-bg:          #374151;
---input-text:        #e5e7eb;   /* gray-200 */
---input-border:      #4b5563;   /* gray-600 */
+  /* Inputs / selects */
+  --input-bg:          #374151;
+  --input-text:        #e5e7eb;  
+  --input-border:      #4b5563;   
 }
 
-/* =============================================
-   TOAST / NOTIFICACIONES (sin cambios)
-   ============================================= */
 #toast-container > div,
 #toast-container > .toast,
 .toast-success,
@@ -111,11 +151,6 @@
   border-bottom-right-radius: 16px;
 }
 
-/* =============================================
-   ESTILOS SIDEBAR LINKS
-   Los active-class de RouterLink no aceptan 
-   inline styles, por eso van aquí en CSS
-   ============================================= */
 .sidebar-link {
   color: var(--sidebar-text);
 }
@@ -125,7 +160,6 @@
   color: var(--sidebar-hover-text);
 }
 
-/* RouterLink agrega automáticamente .router-link-active */
 .router-link-active.sidebar-link {
   background-color: var(--sidebar-active-bg);
   color: var(--sidebar-active-text);

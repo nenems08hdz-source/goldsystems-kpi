@@ -93,14 +93,13 @@ function colorTendencia(t) {
 </script>
 
 <template>
-  <div class="p-3 min-h-screen">
+  <div class="p-3 min-h-screen" style="background: transparent;">
 
     <EncabezadoPantalla
       titulo="Panel de Indicadores (KPIs)"
       descripcion="Visualización analítica, seguimiento de metas corporativas y estado actual."
     />
 
-    <!-- Tarjetas de resumen — leen del store automáticamente -->
     <tarjetasestado
       :saludables="store.contadorEstados.saludables"
       :alerta="store.contadorEstados.alerta"
@@ -108,73 +107,61 @@ function colorTendencia(t) {
       :eficiencia="eficienciaPlanta"
     />
 
-    <!-- ── FILTROS ── -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 p-5 bg-white rounded-xl shadow-md border border-[#beaed8]/90 mt-8">
+    <!-- FILTROS -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 p-5 rounded-xl shadow-md border border-[#beaed8]/90 mt-8"
+      style="background: var(--card-bg); color: var(--subtext-general);">
 
-      <!-- Búsqueda libre -->
       <div class="flex flex-col gap-1.5 lg:col-span-2">
-        <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Buscar</label>
+        <label class="text-[11px] font-bold uppercase tracking-wider"
+          style=" color: var(--subtext-general);">Buscar</label>
         <input
           v-model="filtroBusqueda"
           type="text"
           placeholder="Nombre del KPI..."
-          class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 transition-colors"
+          class="text-[13px] rounded-lg p-2.5 outline-none transition-colors"
+          style="background: var(--input-bg); border: 1px solid var(--input-border); color: var(--subtext-general);"
         />
       </div>
 
-      <!-- Departamento — opciones dinámicas desde el store -->
       <div class="flex flex-col gap-1.5">
-        <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Departamento</label>
-        <select
-          v-model="filtroDepartamento"
-          class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 cursor-pointer transition-colors"
-        >
+        <label class="text-[11px] font-bold uppercase tracking-wider"
+          style=" color: var(--subtext-general);">Departamento</label>
+        <select v-model="filtroDepartamento"
+          class="text-xs rounded-lg p-2.5 outline-none cursor-pointer transition-colors"
+          style="background: var(--input-bg); border: 1px solid var(--input-border); color: var(--subtext-general);">
           <option value="">Todos</option>
-          <!--
-            store.departamentos devuelve solo los 4 departamentos
-            únicos sin repetir: Tecnología, Operaciones, Calidad, Finanzas
-          -->
-          <option v-for="dep in store.departamentos" :key="dep" :value="dep">
-            {{ dep }}
-          </option>
+          <option v-for="dep in store.departamentos" :key="dep" :value="dep">{{ dep }}</option>
         </select>
       </div>
 
-      <!-- Tipo de métrica -->
       <div class="flex flex-col gap-1.5">
-        <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Tipo de Métrica</label>
-        <select
-          v-model="filtroTipoMetrica"
-          class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 cursor-pointer transition-colors"
-        >
+        <label class="text-[11px] font-bold uppercase tracking-wider"
+          style=" color: var(--subtext-general);">Tipo de Métrica</label>
+        <select v-model="filtroTipoMetrica"
+          class="text-xs rounded-lg p-2.5 outline-none cursor-pointer transition-colors"
+          style="background: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border);">
           <option value="">Todos</option>
-          <option v-for="tipo in store.tiposMetrica" :key="tipo" :value="tipo">
-            {{ tipo }}
-          </option>
+          <option v-for="tipo in store.tiposMetrica" :key="tipo" :value="tipo">{{ tipo }}</option>
         </select>
       </div>
 
-      <!-- Periodicidad -->
       <div class="flex flex-col gap-1.5">
-        <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Periodicidad</label>
-        <select
-          v-model="filtroPeriodicidad"
-          class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 cursor-pointer transition-colors"
-        >
+        <label class="text-[11px] font-bold uppercase tracking-wider"
+          style="color: var(--subtext-general);">Periodicidad</label>
+        <select v-model="filtroPeriodicidad"
+          class="text-xs rounded-lg p-2.5 outline-none cursor-pointer transition-colors"
+          style="background: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border);">
           <option value="">Todas</option>
-          <option v-for="per in store.periodicidades" :key="per" :value="per">
-            {{ per }}
-          </option>
+          <option v-for="per in store.periodicidades" :key="per" :value="per">{{ per }}</option>
         </select>
       </div>
 
-      <!-- Estado -->
       <div class="flex flex-col gap-1.5">
-        <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Estado</label>
-        <select
-          v-model="filtroEstado"
-          class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 cursor-pointer transition-colors"
-        >
+        <label class="text-[11px] font-bold uppercase tracking-wider"
+          style="color: var(--subtext-general);">Estado</label>
+        <select v-model="filtroEstado"
+          class="text-xs rounded-lg p-2.5 outline-none cursor-pointer transition-colors"
+          style="background: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border);">
           <option value="">Todos</option>
           <option value="success">Saludable</option>
           <option value="warning">En riesgo</option>
@@ -182,29 +169,27 @@ function colorTendencia(t) {
         </select>
       </div>
 
-      <!-- Botones -->
       <div class="flex items-end gap-2 lg:col-span-6">
-        <button
-          @click="limpiarFiltros"
-          class="border border-[#beaed8] text-[#3f2a52] hover:bg-[#beaed8]/20 font-bold text-xs px-4 py-2.5 rounded-lg transition-all"
-        >
-          Limpiar filtros
-        </button>
-        <button
-          @click="$router.push('/kpis/nuevo')"
-          class="bg-[#3f2a52] hover:bg-[#beaed8] text-white font-bold text-xs px-4 py-2.5 rounded-lg transition-all ml-auto"
-        >
-          + Nuevo KPI
-        </button>
+        <button @click="limpiarFiltros"
+          class="font-bold text-xs px-4 py-2.5 rounded-lg transition-all"
+          style="background: var(--botton-n2); color: var(--text-general);"
+         @mouseover="$event.currentTarget.style.background='var(--botton-on)'; $event.currentTarget.style.color='var(--botton-off)'"
+          @mouseleave="$event.currentTarget.style.background='var(--sidebar-bg)'; $event.currentTarget.style.color='white'"
+        >Limpiar filtros</button>
+        <button @click="$router.push('/kpis/nuevo')"
+          class="font-bold text-xs px-4 py-2.5 rounded-lg transition-all ml-auto"
+          style="background: var(--botton-n2); color: var(--text-general); "
+          @mouseover="$event.currentTarget.style.background='var(--botton-on)'; $event.currentTarget.style.color='var(--botton-off)'"
+          @mouseleave="$event.currentTarget.style.background='var(--sidebar-bg)'; $event.currentTarget.style.color='white'"
+        >+ Nuevo KPI</button>
       </div>
-
     </div>
 
-    <!-- Contador de resultados -->
+    <!-- Contador -->
     <div class="flex items-center justify-between mt-4 mb-1 px-1">
-      <p class="text-xs text-slate-400">
-        Mostrando <strong class="text-slate-600">{{ indicadoresFiltrados.length }}</strong>
-        de <strong class="text-slate-600">{{ store.indicadores.length }}</strong> KPIs
+      <p class="text-xs" style="color: var(--subtext-general);">
+        Mostrando <strong style="color: var(--text-general);">{{ indicadoresFiltrados.length }}</strong>
+        de <strong style="color: var(--text-general);">{{ store.indicadores.length }}</strong> KPIs
       </p>
       <p v-if="indicadoresFiltrados.length === 0" class="text-xs text-amber-500 font-semibold">
         Sin resultados para los filtros aplicados
@@ -220,48 +205,47 @@ function colorTendencia(t) {
     >
       <template #default="{ fila }">
 
-        <!-- Nombre + fórmula -->
         <td class="p-4 text-left">
-          <div class="font-bold text-gray-800 text-xs">{{ fila.nombre }}</div>
-          <div class="text-[11px] text-gray-400 mt-0.5">{{ fila.formula }}</div>
+          <div class="font-bold text-m" style=" color: var(--text-general);">{{ fila.nombre }}</div>
+          <div class=" text-xs mt-0.5" style=" color: var(--text-general);">{{ fila.formula }}</div>
         </td>
 
-        <!-- Departamento -->
+        <!-- Badge departamento — color de marca, se mantiene -->
         <td class="p-4 align-middle text-left">
-          <span class="text-[10px] font-bold bg-[#3f2a52]/10 text-[#3f2a52] px-2 py-0.5 rounded border border-[#3f2a52]/20 uppercase tracking-wide">
+          <span class="text-[10px] font-bold bg-[#3f2a52]/10 text-[#3f2a52] px-2 py-0.5 rounded border border-[#3f2a52]/20 uppercase tracking-wide" style= "color: var(--text-general);" >
             {{ fila.departamento }}
           </span>
         </td>
 
-        <!-- Tipo de métrica -->
+        <!-- Badge tipo métrica -->
         <td class="p-4 align-middle text-left">
-          <span class="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded border border-gray-200 uppercase tracking-wide">
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded border uppercase tracking-wide"
+            style="background: var(--tabla-header-bg); color: var(--card-text-muted); border-color: var(--tabla-borde); color: var(--text-general);">
             {{ fila.tipoMetrica }}
           </span>
         </td>
 
-        <!-- Responsable -->
-        <td class="p-4 text-gray-600 text-xs text-left">
+        <td class="p-4 text-xs text-left" style="color: var(--card-text-muted); color: var(--text-general);">
           {{ fila.responsable }}
         </td>
 
-        <!-- Periodicidad -->
+        <!-- Badge periodicidad -->
         <td class="p-4 text-left">
-          <span class="text-[10px] font-bold bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full uppercase tracking-wide border border-gray-200">
+          <span class="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide border"
+            style="background: var(--tabla-header-bg); color: var(--card-text-muted); border-color: var(--tabla-borde); color: var(--text-general);">
             {{ fila.periodicidad }}
           </span>
         </td>
 
         <td class="p-4 text-left">
-         <span class="text-sm font-bold text-gray-800">{{ fila.progreso }}%</span>
+          <span class="text-sm font-bold" style="color: var(--card-text); color: var(--text-general);">{{ fila.progreso }}%</span>
         </td>
 
-        <!-- Tendencia -->
         <td class="p-4 text-left">
-         <span class="text-xs font-semibold text-gray-600">{{ fila.meta }}</span>
-       </td>
+          <span class="text-xs font-semibold" style="color: var(--card-text-muted); color: var(--text-general);">{{ fila.meta }}</span>
+        </td>
 
-        <!-- Estado -->
+        <!-- Badges de estado — semánticos, NO cambian -->
         <td class="p-4 text-left">
           <span
             class="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide inline-flex items-center gap-1.5 border"
@@ -271,14 +255,12 @@ function colorTendencia(t) {
               'bg-red-50 text-red-700 border-red-200':            fila.estadoTipo === 'danger'
             }"
           >
-            <span
-              class="w-1.5 h-1.5 rounded-full animate-pulse"
+            <span class="w-1.5 h-1.5 rounded-full animate-pulse"
               :class="{
                 'bg-emerald-500': fila.estadoTipo === 'success',
                 'bg-yellow-500':  fila.estadoTipo === 'warning',
                 'bg-red-500':     fila.estadoTipo === 'danger'
-              }"
-            ></span>
+              }"></span>
             {{ fila.estado }}
           </span>
         </td>
@@ -286,20 +268,18 @@ function colorTendencia(t) {
       </template>
 
       <template #iconos-acciones="{ item }">
-        <button
-          @click="$router.push(`/kpis/detalle/${item.id}`)"
-          title="Ver Detalles"
-          class="text-gray-400 hover:text-[#3f2a52] bg-gray-50 hover:bg-[#3f2a52]/5 p-1.5 rounded-lg transition-colors"
-        >
-          <i class="fi fi-sr-eye"></i>
-        </button>
-        <button
-          @click="prepararEliminacion(item)"
-          title="Eliminar KPI"
-          class="text-gray-400 hover:text-red-500 bg-gray-50 hover:bg-red-50 p-1.5 rounded-lg transition-colors"
-        >
-          <i class="fi fi-sr-trash"></i>
-        </button>
+        <button @click="$router.push(`/kpis/detalle/${item.id}`)" title="Ver Detalles"
+          class="p-1.5 rounded-lg transition-colors"
+          style="color: var(--card-text-hint); background: var(--tabla-header-bg);"
+          @mouseover="$event.currentTarget.style.color='var(--sidebar-bg)'; $event.currentTarget.style.background='var(--tabla-hover)'"
+          @mouseleave="$event.currentTarget.style.color='var(--card-text-hint)'; $event.currentTarget.style.background='var(--tabla-header-bg)'"
+        ><i class="fi fi-sr-eye"></i></button>
+        <button @click="prepararEliminacion(item)" title="Eliminar KPI"
+          class="p-1.5 rounded-lg transition-colors"
+          style="color: var(--card-text-hint); background: var(--tabla-header-bg);"
+          @mouseover="$event.currentTarget.style.color='#ef4444'; $event.currentTarget.style.background='#fef2f2'"
+          @mouseleave="$event.currentTarget.style.color='var(--card-text-hint)'; $event.currentTarget.style.background='var(--tabla-header-bg)'"
+        ><i class="fi fi-sr-trash"></i></button>
       </template>
     </plantillatabla>
 
@@ -310,6 +290,5 @@ function colorTendencia(t) {
       @confirmar="ejecutarEliminacion"
       @cancelar="showModal = false"
     />
-
   </div>
 </template>

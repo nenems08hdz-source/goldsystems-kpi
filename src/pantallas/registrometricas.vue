@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import plantillatabla from '../components/plantillatabla.vue' 
+import plantillatabla from '../components/PlantillaTabla.vue' 
 
 const encabezados = ['Indicador', 'Fecha', 'Valor', 'Acciones']
 const metricas = ref([
@@ -23,6 +23,11 @@ const metricas = ref([
   <div class="flex justify-center p-8 w-full">
     
     <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-8 w-full max-w-4xl">
+      <EncabezadoPantalla
+      titulo="Captura de Métricas"
+      descripcion="Gestión de indicadores operativos."
+    />
+
       
       <div class="mb-6 border-b border-gray-100 pb-6">
         <h1 class="text-2xl font-black text-gray-900">Captura de Métricas</h1>
@@ -36,9 +41,9 @@ const metricas = ref([
           :datos="metricas"
         >
           <template #default="{ fila }">
-            <td class="p-4 text-xs font-bold text-gray-800 whitespace-nowrap">{{ fila.nombre }}</td>
-            <td class="p-4 text-xs text-gray-600 whitespace-nowrap">{{ fila.fecha }}</td>
-            <td class="p-4 text-xs font-black text-[#3f2a52]">{{ fila.valor }}</td>
+            <td class="p-4 text-xs font-bold whitespace-nowrap" style=" color: var(--text-general); ">{{ fila.nombre }}</td>
+            <td class="p-4 text-xs whitespace-nowrap" style=" color: var(--text-general);" >{{ fila.fecha }}</td>
+            <td class="p-4 text-xs font-black " style=" color: var(--text-general);" >{{ fila.valor }}</td>
             <td class="p-4 text-center">
               <button class="text-[10px] bg-gray-100 px-3 py-1 rounded-lg hover:bg-[#beaed8] transition-colors">
                 Editar

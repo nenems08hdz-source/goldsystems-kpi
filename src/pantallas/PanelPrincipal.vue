@@ -1,5 +1,6 @@
 <script setup>
-import { computed, onMounted } from 'vue'
+//PanelPrincipal
+import { computed, onMounted, ref  } from 'vue'
 import { usePanelStore } from '../stores/panelStore'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
 import GraficaKpiEspecifica from '../components/GraficaKpiEspecifica.vue'
@@ -7,23 +8,19 @@ import MedidorKpi from '../components/MedidorKpi.vue'
 import ProgresoKpi from '../components/ProgresoKpi.vue'
 import plantillatabla from '../components/PlantillaTabla.vue'
 import TarjetasKpi from '../components/TarjetasKpi.vue'
-
-
 const store = usePanelStore()
 
+const listoPararenderizar = ref(false)
 onMounted(() => {
   store.cargarOrden()
-  store.cargarPreferencias() 
-})
-//orden de los widgets
+  store.cargarPreferencias()
+  setTimeout(() => { listoPararenderizar.value = true }, 50)
+}) 
+
+
 const ordenWidgets = computed(() => store.widgets.map(w => w.id))
-
-//Kpis seleccionados por el usuario
 const kpisResumen = computed(() => store.indicadoresActivos)
-
 const kpisDetalle = computed(() => store.indicadores)
-
-//resuemn de kpis criticas 
 const kpisCriticas = computed(() =>
   store.indicadores.filter(i => i.estadoTipo === 'danger' || i.estadoTipo === 'warning')
 )
@@ -33,7 +30,12 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
 </script>
 
 <template>
-  <div class="p-3 min-h-screen bg-slate-50/50">
+  <!-- 
+    CAMBIO: bg-slate-50/50 → background transparent
+    Razón: el fondo lo da --layout-bg desde App.vue,
+    si ponemos bg-slate-50 encima lo tapa y en modo oscuro se ve gris claro
+  -->
+  <div class="p-3 min-h-screen" style="background: transparent;">
 
     <div class="flex justify-between items-center w-full mb-6">
       <div class="flex-none">
@@ -43,19 +45,20 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
         />
       </div>
       <div class="flex-none">
+        <!-- CAMBIO: hover:bg-[#beaed8] → hover usa variable. 
+             El color base #3f2a52 ya usa --sidebar-bg automáticamente -->
         <button
-          @click="$router.push('/personalizar')"
-          class="flex items-center gap-2 bg-[#3f2a52] hover:bg-[#beaed8] text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all"
-        >
-           Personalizar
-        </button>
+  @click="$router.push('/personalizar')"
+  class="flex items-center gap-2 bg-[#3f2a52] hover:bg-[#beaed8] hover:text-[#3f2a52] text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all"
+>
+  ⚙️ Personalizar
+</button>
       </div>
     </div>
 
-    <!-- Personalizacion -->
     <template v-for="widgetId in ordenWidgets" :key="widgetId">
 
-      <!-- BLOQUE 1: Las 4 KPIs superiores -->
+      <!-- BLOQUE 1: Las 4 KPIs superiores — sin cambios, TarjetasKpi ya usa variables -->
       <template v-if="widgetId === 'tarjetas'">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <TarjetasKpi
@@ -72,39 +75,40 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
         </div>
       </template>
 
-      <!-- BLOQUE 2: Las dos gráficas juntas (mefiidor circular y la de barras) -->
+      <!-- BLOQUE 2: Gráficas — el bg-[#3f2a52] ya cambia con --sidebar-bg, sin cambios -->
       <template v-if="widgetId === 'graficas'">
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 
-    <!-- Si el usuario eligió resumne general se muestran las gráficas de siempre -->
-    <template v-if="store.modoGrafica === 'general'">
-      <div class="bg-[#3f2a52] border border-[#beaed8]/70 rounded-2xl p-5 shadow-sm h-60 flex flex-col justify-between">
-        <p class="text-[11px] font-bold text-[#beaed8] uppercase tracking-wider">Resumen de KPIs</p>
-        <div class="flex-1 flex items-center justify-center">
-          <MedidorKpi />
-        </div>
-      </div>
-      <div class="bg-[#3f2a52] border border-[#beaed8]/70 rounded-2xl p-5 shadow-sm h-60 flex flex-col justify-between">
-        <p class="text-[11px] font-bold text-[#beaed8] uppercase tracking-wider">Progreso General</p>
-        <div class="flex-1 flex items-center justify-center overflow-hidden">
-          <ProgresoKpi />
-        </div>
-      </div>
-      
-    </template>
-     <template v-else>
-      <div class="bg-[#3f2a52] border border-[#beaed8]/70 rounded-2xl p-5 shadow-sm h-60 flex flex-col justify-between lg:col-span-2">
-        <div class="flex-1 flex items-center justify-center overflow-hidden">
-          <GraficaKpiEspecifica
-            v-if="store.kpiParaGrafica"
-            :kpi="store.kpiParaGrafica"
-            :tipo="store.tipoGraficaEspecifica"
-          />
-        </div>
-      </div>
-    </template>
+          <template v-if="store.modoGrafica === 'general'">
+            <div v-if="listoPararenderizar" class="border border-[#beaed8]/70 rounded-2xl p-5 shadow-sm h-60 flex flex-col justify-between"
+            style="background: var(--grafics-bg);">
+              <p class="text-[11px] font-bold text-[#beaed8] uppercase tracking-wider">Resumen de KPIs</p>
+              <div class="flex-1 flex items-center justify-center">
+                <MedidorKpi />
+              </div>
+            </div>
+            <div v-if="listoPararenderizar"class=" border border-[#beaed8]/70 rounded-2xl p-5 shadow-sm h-60 flex flex-col justify-between"
+            style="background: var(--grafics-bg);">
+              <p class="text-[11px] font-bold text-[#beaed8] uppercase tracking-wider">Progreso General</p>
+              <div class="flex-1 flex items-center justify-center overflow-hidden">
+                <ProgresoKpi />
+              </div>
+            </div>
+          </template>
 
-          <!-- La tabla de críticos -->
+          <template v-else>
+            <div v-if="listoPararenderizar && store.kpiParaGrafica" class="bg-[#3f2a52] border border-[#beaed8]/70 rounded-2xl p-5 shadow-sm h-60 flex flex-col justify-between lg:col-span-2">
+              <div class="flex-1 flex items-center justify-center overflow-hidden">
+                <GraficaKpiEspecifica
+                  v-if="store.kpiParaGrafica"
+                  :kpi="store.kpiParaGrafica"
+                  :tipo="store.tipoGraficaEspecifica"
+                />
+              </div>
+            </div>
+          </template>
+
+          <!-- Tabla de críticos -->
           <div class="lg:col-span-2 h-full">
             <plantillatabla
               titulo="Resumen de KPIs Críticos y en Riesgo"
@@ -116,11 +120,17 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
               <template #default="{ fila }">
                 <td class="p-4 align-middle w-full">
                   <div class="flex justify-between items-center w-full">
-                    <div class="text-xs font-medium text-slate-700 tracking-wide">
-                      <span class="font-bold uppercase text-slate-800">{{ fila.departamento }}</span>
-                      <span class="mx-2 text-slate-400">—</span>
-                      <span class="text-slate-500 font-normal">{{ fila.subtitulo }}</span>
+                    <div class="text-xs font-medium tracking-wide">
+                      <!-- CAMBIO: text-slate-800/700/500/400 → variables -->
+                      <span class="font-bold uppercase" style="color: var(--text-general);">
+                        {{ fila.departamento }}
+                      </span>
+                      <span class="mx-2" style="color: var(--card-text-hint);">—</span>
+                      <span class="font-normal" style="color: var(--subtext-general);">
+                        {{ fila.subtitulo }}
+                      </span>
                     </div>
+                    <!-- Los badges de estado (amber/rose) NO cambian — son semánticos -->
                     <span
                       class="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full border flex-shrink-0"
                       :class="{
@@ -145,7 +155,7 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
         </div>
       </template>
 
-      <!-- BLOQUE 3: Tabla detallada de todos los KPIs -->
+      <!-- BLOQUE 3: Tabla detallada -->
       <template v-if="widgetId === 'detalle'">
         <plantillatabla
           titulo="Métricas Detalladas por Departamento"
@@ -158,27 +168,39 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
 
             <td class="p-4 align-middle w-2/5">
               <div class="flex flex-col">
-                <span class="text-sm font-bold text-slate-800 tracking-tight">{{ fila.departamento }}</span>
-                <span class="text-xs font-normal text-slate-400 mt-0.5">{{ fila.subtitulo }}</span>
+                <!-- CAMBIO: text-slate-800 y text-slate-400 → variables -->
+                <span class="text-m font-bold tracking-wide" style="color: var(--text-general);">
+                  {{ fila.departamento }}
+                </span>
+                <span class="text-xs font-normal mt-0.5" style="color: var(--subtext-general);">
+                  {{ fila.subtitulo }}
+                </span>
               </div>
             </td>
 
             <td class="p-4 align-middle text-center">
-              <span class="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded">
+              <!-- CAMBIO: bg-slate-100 text-slate-500 → variables -->
+              <span class="text-xs font-medium px-2 py-1 rounded"
+                style="background: var(--card-border); color: var(--subtext-general);">
                 {{ fila.periodicidad }}
               </span>
             </td>
 
-            <td class="p-4 align-middle text-center font-bold text-sm text-slate-700">
+            <td class="p-4 align-middle text-center font-bold text-sm"
+              style="color: var(--text-general);">
               {{ fila.objetivo }}
             </td>
 
             <td class="p-4 align-middle">
               <div class="flex items-center justify-center gap-3">
-                <span class="font-bold text-sm text-slate-700 w-12 text-right">{{ fila.progreso }}%</span>
-                <div class="w-20 bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                <span class="font-bold text-sm w-12 text-right" style="color: var(--text-general);">
+                  {{ fila.progreso }}%
+                </span>
+                <!-- CAMBIO: bg-slate-100 → variable -->
+                <div class="w-20 h-1.5 rounded-full overflow-hidden"
+                  style="background: var(--card-border);">
                   <div
-                    class="bg-[#3f2a52] h-full rounded-full"
+                    class="h-full rounded-full bg-[#3f2a52]"
                     :style="{ width: fila.progreso + '%' }"
                   ></div>
                 </div>
@@ -186,6 +208,7 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
             </td>
 
             <td class="p-4 align-middle text-center">
+              <!-- Badges de estado — NO cambian, son semánticos -->
               <span
                 class="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full border"
                 :class="{

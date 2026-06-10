@@ -1,4 +1,5 @@
 <script setup>
+//PersonalizarPantalla
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import draggable from 'vuedraggable'
@@ -87,7 +88,7 @@ function cancelar() {
 </script>
 
 <template>
-  <div class="flex min-h-screen bg-slate-50/50">
+  <div class="flex min-h-screen" style="background-color: var(--layout-bg);">
 
     <!-- ── COLUMNA IZQUIERDA: lista arrastrable ── -->
     <div class="flex-1 p-6 overflow-y-auto">
@@ -113,9 +114,10 @@ function cancelar() {
         </div>
       </div>
 
-      <div class="flex items-center gap-2 text-sm text-slate-400 mb-5 bg-white border border-slate-100 rounded-xl px-4 py-3 shadow-sm w-fit">
+      <div class="flex items-center gap-2 text-sm text-slate-400 mb-5 bg-white border border-slate-100 rounded-xl px-4 py-3 shadow-sm w-fit"
+      style="background: var(--card-bg); color: var(--text-general);">
         <span></span>
-        <span>Arrastra desde <strong class="text-slate-600">⠿⠿</strong> para cambiar el orden.</span>
+        <span>Arrastra desde <strong class="text-slate-600"style="color: var(--subtext-general);">⠿⠿</strong> para cambiar el orden.</span>
       </div>
 
       <draggable
@@ -145,32 +147,34 @@ function cancelar() {
     </div>
 
     <!-- ── BARRA LATERAL DERECHA: configuración ── -->
-    <div class="w-80 bg-white border-l border-slate-200 flex flex-col overflow-y-auto">
+    <div class="w-80 bg-white border-l border-slate-200 flex flex-col overflow-y-auto" style="background-color: var(--card-bg); border-color: var(--tabla-borde);">
 
       <!-- Encabezado de la barra -->
       <div class="p-4 border-b border-slate-100 bg-[#3f2a52]">
-        <p class="text-xs font-bold text-[#beaed8] uppercase tracking-wider"> Configuración del Panel</p>
+        <p class="text-xs font-bold text-[#beaed8] uppercase tracking-wider" style="color: var(--text-general);"> Configuración del Panel</p>
         <p class="text-[10px] text-[#beaed8]/60 mt-0.5">Máximo 4 KPIs activos al mismo tiempo</p>
       </div>
 
       <!-- ── SECCIÓN 1: KPIs activos ── -->
       <div class="p-4 border-b border-slate-100">
-        <p class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">
+        <p class="text-xs font-bold uppercase tracking-wider mb-3" style="color: var(--text-general)">
            KPIs en el Panel
         </p>
 
         <!-- Filtro de búsqueda -->
-        <input
+        <input 
           v-model="filtroBusqueda"
           type="text"
-          placeholder="Buscar departamento..."
-          class="w-full text-xs border border-slate-200 rounded-lg px-3 py-2 mb-2 focus:outline-none focus:border-[#3f2a52] transition-colors"
+          placeholder="Buscar departamento..." 
+          class="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 mb-2 focus:outline-none focus:border-[#3f2a52] transition-colors"
+          style="color: var(--text-general);"
         />
 
         <!-- Filtro por estado -->
         <select
           v-model="filtroEstado"
           class="w-full text-xs border border-slate-200 rounded-lg px-3 py-2 mb-3 focus:outline-none focus:border-[#3f2a52] transition-colors bg-white"
+          style="background-color: var( --input-bg);"
         >
           <option value="todos">Todos los estados</option>
           <option value="success"> Saludable</option>

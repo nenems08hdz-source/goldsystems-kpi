@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+//layout.js
 
 export const useLayoutStore = defineStore('layout', () => {
   const isSidebarOpen = ref(true)

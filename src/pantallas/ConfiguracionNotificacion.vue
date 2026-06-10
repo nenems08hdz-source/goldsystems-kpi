@@ -84,7 +84,7 @@ const guardarcambios = () => {
 </script>
 
 <template>
-  <div class="w-full bg-white text-[#3f2a52] px-8 min-h-screen flex flex-col">
+  <div class="w-full bg-white text-[#3f2a52] px-8 min-h-screen flex flex-col" style="background-color: var(--layout-bg);">
 
      <div v-if="mensajeExito" 
          class="fixed bottom-6 right-6 bg-emerald-600 text-white px-6 py-3 rounded-xl shadow-lg font-bold text-xs z-50">
@@ -99,7 +99,7 @@ const guardarcambios = () => {
       </header>
 
       <section class="mb-8">
-        <h2 class="text-sm font-bold mb-4 flex items-center gap-2">
+        <h2 class="text-sm font-bold mb-4 flex items-center gap-2" style="color: var(--text-general);">
          <i class="fi fi-sr-link-alt text-base"></i> 
          Canales de Notificación
         </h2>
@@ -120,9 +120,9 @@ const guardarcambios = () => {
         </div>
       </section>
 
-      <plantillatabla titulo="Alertas de KPI" :encabezados="encabezados" :datos="kpis">
+      <plantillatabla titulo="Alertas de KPI" :encabezados="encabezados" :datos="kpis" style="color: var(--text-general);">
         <template #default="{ fila }">
-          <td class="p-4 font-semibold text-gray-700 text-sm">{{ fila.nombre }}</td>
+          <td class="p-4 font-semibold  text-sm">{{ fila.nombre }}</td>
           <td class="p-4 text-center"><input type="checkbox" v-model="fila.critico" class="accent-[#3f2a52] w-4 h-4 cursor-pointer" /></td>
           <td class="p-4 text-center"><input type="checkbox" v-model="fila.advertencia" class="accent-[#3f2a52] w-4 h-4 cursor-pointer" /></td>
           <td class="p-4 text-center"><input type="checkbox" v-model="fila.informativo" class="accent-[#3f2a52] w-4 h-4 cursor-pointer" /></td>
@@ -132,13 +132,13 @@ const guardarcambios = () => {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
 
         <section class="mb-8">
-        <h2 class="text-sm font-bold mb-4 flex items-center gap-2">
+        <h2 class="text-sm font-bold mb-4 flex items-center gap-2" style="color: var(--text-general);">
          <i class="fi fi-sr-document"></i> 
          Frecuencia de Resumenes
         </h2>
 
-          <div class="flex flex-col gap-2">
-            <button v-for="opc in ['Diario', 'Semanal', 'Mensual']" :key="opc"
+          <div class="flex flex-col gap-2" style="color: var(--text-general); background: var(--tabla-header-bg);">
+            <button v-for="opc in ['Diario', 'Semanal', 'Mensual']" :key="opc" 
                     @click="frecuenciaSeleccionada = opc"
                     :class="['w-full p-3 text-left text-sm rounded-lg border transition-all', 
                     frecuenciaSeleccionada === opc ? 'border-[#3f2a52] bg-indigo-50 font-bold' : 'border-gray-200']">

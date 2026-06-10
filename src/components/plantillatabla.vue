@@ -17,7 +17,7 @@ defineProps({
 
     <div class="p-4 border-b"
       style="background: var(--tabla-header-bg); border-color: var(--tabla-borde);">
-      <h2 class="text-xl font-bold tracking-tight" style="color: var(--card-text);">
+      <h2 class="text-xl font-bold tracking-tight" style="color: var(--text-general);">
         <i v-if="icon" :class="`fi ${icon}`"></i>
         {{ titulo }}
       </h2>
@@ -29,12 +29,12 @@ defineProps({
           <tr class="sticky top-0 z-10" style="background: var(--tabla-header-bg);">
             <th v-for="header in encabezados" :key="header"
               class="p-4 text-[11px] font-bold uppercase tracking-wider"
-              style="color: var(--tabla-header-text);">
+              style="color: var(--text-general);">
               {{ header }}
             </th>
             <th v-if="mostrarAcciones"
-              class="p-4 text-[11px] font-bold uppercase tracking-wider text-right pr-6 w-24"
-              style="color: var(--tabla-header-text);">
+              class="p-4 text-xs font-bold uppercase tracking-wider text-right pr-6 w-24"
+              style="color: var(--subtext-general);">
               Acciones
             </th>
           </tr>

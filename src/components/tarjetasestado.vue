@@ -12,9 +12,11 @@ defineProps({
     
     <!-- Tarjeta 1: KPIs Saludables -->
     <!-- bg-[#3f2a52] YA usa --sidebar-bg automáticamente, no necesita cambio -->
-    <div class="bg-[#3f2a52] text-[#beaed8] rounded-xl shadow-lg p-5 border border-[#beaed8]/20 flex flex-col justify-between">
+    <div class=" rounded-xl shadow-lg p-5 border border-[#beaed8]/20 flex flex-col justify-between"
+    style="background: var(--card2-bg);">
       <div class="flex justify-between items-center mb-4">
-        <span class="text-xs font-bold tracking-wider text-[#beaed8] uppercase">KPIs Saludables</span>
+        <span class="text-xs font-bold tracking-wider text-[#beaed8] uppercase"
+        style="color: var(--card2-text);">KPIs Saludables</span>
         <i class="fi fi-sr-checkbox text-emerald-400 text-base"></i>
       </div>
       <div class="my-2">
@@ -29,9 +31,11 @@ defineProps({
     </div>
 
     <!-- Tarjeta 2: KPIs en Alerta -->
-    <div class="bg-[#3f2a52] text-[#beaed8] rounded-xl shadow-lg p-5 border border-[#beaed8]/20 flex flex-col justify-between">
+    <div class=" rounded-xl shadow-lg p-5 border border-[#beaed8]/20 flex flex-col justify-between"
+    style="background: var(--card2-bg);">
       <div class="flex justify-between items-center mb-4">
-        <span class="text-xs font-bold tracking-wider text-[#beaed8] uppercase">KPIs en alerta</span>
+        <span class="text-xs font-bold tracking-wider text-[#beaed8] uppercase"
+        style="color: var(--card2-text);">KPIs en alerta</span>
         <i class="fi fi-sr-exclamation text-yellow-400 text-base"></i>
       </div>
       <div class="my-2">
@@ -46,9 +50,11 @@ defineProps({
     </div>
 
     <!-- Tarjeta 3: KPIs Críticos -->
-    <div class="bg-[#3f2a52] text-[#beaed8] rounded-xl p-5 shadow-lg border border-[#beaed8]/20 flex flex-col justify-between">
+    <div class=" rounded-xl p-5 shadow-lg border border-[#beaed8]/20 flex flex-col justify-between"
+    style="background: var(--card2-bg);">
       <div class="flex justify-between items-center mb-4">
-        <span class="text-xs font-bold tracking-wider text-[#beaed8] uppercase">KPIs críticos</span>
+        <span class="text-xs font-bold tracking-wider text-[#beaed8] uppercase"
+        style="color: var(--card2-text);">KPIs críticos</span>
         <i class="fi fi-sr-cross-circle text-red-400 text-base"></i>
       </div>
       <div class="my-2">

@@ -1,3 +1,4 @@
+/* panelStore*/
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
@@ -34,7 +35,7 @@ const indicadores = ref([
     estado: 'en riesgo',
     estadoTipo: 'warning',
     periodicidad: 'Mensual',
-    responsable: 'Ana López',
+    responsable: 'Ana López', 
     historial: [72, 74, 71, 75, 76, 73, 78, 77],
     etiquetasHistorial: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago'],
     graficasCompatibles: ['barras', 'area'],

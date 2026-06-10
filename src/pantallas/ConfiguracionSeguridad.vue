@@ -1,6 +1,6 @@
 <script setup>
 import { ref, getCurrentInstance } from 'vue'
-import plantillatabla from '../components/plantillatabla.vue'
+import plantillatabla from '../components/PlantillaTabla.vue'
 import ModalConfirmacion from '../components/ModalConfirmacion.vue'
 
 const { proxy } = getCurrentInstance()
@@ -88,21 +88,21 @@ const guardarcambios = () => {
 </script>
 
 <template>
-  <div class="w-full bg-white text-[#3f2a52] px-8 min-h-screen flex flex-col pb-10">
+  <div class="w-full bg-white text-[#3f2a52] px-8 min-h-screen flex flex-col pb-10" style="background-color: var(--layout-bg);">
     
     <header class="mb-8 mt-6">
       <h1 class="text-3xl font-bold tracking-tight mb-1">Configuración de Seguridad</h1>
     </header>
     
-    <section class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm mb-6">
-      <h2 class="text-lg font-bold text-[#3f2a52] mb-4 flex items-center gap-2">
+    <section class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm mb-6" style="background: var(--card-bg);">
+      <h2 class="text-lg font-bold mb-4 flex items-center gap-2" style="color: var(--text-general);">
         <i class="fi fi-sr-lock"></i> Autenticación
       </h2>
 
-      <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl mb-4">
+      <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl mb-4" style="background: var(--card-bg); color: var(--text-general);">
         <div>
-          <p class="text-sm font-bold">Doble Factor (2FA)</p>
-          <p class="text-xs text-gray-500">Protección extra para tu cuenta</p>
+          <p class="text-sm font-bold" >Doble Factor (2FA)</p>
+          <p class="text-xs text-gray-500" style="color: var(--text-general);">Protección extra para tu cuenta</p>
         </div>
         <button @click="editandoPassword = !editandoPassword" 
                 class="text-xs font-bold text-[#3f2a52] bg-white px-4 py-2 rounded-lg border border-gray-200 hover:bg-[#beaed8] transition-all">
@@ -110,21 +110,21 @@ const guardarcambios = () => {
         </button>
       </div>
 
-      <div v-if="editandoPassword" class="space-y-4 bg-gray-50 p-6 rounded-2xl border border-gray-100 mb-6">
-        <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Cambiar Contraseña</h4>
+      <div v-if="editandoPassword" class="space-y-4 bg-gray-50 p-6 rounded-2xl border border-gray-100 mb-6" style="background: var(--card-bg); color: var(--text-general);">
+        <h4 class="text-xs font-bold uppercase tracking-wider">Cambiar Contraseña</h4>
         
         <div class="flex flex-col gap-1.5">
-          <label class="text-[10px] font-bold text-gray-500">CONTRASEÑA ACTUAL</label>
+          <label class="text-[10px] font-bold" style="color: var(--text-general);">CONTRASEÑA ACTUAL</label>
           <input type="password" v-model="passwordForm.actual" class="w-full p-2.5 text-xs rounded-xl border border-gray-200 outline-none focus:border-[#77a9d4]" />
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label class="text-[10px] font-bold text-gray-500">NUEVA CONTRASEÑA</label>
+          <label class="text-[10px] font-bold" style="color: var(--text-general);">NUEVA CONTRASEÑA</label>
           <input type="password" v-model="passwordForm.nueva" class="w-full p-2.5 text-xs rounded-xl border border-gray-200 outline-none focus:border-[#77a9d4]" />
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label class="text-[10px] font-bold text-gray-500">CONFIRMAR NUEVA CONTRASEÑA</label>
+          <label class="text-[10px] font-bold" style="color: var(--text-general);">CONFIRMAR NUEVA CONTRASEÑA</label>
           <input type="password" v-model="passwordForm.confirmar" class="w-full p-2.5 text-xs rounded-xl border border-gray-200 outline-none focus:border-[#77a9d4]" />
         </div>
 
@@ -136,11 +136,11 @@ const guardarcambios = () => {
 
     <section class="mb-6">
       
-      <plantillatabla titulo="Sesiones Activas" :encabezados="encabezadosSesiones" :datos="sesiones" icon="fi-sr-computer-speaker">
+      <plantillatabla titulo="Sesiones Activas" :encabezados="encabezadosSesiones" :datos="sesiones" icon="fi-sr-computer-speaker" style="color: var(--text-general);">
         <template #default="{ fila }">
-          <td class="p-4"><p class="text-sm font-bold text-[#3f2a52]">{{ fila.dispositivo }}</p></td>
-          <td class="p-4 text-xs text-gray-500">{{ fila.ubicacion }}</td>
-          <td class="p-4 text-xs font-bold text-gray-600">{{ fila.tiempo }}</td>
+          <td class="p-4"><p class="text-sm font-bold ">{{ fila.dispositivo }}</p></td>
+          <td class="p-4 text-xs ">{{ fila.ubicacion }}</td>
+          <td class="p-4 text-xs font-bold ">{{ fila.tiempo }}</td>
           <td class="p-4">
             <button @click="cerrarSesion(fila.id)" class="px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-[#3f2a52] text-white hover:bg-[#beaed8]">Cerrar</button>
           </td>
@@ -149,11 +149,11 @@ const guardarcambios = () => {
     </section>
 
     <section>
-      <plantillatabla titulo="Actividad" :encabezados="encabezadosActividad" :datos="registrosActividad" icon="fi-sr-clock-three">
+      <plantillatabla titulo="Actividad" :encabezados="encabezadosActividad" :datos="registrosActividad" icon="fi-sr-clock-three" style="color: var(--text-general);">
         <template #default="{ fila }">
-          <td class="p-4"><p class="text-sm font-bold text-gray-700">{{ fila.accion }}</p></td>
-          <td class="p-4 text-xs text-gray-500">{{ fila.detalle }}</td>
-          <td class="p-4 text-xs font-bold text-gray-600">{{ fila.hora }}</td>
+          <td class="p-4"><p class="text-sm font-bold ">{{ fila.accion }}</p></td>
+          <td class="p-4 text-xs ">{{ fila.detalle }}</td>
+          <td class="p-4 text-xs font-bold">{{ fila.hora }}</td>
           <td class="p-4">
             <button @click="eliminarRegistro(fila.id)" class="px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-[#3f2a52] text-white hover:bg-[#beaed8]">Eliminar</button>
           </td>

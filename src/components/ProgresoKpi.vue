@@ -20,7 +20,7 @@ const chartOptions = computed(() => ({
     type: 'bar',
     toolbar: { show: false },
     // background transparente para que se vea el fondo morado del panel
-    background: 'transparent'
+    background: 'transparent' 
   },
   colors: ['#beaed8'],
   plotOptions: {

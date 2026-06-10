@@ -1,4 +1,5 @@
 <script setup>
+/*sidebar*/
 import { RouterLink } from 'vue-router'
 import { useLayoutStore } from '@/stores/layout'
 import { usePanelStore } from '@/stores/panelStore' 

@@ -6,8 +6,8 @@ const departamentoSeleccionado = ref('')
 
 <template>
   <div class="flex items-center gap-4 transition-all duration-300">
-    <label class="text-[10px] font-bold uppercase tracking-wider"
-      style="color: var(--card-text-hint);">Departamento:</label>
+    <label class="text-xs font-bold uppercase tracking-wider"
+      style="color: var(--text-general);">Departamento:</label>
     <select v-model="departamentoSeleccionado"
       class="text-xs rounded-lg p-2 outline-none cursor-pointer transition-colors"
       style="
