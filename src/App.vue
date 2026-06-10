@@ -1,10 +1,18 @@
 <script setup>
-import { RouterView } from 'vue-router'
+import { RouterView, useRoute } from 'vue-router'
 import { useLayoutStore } from '@/stores/layout' 
 import sidebar from './components/Sidebar.vue'
 import navbar from './components/Navbar.vue'
 
-const layout = useLayoutStore() 
+import { onMounted } from 'vue';
+
+onMounted(() => {
+  // Esto agrega la clase .dark al body apenas carga la app
+  document.documentElement.classList.add('dark');
+});
+
+const layout = useLayoutStore()
+const route = useRoute()
 </script>
 
 <template>
@@ -15,6 +23,7 @@ const layout = useLayoutStore()
   >
     
     <aside 
+      v-if="route.path !== '/login'" 
       :class="layout.isSidebarOpen ? 'w-64' : 'w-20'" 
       class="transition-all duration-300 ease-in-out flex-shrink-0"
     >
@@ -22,7 +31,7 @@ const layout = useLayoutStore()
     </aside>
 
     <div class="flex-1 flex flex-col w-full transition-all duration-300">
-      <navbar />
+      <navbar v-if="route.path !== '/login'" />
 
       <main class="flex-1 p-8 overflow-y-auto">
       <RouterView />

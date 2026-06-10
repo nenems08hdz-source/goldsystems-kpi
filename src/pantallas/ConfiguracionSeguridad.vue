@@ -85,6 +85,28 @@ const guardarPassword = () => {
 const guardarcambios = () => {
     proxy.$notify.success('Los cambios han sido guardados correctamente', 'Éxito');
 }
+
+// Modal de eliminación
+const showModal = ref(false)
+const idAEliminar = ref(null) // Cambiamos a idAEliminar para ser más claros
+
+function confirmarEliminacion(id) {
+  idAEliminar.value = id    // Guardamos el ID que viene del clic
+  showModal.value = true
+} 
+
+function ejecutarEliminacion() {
+  // Buscamos el índice en el array de 'registrosActividad' usando el ID guardado
+  const index = registrosActividad.value.findIndex(r => r.id === idAEliminar.value)
+  
+  if (index !== -1) {
+    registrosActividad.value.splice(index, 1)
+    proxy.$notify.success('Registro eliminado correctamente', 'Éxito')
+  }
+  
+  idAEliminar.value = null // Limpiamos la variable
+  showModal.value = false
+}
 </script>
 
 <template>
@@ -114,21 +136,21 @@ const guardarcambios = () => {
         <h4 class="text-xs font-bold uppercase tracking-wider">Cambiar Contraseña</h4>
         
         <div class="flex flex-col gap-1.5">
-          <label class="text-[10px] font-bold" style="color: var(--text-general);">CONTRASEÑA ACTUAL</label>
-          <input type="password" v-model="passwordForm.actual" class="w-full p-2.5 text-xs rounded-xl border border-gray-200 outline-none focus:border-[#77a9d4]" />
+          <label class="text-[10px] font-bold text-gray-500">CONTRASEÑA ACTUAL</label>
+          <input type="password" v-model="passwordForm.actual"  class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 transition-colors" />
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label class="text-[10px] font-bold" style="color: var(--text-general);">NUEVA CONTRASEÑA</label>
-          <input type="password" v-model="passwordForm.nueva" class="w-full p-2.5 text-xs rounded-xl border border-gray-200 outline-none focus:border-[#77a9d4]" />
+          <label class="text-[10px] font-bold text-gray-500">NUEVA CONTRASEÑA</label>
+          <input type="password" v-model="passwordForm.nueva"  class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 transition-colors" />
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label class="text-[10px] font-bold" style="color: var(--text-general);">CONFIRMAR NUEVA CONTRASEÑA</label>
-          <input type="password" v-model="passwordForm.confirmar" class="w-full p-2.5 text-xs rounded-xl border border-gray-200 outline-none focus:border-[#77a9d4]" />
+          <label class="text-[10px] font-bold text-gray-500">CONFIRMAR NUEVA CONTRASEÑA</label>
+          <input type="password" v-model="passwordForm.confirmar"  class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 transition-colors" />
         </div>
 
-        <button @click="guardarPassword" class="w-full text-xs font-bold text-white bg-[#3f2a52] py-2.5 rounded-xl hover:bg-[#77a9d4] transition-all">
+        <button @click="guardarPassword"  class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 transition-colors">
           Actualizar Contraseña
         </button>
       </div>
@@ -142,7 +164,10 @@ const guardarcambios = () => {
           <td class="p-4 text-xs ">{{ fila.ubicacion }}</td>
           <td class="p-4 text-xs font-bold ">{{ fila.tiempo }}</td>
           <td class="p-4">
-            <button @click="cerrarSesion(fila.id)" class="px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-[#3f2a52] text-white hover:bg-[#beaed8]">Cerrar</button>
+           <button @click="confirmarEliminacion(fila.id)" 
+            class="px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-[#3f2a52] text-white hover:bg-[#beaed8]">
+            Cerrar
+          </button>
           </td>
         </template>
       </plantillatabla>
@@ -155,7 +180,12 @@ const guardarcambios = () => {
           <td class="p-4 text-xs ">{{ fila.detalle }}</td>
           <td class="p-4 text-xs font-bold">{{ fila.hora }}</td>
           <td class="p-4">
-            <button @click="eliminarRegistro(fila.id)" class="px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-[#3f2a52] text-white hover:bg-[#beaed8]">Eliminar</button>
+
+          <button @click="confirmarEliminacion(fila.id)" 
+            class="px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-[#3f2a52] text-white hover:bg-[#beaed8]">
+             Eliminar 
+          </button>
+
           </td>
         </template>
       </plantillatabla>
@@ -166,4 +196,11 @@ const guardarcambios = () => {
       <button @click="guardarcambios" class="px-6 py-2.5 bg-[#3f2a52] hover:bg-[#beaed8] text-white text-xs font-bold rounded-xl shadow-md transition-all">Guardar Cambios</button>
     </div>
   </div>
+  <ModalConfirmacion
+      :isOpen="showModal"
+      titulo="¿Desea eliminar?"
+      mensaje="Esta acción eliminará el dato de manera permanentemente."
+      @confirmar="ejecutarEliminacion"
+      @cancelar="showModal = false"
+    />
 </template>

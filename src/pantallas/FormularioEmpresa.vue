@@ -2,25 +2,41 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { getCurrentInstance } from 'vue'
+import { usePanelStore } from '../stores/panelStore'
 
 const router = useRouter()
+const store  = usePanelStore()
 const { proxy } = getCurrentInstance()
 
 const nuevaEmpresa = ref({
-  nombre: '',
-  razonSocial: '',
-  rfc: '',
-  email: '',
-  telefono: '',
-  plan: 'Pro',
-  nombreAdmin: '',
-  emailAdmin: '',
+  nombre:       '',
+  razonSocial:  '',
+  rfc:          '',
+  email:        '',
+  telefono:     '',
+  plan:         'Pro',
+  nombreAdmin:  '',
+  emailAdmin:   '',
 })
 
 function guardarEmpresa() {
-  // Por ahora solo notifica y vuelve
-  // Cuando llegue el backend, aquí irá la llamada a la API
-  // que crea la empresa y su usuario Admin automáticamente
+  const empresaNueva = {
+
+    id:            Date.now(),
+    nombre:        nuevaEmpresa.value.nombre,
+    razonSocial:   nuevaEmpresa.value.razonSocial,
+    rfc:           nuevaEmpresa.value.rfc,
+    email:         nuevaEmpresa.value.email,
+    telefono:      nuevaEmpresa.value.telefono,
+    plan:          nuevaEmpresa.value.plan,
+    estado:        'activo',
+    usuarios:      1,   
+    kpis:          0,
+    fechaRegistro: new Date().toISOString().split('T')[0],
+  }
+
+  store.guardarEmpresa(empresaNueva)
+
   proxy.$notify.success('Empresa registrada correctamente', 'Éxito')
   router.push('/GestionEmpresas')
 }
@@ -45,7 +61,7 @@ function guardarEmpresa() {
 
     <form @submit.prevent="guardarEmpresa" class="flex flex-col gap-6 max-w-4xl">
 
-      <!-- Sección datos de la empresa -->
+      <!-- ── Datos de la empresa ──────────── -->
       <div class="bg-white rounded-xl shadow-md border border-[#beaed8]/50 overflow-hidden">
         <div class="p-4 bg-gray-50/50 border-b border-[#beaed8]/30">
           <h2 class="text-sm font-bold text-gray-700 uppercase tracking-wider">Datos de la Empresa</h2>
@@ -110,6 +126,7 @@ function guardarEmpresa() {
             <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Plan *</label>
             <select
               v-model="nuevaEmpresa.plan"
+              required
               class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] cursor-pointer transition-colors"
             >
               <option value="Básico">Básico</option>
@@ -121,7 +138,7 @@ function guardarEmpresa() {
         </div>
       </div>
 
-      <!-- Sección cuenta Admin -->
+      <!-- ── Cuenta Admin ─────────────────── -->
       <div class="bg-white rounded-xl shadow-md border border-[#beaed8]/50 overflow-hidden">
         <div class="p-4 bg-gray-50/50 border-b border-[#beaed8]/30">
           <h2 class="text-sm font-bold text-gray-700 uppercase tracking-wider">Cuenta Admin de la Empresa</h2>

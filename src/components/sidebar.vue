@@ -96,9 +96,8 @@ const store = usePanelStore()
         <span v-if="layout.isSidebarOpen">Ajustes</span>
       </RouterLink>
       
-      <RouterLink to="/" 
-        class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors font-medium"
-        style="color: #f87171;"  
+      <RouterLink to="/login" 
+        class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-red-400 hover:bg-red-900/30 transition-colors font-medium"
         :class="{'justify-center': !layout.isSidebarOpen}">
         <i class="fi fi-sr-exit w-5 text-center"></i> 
         <span v-if="layout.isSidebarOpen">Cerrar Sesión</span>

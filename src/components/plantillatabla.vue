@@ -1,5 +1,6 @@
 <script setup>
 defineProps({
+  //PlantillaTabla
   titulo: String,
   icon: String,
   encabezados: Array,
