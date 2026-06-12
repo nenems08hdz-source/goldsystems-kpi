@@ -8,6 +8,7 @@ import MedidorKpi from '../components/MedidorKpi.vue'
 import ProgresoKpi from '../components/ProgresoKpi.vue'
 import plantillatabla from '../components/PlantillaTabla.vue'
 import TarjetasKpi from '../components/TarjetasKpi.vue'
+import Bottones from '../components/Bottones.vue'
 const store = usePanelStore()
 
 const listoPararenderizar = ref(false)
@@ -44,15 +45,11 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
           descripcion="Visualización general de la empresa e indicadores (Kpis)."
         />
       </div>
+      
       <div class="flex-none">
         <!-- CAMBIO: hover:bg-[#beaed8] → hover usa variable. 
              El color base #3f2a52 ya usa --sidebar-bg automáticamente -->
-        <button
-  @click="$router.push('/personalizar')"
-  class="flex items-center gap-2 bg-[#3f2a52] hover:bg-[#beaed8] hover:text-[#3f2a52] text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all"
->
-  ⚙️ Personalizar
-</button>
+             <Bottones  @click="$router.push('/personalizar')" to="/personalizar">⚙️ Personalizar</Bottones>
       </div>
     </div>
 
@@ -179,11 +176,12 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
             </td>
 
             <td class="p-4 align-middle text-center">
-              <!-- CAMBIO: bg-slate-100 text-slate-500 → variables -->
-              <span class="text-xs font-medium px-2 py-1 rounded"
-                style="background: var(--card-border); color: var(--subtext-general);">
+              <div class="flex flex-col gap-1">
+              <span class="text-[10px] font-bold bg-gray-100 text-gray-500 px-2 py-0.5 rounded uppercase tracking-wide w-fit"
+               >
                 {{ fila.periodicidad }}
               </span>
+              </div>
             </td>
 
             <td class="p-4 align-middle text-center font-bold text-sm"

@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import plantillatabla from '../components/PlantillaTabla.vue'
 import tarjetasresumen from '../components/TarjetasResumen.vue'
 
+
 const misEventos = ref([
   {
     id: 1,
@@ -60,12 +61,14 @@ const misEventos = ref([
           Supervisión en tiempo real de la integridad del sistema y actividad del usuario.
         </p>
       </div>
+
       <div class="flex gap-3">
         <button class="px-4 py-2 rounded-lg text-xs font-semibold shadow-sm transition-colors flex items-center gap-2"
           style="background: var(--card-bg); border: 1px solid var(--tabla-borde); color: var(--card-text);"
           @mouseover="$event.currentTarget.style.background='var(--tabla-header-bg)'"
           @mouseleave="$event.currentTarget.style.background='var(--card-bg)'"
         ><i class="fi fi-sr-file-pdf"></i> Exportar PDF</button>
+        
         <button class="px-4 py-2 rounded-lg text-xs font-semibold shadow-sm transition-colors flex items-center gap-2 text-white"
           style="background: var(--sidebar-bg);"
           @mouseover="$event.currentTarget.style.background='#15803d'"
@@ -111,32 +114,34 @@ const misEventos = ref([
               {{ fila.usuario.charAt(0) }}
             </div>
             <div>
-              <div class="font-bold text-xs" style="color: var(--card-text);">{{ fila.usuario }}</div>
-              <div class="text-[11px]" style="color: var(--card-text-hint);">{{ fila.correo }}</div>
+              <div class="font-bold text-xs" style="color: var(--text-general);">{{ fila.usuario }}</div>
+              <div class="text-[11px]" style="color: var(--text-general);">{{ fila.correo }}</div>
             </div>
           </div>
         </td>
 
         <td class="p-4 align-middle text-xs font-medium md:w-2/12 min-w-[130px]"
-          style="color: var(--card-text);">
+          style="var(--text-general);">
           {{ fila.accion }}
         </td>
 
         <td class="p-4 align-middle text-xs whitespace-nowrap md:w-1/12 min-w-[110px]"
-          style="color: var(--card-text-muted);">
+          style="color: var(--text-general);">
           {{ fila.fecha }}
         </td>
 
         <!-- Badge módulo -->
-        <td class="p-4 align-middle md:w-1/12 min-w-[120px]">
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded border uppercase tracking-wide inline-block"
-            style="background: var(--tabla-header-bg); color: var(--card-text-muted); border-color: var(--tabla-borde);">
-            {{ fila.modulo }}
-          </span>
-        </td>
+        <td class="p-4 align-middle text-center">
+              <div class="flex flex-col gap-1">
+              <span class="text-[10px] font-bold bg-gray-100 text-gray-500 px-2 py-0.5 rounded uppercase tracking-wide w-fit"
+               >
+                {{ fila.modulo }}
+              </span>
+              </div>
+            </td>
 
         <td class="p-4 align-middle text-xs max-w-xs truncate md:w-2/12 min-w-[150px]"
-          style="color: var(--card-text-muted);">
+          style="color: var(--text-general);">
           {{ fila.detalle }}
         </td>
 
@@ -184,8 +189,8 @@ const misEventos = ref([
         style="border-bottom: 1px solid var(--card-border);">
         <div class="flex flex-col justify-between h-full text-left">
           <span class="font-bold uppercase text-[10px] tracking-wider"
-            style="color: var(--card-text-hint);">Metas Editadas</span>
-          <span class="text-2xl font-bold leading-none" style="color: var(--card-text);">24</span>
+            style="color: var(--text-general);">Metas Editadas</span>
+          <span class="text-2xl font-bold leading-none" style="color: var(--text-general);">24</span>
         </div>
         <div class="flex items-end gap-1 pb-1">
           <div class="w-1 h-3 rounded-sm" style="background: var(--card-text-hint);"></div>
@@ -200,8 +205,8 @@ const misEventos = ref([
         style="border-bottom: 1px solid var(--card-border); border-left: 1px solid var(--card-border); border-right: 1px solid var(--card-border);">
         <div class="flex flex-col justify-between h-full text-left">
           <span class="font-bold uppercase text-[10px] tracking-wider"
-            style="color: var(--card-text-hint);">Cambios de Datos</span>
-          <span class="text-2xl font-bold leading-none" style="color: var(--card-text);">112</span>
+            style="color: var(--text-general);">Cambios de Datos</span>
+          <span class="text-2xl font-bold leading-none" style="color: var(--text-general);">112</span>
         </div>
         <div class="flex items-end gap-1 pb-1">
           <div class="w-1 h-6 rounded-sm" style="background: var(--card-text-hint);"></div>
@@ -215,8 +220,8 @@ const misEventos = ref([
       <div class="p-4 flex justify-between items-end h-20">
         <div class="flex flex-col justify-between h-full text-left">
           <span class="font-bold uppercase text-[10px] tracking-wider"
-            style="color: var(--card-text-hint);">Cancelaciones</span>
-          <span class="text-2xl font-bold leading-none" style="color: var(--card-text);">3</span>
+            style="color: var(--text-general);">Cancelaciones</span>
+          <span class="text-2xl font-bold leading-none" style="color: var(--text-general);">3</span>
         </div>
         <div class="flex items-end gap-1 pb-1">
           <div class="w-1 h-2 rounded-sm" style="background: var(--card-text-hint);"></div>

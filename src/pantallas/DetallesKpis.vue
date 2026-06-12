@@ -1,42 +1,9 @@
 <script setup>
-// DetallesKpi.vue
-// ─────────────────────────────────────────────────────────────────────────
-// CAMBIOS EN ESTA VERSIÓN respecto al archivo original:
-//
-//  PROBLEMA ORIGINAL:
-//    El historial de registros era un array local `registros` con datos
-//    hardcodeados que no se conectaba con el store. Esto significaba que
-//    al guardar una captura desde CapturaMetricas, la captura aparecía
-//    correctamente en la gráfica (porque el store actualizaba kpi.historial)
-//    pero NO aparecía en la sección "Historial de Registros" de esta
-//    pantalla, porque esa sección leía de `registros` local.
-//
-//  SOLUCIÓN:
-//    Se reemplaza `registros` local por `store.capturasPorKpi(idKpi)`,
-//    que devuelve las capturas reales guardadas en el store.
-//
-//    Para no perder los registros de eventos (cambios de meta, nuevo
-//    responsable, etc.) que son útiles como auditoría, se mantiene un
-//    array `eventosBase` con esos registros fijos. El computed
-//    `registrosCombinados` fusiona ambos arrays ordenados por fecha,
-//    así el historial muestra TANTO las capturas nuevas COMO los eventos
-//    históricos.
-//
-//    Esto también mejora `registrosFiltrados`: antes filtraba solo por
-//    fecha; ahora también funciona con los registros de capturas reales
-//    que tienen el campo `fechaCorte` en lugar de `fecha`.
-//
-//  SIN CAMBIOS:
-//    - La gráfica (ya era reactiva al store)
-//    - El encabezado del KPI (ya era reactivo al store)
-//    - Los filtros por periodicidad
-//    - Todo el diseño visual
-// ─────────────────────────────────────────────────────────────────────────
-
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { usePanelStore } from '../stores/panelStore'
 import GraficaKpiEspecifica from '../components/GraficaKpiEspecifica.vue'
+import BotonesRegreso from '../components/BotonesRegreso.vue'
 
 const route  = useRoute()
 const router = useRouter()
@@ -161,12 +128,12 @@ function bgEstado(estadoTipo) {
 <template>
   <div class="flex flex-col gap-6 w-full px-6 py-4">
 
-    <button
+    <BotonesRegreso
       @click="router.push('/kpis')"
       class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 shadow-sm transition-colors flex items-center gap-2 w-fit"
     >
       ← Volver al Listado
-    </button>
+    </BotonesRegreso>
 
     <div v-if="!kpi" class="bg-white rounded-xl border border-gray-200 p-8 text-center">
       <p class="text-gray-400 text-sm">No se encontró el KPI solicitado.</p>

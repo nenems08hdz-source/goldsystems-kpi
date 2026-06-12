@@ -177,12 +177,14 @@ function colorTendencia(t) {
       </div>
 
       <div class="flex items-end gap-2 lg:col-span-6">
-        <button @click="limpiarFiltros" class="border border-[#beaed8] text-[#3f2a52] hover:bg-[#beaed8]/20 font-bold text-xs px-4 py-2.5 rounded-lg transition-all">
+        
+       <Bottones @click="limpiarFiltros" class="bg-[#3f2a52] hover:bg-[#beaed8]  text-white font-bold text-xs px-4 py-2.5 rounded-lg transition-all">
           Limpiar filtros
-        </button>
-        <button @click="$router.push('/kpis/nuevo')" class="bg-[#3f2a52] hover:bg-[#beaed8] text-white font-bold text-xs px-4 py-2.5 rounded-lg transition-all ml-auto">
+        </Bottones>
+
+        <bottones @click="$router.push('/kpis/nuevo')" class="bg-[#3f2a52] hover:bg-[#beaed8] text-white font-bold text-xs px-4 py-2.5 rounded-lg transition-all ml-auto">
           + Nuevo KPI
-        </button>
+        </bottones>
       </div>
     </div>
 
@@ -218,17 +220,17 @@ function colorTendencia(t) {
         </td>
 
         <td class="p-4 align-middle text-left">
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded border uppercase tracking-wide"
-            style="background: var(--tabla-header-bg); color: var(--card-text-muted); border-color: var(--tabla-borde); color: var(--text-general);">
+           <span class="text-[10px] font-bold bg-gray-100 text-gray-500 px-2 py-0.5 rounded uppercase tracking-wide w-fit"
+           >
             {{ fila.tipoMetrica }}
           </span>
         </td>
 
-        <td class="p-4 text-gray-600 text-xs text-left">{{ fila.responsable }}</td>
+        <td class="p-4 text-gray-600 text-xs text-left" style= "color: var(--text-general);">{{ fila.responsable }}</td>
 
         <td class="p-4 text-left">
-          <span class="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide border"
-            style="background: var(--tabla-header-bg); color: var(--card-text-muted); border-color: var(--tabla-borde); color: var(--text-general);">
+           <span class="text-[10px] font-bold bg-gray-100 text-gray-500 px-2 py-0.5 rounded uppercase tracking-wide w-fit"
+           >
             {{ fila.periodicidad }}
           </span>
         </td>
@@ -247,13 +249,13 @@ function colorTendencia(t) {
             KPI Puntaje     → "77 pts"
         -->
         <td class="p-4 text-left">
-          <span class="text-sm font-bold text-gray-800">
+          <span class="text-sm font-bold text-gray-800"style="color: var(--text-general);" >
             {{ fila.progreso }} {{ unidadPorTipo(fila.tipoMetrica) }}
           </span>
         </td>
 
         <td class="p-4 text-left">
-          <span class="text-xs font-semibold text-gray-600">{{ fila.meta }}</span>
+          <span class="text-xs font-semibold text-gray-600" style= "color: var(--text-general);">{{ fila.meta }}</span>
         </td>
 
         <!--
@@ -283,12 +285,14 @@ function colorTendencia(t) {
       </template>
 
       <template #iconos-acciones="{ item }">
+
         <button @click="$router.push(`/kpis/detalle/${item.id}`)" title="Ver Detalles"
           class="p-1.5 rounded-lg transition-colors"
           style="color: var(--card-text-hint); background: var(--tabla-header-bg);"
           @mouseover="$event.currentTarget.style.color='var(--sidebar-bg)'; $event.currentTarget.style.background='var(--tabla-hover)'"
           @mouseleave="$event.currentTarget.style.color='var(--card-text-hint)'; $event.currentTarget.style.background='var(--tabla-header-bg)'"
         ><i class="fi fi-sr-eye"></i></button>
+
         <button @click="prepararEliminacion(item)" title="Eliminar KPI"
           class="p-1.5 rounded-lg transition-colors"
           style="color: var(--card-text-hint); background: var(--tabla-header-bg);"

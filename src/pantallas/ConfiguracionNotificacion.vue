@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { getCurrentInstance } from 'vue'
 import plantillatabla from '../components/PlantillaTabla.vue' 
 import ModalConfirmacion from '../components/ModalConfirmacion.vue'
+import Bottones from '../components/Bottones.vue'
 
 const mensajeExito = ref(false)
 const canales = ref([
@@ -176,20 +177,16 @@ const guardarcambios = () => {
 
         <p class="text-[10px] opacity-60">Solo alertas críticas durante este periodo.</p>
             <div class="p-6 border-t border-gray-100 flex justify-end gap-3 mt-6">
-                <button @click=""class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-black text-xs font-bold rounded-xl transition-colors">Cancelar</button>
-                <button @click="guardarcambios" class="px-6 py-2.5 bg-[#3f2a52] hover:bg-[#beaed8] text-white text-xs font-bold rounded-xl shadow-md transition-all">Guardar Cambios</button>
+                <bottones @click="" >Cancelar</bottones>
+                <bottones @click="guardarcambios" >Guardar Cambios</bottones>
             </div>
         </section>
       </div>
     </div>
 
     <div class="max-w-5xl mx-auto w-full flex justify-end gap-3 pt-6  mt-8">
-      <button class="px-5 py-2 text-sm font-bold text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
-        Descartar
-      </button>
-      <button @click="guardarNotificacion" class="px-5 py-2 text-sm font-bold text-white bg-[#3f2a52] rounded-lg hover:bg-[#2a1d37] transition-colors shadow-sm">
-        Guardar Cambios
-      </button>
+      <bottones > Descartar </bottones>
+      <bottones @click="guardarNotificacion"> Guardar Cambios </bottones>
     </div>
   </div>
 </template>

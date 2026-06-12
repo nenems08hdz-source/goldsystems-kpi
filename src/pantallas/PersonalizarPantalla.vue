@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import draggable from 'vuedraggable'
 import { usePanelStore } from '../stores/panelStore'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
+import Bottones from '../components/Bottones.vue'
 
 const router = useRouter()
 const store = usePanelStore()
@@ -99,18 +100,11 @@ function cancelar() {
           descripcion="Arrastra los bloques y configura tus KPIs desde la barra lateral."
         />
         <div class="flex gap-3">
-          <button
-            @click="cancelar"
-            class="px-4 py-2 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 font-medium transition-all text-sm"
-          >
-            Cancelar
-          </button>
-          <button
-            @click="guardarCambios"
-            class="px-4 py-2 rounded-lg bg-[#3f2a52] hover:bg-[#beaed8] text-white font-medium transition-all text-sm"
-          >
-             Guardar cambios
-          </button>
+         <Bottones  @click="cancelar" > Cancelar </Bottones>
+
+         <Bottones  @click="guardarCambios" >Guardar Cambios </Bottones>
+          
+          
         </div>
       </div>
 

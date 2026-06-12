@@ -55,16 +55,23 @@ const handleLogin = () => {
 </template>
 
 <style scoped>
-/* Configuración Global */
+/* Esto aplica el estilo al body aunque el scoped esté activo */
+:global(body) {
+  margin: 0;
+  background-color: #08040e;
+}
+
 .login-page {
   background-color: #08040e;
   min-height: 100vh;
+  width: 100vw; /* Asegura que ocupe todo el ancho */
   display: flex;
   justify-content: center;
   align-items: center;
   color: white;
   font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
+
 
 /* Contenedor Principal con Difuminado */
 .main-container {

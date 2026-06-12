@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { getCurrentInstance } from 'vue'
 import { usePanelStore } from '../stores/panelStore'
+import Bottones from '../components/Bottones.vue'
 
 const router = useRouter()
 const store = usePanelStore()
@@ -198,19 +199,8 @@ function guardarUsuario() {
         </div>
 
         <div class="p-6 border-t border-[#beaed8]/20 bg-gray-50/50 flex justify-end gap-3">
-          <button
-            @click="router.push('/ControlOrganizacional')"
-            type="button"
-            class="bg-white hover:bg-gray-100 text-gray-600 border border-gray-300 font-bold text-xs py-3 px-6 rounded-lg transition-all"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            class="bg-[#3f2a52] hover:bg-[#77a9d4] text-white font-bold text-xs py-3 px-8 rounded-lg transition-all shadow-sm"
-          >
-            Guardar Colaborador
-          </button>
+          <bottones  @click="router.push('/ControlOrganizacional')" type="button" >  Cancelar </bottones>
+          <bottones type="submit">Guardar Colaborador</bottones>   
         </div>
       </form>
 

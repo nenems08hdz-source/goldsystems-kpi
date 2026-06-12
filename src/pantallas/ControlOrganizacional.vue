@@ -5,6 +5,7 @@ import plantillatabla from '../components/PlantillaTabla.vue'
 import ModalConfirmacion from '../components/ModalConfirmacion.vue'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
 import { usePanelStore } from '../stores/panelStore'
+import Bottones from '../components/Bottones.vue'
 
 const store = usePanelStore()
 const { proxy } = getCurrentInstance()
@@ -173,22 +174,22 @@ function eliminarNodo(nodo) {
 
       <div class="flex flex-col gap-1.5 lg:col-span-2">
         <label class="text-[11px] font-bold uppercase tracking-wider"
-          style="color: var(--card-text-muted);">Buscar usuario</label>
+          style="color: var(--text-general); ">Buscar usuario</label>
         <input
           v-model="filtroBusqueda"
           type="text"
           placeholder="Nombre o correo..."
           class="text-xs rounded-lg p-2.5 outline-none transition-colors"
-          style="background: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border);"
+          style="background: var(--input-bg); color: var(--text-general); border: 1px solid var(--input-border);"
         />
       </div>
 
       <div class="flex flex-col gap-1.5">
         <label class="text-[11px] font-bold uppercase tracking-wider"
-          style="color: var(--card-text-muted);">Rol</label>
+          style="color: var(--text-general);">Rol</label>
         <select v-model="filtroRol"
           class="text-xs rounded-lg p-2.5 outline-none cursor-pointer transition-colors"
-          style="background: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border);">
+          style="background: var(--input-bg); color: var(--text-general); border: 1px solid var(--input-border);">
           <option value="">Todos los roles</option>
           <option v-for="rol in store.rolesDisponibles" :key="rol.id" :value="rol.codigo">
             {{ rol.nombre }}
@@ -198,10 +199,10 @@ function eliminarNodo(nodo) {
 
       <div class="flex flex-col gap-1.5">
         <label class="text-[11px] font-bold uppercase tracking-wider"
-          style="color: var(--card-text-muted);">Estado</label>
+          style="color: var(--text-general)">Estado</label>
         <select v-model="filtroEstado"
           class="text-xs rounded-lg p-2.5 outline-none cursor-pointer transition-colors"
-          style="background: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border);">
+          style="background: var(--input-bg); color: var(--text-general);  border: 1px solid var(--input-border);">
           <option value="">Todos</option>
           <option value="activo">Activo</option>
           <option value="ausente">Ausente</option>
@@ -210,18 +211,15 @@ function eliminarNodo(nodo) {
       </div>
 
       <div class="flex items-end gap-2">
-        <button @click="limpiarFiltros"
-          class="font-bold text-xs px-3 py-2.5 rounded-lg transition-all flex-1"
-          style="border: 1px solid var(--color-kpi-morado); color: var(--sidebar-bg); background: transparent;"
-          @mouseover="$event.currentTarget.style.background='rgba(190,174,216,0.2)'"
-          @mouseleave="$event.currentTarget.style.background='transparent'"
-        >Limpiar</button>
-        <button @click="$router.push('/organizacion/nuevo')"
-          class="text-white font-bold text-xs px-3 py-2.5 rounded-lg transition-all flex-1"
-          style="background: var(--sidebar-bg);"
+        <Bottones @click="limpiarFiltros"
+         @mouseover="$event.currentTarget.style.background='var(--sidebar-active-bg)'; $event.currentTarget.style.color='var(--sidebar-active-text)'"
+          @mouseleave="$event.currentTarget.style.background='var(--sidebar-bg)'; $event.currentTarget.style.color='white'"
+        > Limpiar </bottones>
+
+        <Bottones @click="$router.push('/organizacion/nuevo')"
           @mouseover="$event.currentTarget.style.background='var(--sidebar-active-bg)'; $event.currentTarget.style.color='var(--sidebar-active-text)'"
           @mouseleave="$event.currentTarget.style.background='var(--sidebar-bg)'; $event.currentTarget.style.color='white'"
-        >+ Nuevo</button>
+        >+ Nuevo</bottones>
       </div>
     </div>
 
@@ -234,20 +232,20 @@ function eliminarNodo(nodo) {
 
         <!-- CAMBIO: bg-gradient-to-r from-gray-50 to-white → --tabla-header-bg -->
         <div class="p-4" style="border-bottom: 1px solid var(--tabla-borde); background: var(--tabla-header-bg);">
-          <h2 class="text-sm font-bold tracking-tight" style="color: var(--sidebar-bg);">
+          <h2 class="text-sm font-bold tracking-tight" style="color: var(--text-general); ">
             Estructura Organizacional
           </h2>
-          <p class="text-[10px] mt-0.5" style="color: var(--card-text-hint);">
+          <p class="text-[10px] mt-0.5" style="color: var(--text-general); ">
             Haz clic en un área para filtrar sus usuarios
           </p>
         </div>
 
-        <div class="p-3 flex flex-col gap-1 max-h-[420px] overflow-y-auto">
+        <div class="p-3 flex flex-col gap-1 max-h-[420px] overflow-y-auto" style="color: var(--text-general); ">
           <div
             v-for="nodo in store.estructuraOrganizacional"
             :key="nodo.id"
             :style="{ paddingLeft: (nodo.nivel * 20) + 'px' }"
-            class="group flex items-center justify-between p-2.5 rounded-xl transition-all duration-200 relative"
+            class="group flex items-center justify-between p-2.5 rounded-xl transition-all duration-200 relative "
             :class="[
               nodo.tipo !== 'empresa' ? 'cursor-pointer' : 'cursor-default',
               nodoSeleccionado?.id === nodo.id ? 'ring-1 ring-[#3f2a52]/20' : ''
@@ -298,7 +296,7 @@ function eliminarNodo(nodo) {
               <button v-if="nodo.tipo !== 'empresa'"
                 @click.stop="eliminarNodo(nodo)"
                 class="opacity-0 group-hover:opacity-100 hover:text-red-500 hover:bg-red-50 p-1 rounded-lg transition-all text-xs"
-                style="color: var(--card-text-hint);">
+                style="color: var(--text-general); ">
                 <i class="fi fi-sr-trash"></i>
               </button>
             </div>
@@ -307,15 +305,15 @@ function eliminarNodo(nodo) {
 
         <!-- Botones del árbol -->
         <div class="p-3 flex gap-2" style="border-top: 1px solid var(--tabla-borde);">
-          <button @click="$router.push('/FormularioDepartamento')"
+          <bottones @click="$router.push('/FormularioDepartamento')"
             class="flex-1 text-[10px] font-bold uppercase tracking-wider py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all"
-            style="background: var(--card-bg); color: var(--sidebar-bg); border: 1px solid var(--input-border);"
+            style="background: var(--card-bg); color: var(--text-general); border: 1px solid var(--input-border);"
             @mouseover="$event.currentTarget.style.background='var(--tabla-hover)'"
             @mouseleave="$event.currentTarget.style.background='var(--card-bg)'"
-          ><span class="text-[#beaed8]">+</span> Departamento</button>
+          ><span class="text-[#beaed8]">+</span> Departamento</bottones>
           <button @click="$router.push('/FormularioEquipo')"
             class="flex-1 text-[10px] font-bold uppercase tracking-wider py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all"
-            style="background: var(--card-bg); color: var(--sidebar-bg); border: 1px solid var(--input-border);"
+            style="background: var(--card-bg); color: var(--text-general); border: 1px solid var(--input-border);"
             @mouseover="$event.currentTarget.style.background='var(--tabla-hover)'"
             @mouseleave="$event.currentTarget.style.background='var(--card-bg)'"
           ><span class="text-[#beaed8]">+</span> Equipo</button>
@@ -325,10 +323,10 @@ function eliminarNodo(nodo) {
       <!-- ── TABLA DE USUARIOS ── -->
       <div class="lg:col-span-8">
         <div class="flex items-center justify-between mb-2 px-1">
-          <p class="text-xs" style="color: var(--card-text-hint);">
-            Mostrando <strong style="color: var(--card-text);">{{ usuariosFiltrados.length }}</strong>
-            de <strong style="color: var(--card-text);">{{ store.usuarios.length }}</strong> usuarios
-            <span v-if="nodoSeleccionado" class="font-semibold" style="color: var(--sidebar-bg);">
+          <p class="text-xs" style="color: var(--text-general); ">
+            Mostrando <strong style="color: var(--text-general); ">{{ usuariosFiltrados.length }}</strong>
+            de <strong style="color: var(--text-general); ">{{ store.usuarios.length }}</strong> usuarios
+            <span v-if="nodoSeleccionado" class="font-semibold" style="color: var(--text-general); ">
               — {{ nodoSeleccionado.nombre }}
             </span>
           </p>
@@ -348,11 +346,11 @@ function eliminarNodo(nodo) {
                   {{ fila.nombre.charAt(0) }}{{ fila.apellidoPaterno.charAt(0) }}
                 </div>
                 <div>
-                  <div class="font-bold text-xs leading-none" style="color: var(--card-text);">
+                  <div class="font-bold text-xs leading-none" style="color: var(--text-general); ">
                     {{ store.nombreCompleto(fila) }}
                   </div>
-                  <div class="text-[11px] mt-0.5" style="color: var(--card-text-hint);">{{ fila.email }}</div>
-                  <div v-if="fila.telefono" class="text-[10px] mt-0.5" style="color: var(--card-border);">
+                  <div class="text-[11px] mt-0.5" style="color: var(--text-general); ">{{ fila.email }}</div>
+                  <div v-if="fila.telefono" class="text-[10px] mt-0.5" style="color: var(--text-general); ">
                     {{ fila.telefono }}
                   </div>
                 </div>
@@ -369,13 +367,13 @@ function eliminarNodo(nodo) {
 
             <td class="p-4 align-middle text-left">
               <div class="flex items-center gap-1.5">
-                <span class="font-semibold text-sm" style="color: var(--card-text);">{{ fila.kpis }}</span>
-                <span style="color: var(--card-text-hint);" class="text-xs">📋</span>
+                <span class="font-semibold text-sm" style="color: var(--text-general); ">{{ fila.kpis }}</span>
+                <span style="color: var(--text-general);" class="text-xs">📋</span>
               </div>
             </td>
 
             <td class="p-4 align-middle text-left">
-              <span class="text-xs" style="color: var(--card-text-muted);">{{ fila.ultimoLogin ?? '—' }}</span>
+              <span class="text-xs" style="color: var(--text-general); ">{{ fila.ultimoLogin ?? '—' }}</span>
             </td>
 
             <td class="p-4 align-middle text-left">
@@ -401,12 +399,14 @@ function eliminarNodo(nodo) {
           </template>
 
           <template #iconos-acciones="{ item }">
+
             <button @click="abrirModificarRol(item)" title="Modificar Rol"
               class="p-2 rounded-lg transition-all text-sm"
-              style="color: var(--card-text-hint); background: var(--tabla-header-bg);"
+              style="color: var(--text-general);  background: var(--tabla-header-bg);"
               @mouseover="$event.currentTarget.style.color='var(--sidebar-bg)'; $event.currentTarget.style.background='var(--tabla-hover)'"
               @mouseleave="$event.currentTarget.style.color='var(--card-text-hint)'; $event.currentTarget.style.background='var(--tabla-header-bg)'"
             ><i class="fi fi-sr-pencil"></i></button>
+
             <button @click="abrirPanelKpis(item)" title="Ver KPIs Asignados"
               class="p-2 rounded-lg transition-all text-sm"
               style="color: var(--card-text-hint); background: var(--tabla-header-bg);"
@@ -479,11 +479,13 @@ function eliminarNodo(nodo) {
           <p class="text-[10px] text-center mb-3" style="color: var(--card-text-hint);">
             La asignación de KPIs se gestiona desde el módulo de Gestión de KPIs.
           </p>
-          <button @click="$router.push('/kpis'); mostrarPanelKpis = false"
+          <Bottones @click="$router.push('/kpis'); mostrarPanelKpis = false"
             class="w-full text-white font-bold text-xs py-3 rounded-lg transition-all uppercase tracking-wider"
             style="background: var(--sidebar-bg);">
             Ir a Gestión de KPIs
-          </button>
+          </bottones>
+
+          
         </div>
       </div>
     </div>

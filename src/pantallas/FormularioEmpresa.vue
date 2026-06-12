@@ -3,6 +3,8 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { getCurrentInstance } from 'vue'
 import { usePanelStore } from '../stores/panelStore'
+import Bottones from '../components/Bottones.vue'
+import BotonesRegreso from '../components/BotonesRegreso.vue'
 
 const router = useRouter()
 const store  = usePanelStore()
@@ -50,13 +52,13 @@ function guardarEmpresa() {
         <h1 class="text-4xl font-bold text-[#3f2a52] tracking-tight">Nueva Empresa</h1>
         <p class="text-xs text-gray-500 mt-1">Registra una nueva empresa en el sistema y configura su cuenta Admin.</p>
       </div>
-      <button
+      <BotonesRegreso
         @click="router.push('/GestionEmpresas')"
         type="button"
         class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 shadow-sm transition-colors flex items-center gap-2"
       >
         ← Volver
-      </button>
+      </BotonesRegreso>
     </div>
 
     <form @submit.prevent="guardarEmpresa" class="flex flex-col gap-6 max-w-4xl">
@@ -174,19 +176,18 @@ function guardarEmpresa() {
       </div>
 
       <div class="flex justify-end gap-3">
-        <button
+        <Bottones
           @click="router.push('/GestionEmpresas')"
           type="button"
-          class="bg-white hover:bg-gray-100 text-gray-600 border border-gray-300 font-bold text-xs py-3 px-6 rounded-lg transition-all"
         >
           Cancelar
-        </button>
-        <button
+        </bottones>
+
+        <Bottones
           type="submit"
-          class="bg-[#3f2a52] hover:bg-[#beaed8] text-white font-bold text-xs py-3 px-8 rounded-lg transition-all shadow-sm"
         >
           Registrar Empresa
-        </button>
+        </bottones>
       </div>
 
     </form>

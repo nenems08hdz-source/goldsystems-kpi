@@ -2,6 +2,7 @@
 import { ref, getCurrentInstance } from 'vue'
 import plantillatabla from '../components/PlantillaTabla.vue'
 import ModalConfirmacion from '../components/ModalConfirmacion.vue'
+import Bottones from '../components/Bottones.vue'
 
 const { proxy } = getCurrentInstance()
 
@@ -126,10 +127,10 @@ function ejecutarEliminacion() {
           <p class="text-sm font-bold" >Doble Factor (2FA)</p>
           <p class="text-xs text-gray-500" style="color: var(--text-general);">Protección extra para tu cuenta</p>
         </div>
-        <button @click="editandoPassword = !editandoPassword" 
-                class="text-xs font-bold text-[#3f2a52] bg-white px-4 py-2 rounded-lg border border-gray-200 hover:bg-[#beaed8] transition-all">
+        <Bottones @click="editandoPassword = !editandoPassword" 
+            >
           {{ editandoPassword ? 'Cancelar edición' : 'Cambiar contraseña' }}
-        </button>
+        </Bottones>
       </div>
 
       <div v-if="editandoPassword" class="space-y-4 bg-gray-50 p-6 rounded-2xl border border-gray-100 mb-6" style="background: var(--card-bg); color: var(--text-general);">
@@ -150,9 +151,9 @@ function ejecutarEliminacion() {
           <input type="password" v-model="passwordForm.confirmar"  class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 transition-colors" />
         </div>
 
-        <button @click="guardarPassword"  class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 transition-colors">
+        <bottones @click="guardarPassword">
           Actualizar Contraseña
-        </button>
+        </bottones>
       </div>
     </section>
 
@@ -164,10 +165,11 @@ function ejecutarEliminacion() {
           <td class="p-4 text-xs ">{{ fila.ubicacion }}</td>
           <td class="p-4 text-xs font-bold ">{{ fila.tiempo }}</td>
           <td class="p-4">
-           <button @click="confirmarEliminacion(fila.id)" 
-            class="px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-[#3f2a52] text-white hover:bg-[#beaed8]">
-            Cerrar
-          </button>
+
+           <bottones @click="confirmarEliminacion(fila.id)" 
+          >  Cerrar
+          </bottones>
+
           </td>
         </template>
       </plantillatabla>
@@ -181,10 +183,10 @@ function ejecutarEliminacion() {
           <td class="p-4 text-xs font-bold">{{ fila.hora }}</td>
           <td class="p-4">
 
-          <button @click="confirmarEliminacion(fila.id)" 
-            class="px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-[#3f2a52] text-white hover:bg-[#beaed8]">
+          <bottones @click="confirmarEliminacion(fila.id)" 
+            >
              Eliminar 
-          </button>
+          </bottones>
 
           </td>
         </template>
@@ -192,8 +194,8 @@ function ejecutarEliminacion() {
     </section>
 
     <div class="p-6 border-t border-gray-100 flex justify-end gap-3 mt-6">
-      <button class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-black text-xs font-bold rounded-xl transition-colors">Cancelar</button>
-      <button @click="guardarcambios" class="px-6 py-2.5 bg-[#3f2a52] hover:bg-[#beaed8] text-white text-xs font-bold rounded-xl shadow-md transition-all">Guardar Cambios</button>
+      <bottones >Cancelar</bottones>
+      <bottones @click="guardarcambios" > Guardar Cambios</bottones>
     </div>
   </div>
   <ModalConfirmacion

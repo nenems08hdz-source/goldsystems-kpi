@@ -4,6 +4,8 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { getCurrentInstance } from 'vue'
 import { usePanelStore } from '../stores/panelStore'
+import Bottones from '../components/Bottones.vue'
+import BotonesRegreso from '../components/BotonesRegreso.vue'
 
 const router = useRouter()
 const store = usePanelStore()
@@ -74,13 +76,13 @@ function guardarKpi() {
         <h1 class="text-4xl font-bold text-[#3f2a52] tracking-tight">Nuevo Indicador</h1>
         <p class="text-xs text-gray-500 mt-1">Registra un nuevo KPI definiendo sus metas y responsable.</p>
       </div>
-      <button
+
+      <BotonesRegreso
         @click="router.push('/kpis')"
-        type="button"
-        class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 shadow-sm transition-colors flex items-center gap-2"
-      >
+        type="button" >
         ← Volver al Listado
-      </button>
+      </BotonesRegreso>
+
     </div>
 
     <form @submit.prevent="guardarKpi" class="bg-white rounded-xl shadow-md border border-[#beaed8]/50 overflow-hidden max-w-4xl">
@@ -234,19 +236,15 @@ function guardarKpi() {
       </div>
 
       <div class="p-4 bg-gray-50/50 border-t border-[#beaed8]/20 flex justify-end gap-3">
-        <button
+        <Bottones
           @click="router.push('/kpis')"
-          type="button"
-          class="px-5 py-2 bg-white border border-gray-200 rounded-lg text-xs font-semibold text-gray-500 hover:bg-gray-100 transition-colors"
-        >
+         >
           Cancelar
-        </button>
-        <button
-          type="submit"
-          class="px-5 py-2 bg-[#3f2a52] text-white rounded-lg text-xs font-bold hover:bg-[#2c1d3a] shadow-sm transition-colors"
+        </Bottones>
+        <bottones
         >
           Guardar KPI
-        </button>
+        </bottones>
       </div>
 
     </form>

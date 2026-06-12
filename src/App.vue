@@ -33,9 +33,16 @@ const route = useRoute()
     <div class="flex-1 flex flex-col w-full transition-all duration-300">
       <navbar v-if="route.path !== '/login'" />
 
-      <main class="flex-1 p-8 overflow-y-auto">
-      <RouterView />
-      </main>
+      <main 
+  class="flex-1 overflow-y-auto" 
+  :class="route.path === '/login' ? 'p-0' : 'p-8'"
+>
+  <RouterView v-slot="{ Component }">
+    <transition name="slide-fade" mode="out-in">
+      <component :is="Component" />
+    </transition>
+  </RouterView>
+</main>
     </div>
   </div>
 </template>

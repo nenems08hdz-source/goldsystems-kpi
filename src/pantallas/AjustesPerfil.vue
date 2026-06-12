@@ -2,6 +2,7 @@
 import { getCurrentInstance } from 'vue'
 import { ref } from 'vue'
 import ModalConfirmacion from '../components/ModalConfirmacion.vue'
+import Bottones from '@/components/Bottones.vue'
 
 const usuario = ref({
   nombre: 'Alejandro',
@@ -104,8 +105,8 @@ const guardarPerfil = async () => {
       </div>
       
       <div class="p-6 border-t flex justify-end gap-3" >
-        <button type="button" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200  text-xs font-bold rounded-xl transition-colors">Cancelar</button>
-        <button @click="guardarPerfil" type="button" class="px-6 py-2.5 bg-[#3f2a52] hover:bg-[#beaed8] text-white text-xs font-bold rounded-xl shadow-md transition-all duration-300">Guardar Cambios</button>
+        <bottones type="button" >Cancelar</bottones>
+        <bottones @click="guardarPerfil" type="button">Guardar Cambios</bottones>
       </div>
     </div>
 
@@ -132,8 +133,8 @@ const guardarPerfil = async () => {
         </table>
       </div>
       <div class="p-6 border-t border-gray-100 flex justify-end gap-3"style="background: var(--card-bg);">
-        <button type="button" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-black text-xs font-bold rounded-xl transition-colors" >Cancelar</button>
-        <button @click="guardarPerfil" type="button" class="px-6 py-2.5 bg-[#3f2a52] hover:bg-[#beaed8] text-white text-xs font-bold rounded-xl shadow-md transition-all duration-300">Guardar Cambios</button>
+        <Bottones type="button" >Cancelar</bottones>
+        <bottones  @click="guardarPerfil" type="button" >Guardar Cambios</bottones>
       </div>
     </div>
 

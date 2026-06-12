@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Ajustes from '../components/Ajustes.vue'
 import Auditoria from '../pantallas/Auditoria.vue'
-import CapturasMetricas from '../pantallas/CapturasMetricas.vue/index.js'
+import CapturasMetricas from '../pantallas/CapturasMetricas.vue'
 import ConfiguracionNotificacion from '../pantallas/ConfiguracionNotificacion.vue'
 import ConfiguracionSeguridad from '../pantallas/ConfiguracionSeguridad.vue'
 import ControlOrganizacional from '../pantallas/ControlOrganizacional.vue'

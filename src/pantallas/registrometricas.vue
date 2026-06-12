@@ -3,6 +3,8 @@ import { ref, computed } from 'vue'
 import { useRouter }     from 'vue-router'
 import { getCurrentInstance } from 'vue'
 import { usePanelStore } from '../stores/panelStore'
+import Bottones from '../components/Bottones.vue'
+import BotonesRegreso from '../components/BotonesRegreso.vue'
 
 const props = defineProps({
   kpi: {
@@ -80,20 +82,17 @@ function guardarMetrica() {
 </script>
 
 <template>
-  <div class="w-full mt-6">
-
-    <!-- Botón "Volver" para regresar sin guardar -->
-    <button
+ <div class="flex flex-col gap-4 w-full px-4 py-2 "> 
+  
+    <BotonesRegreso
       @click="emit('cancelar')"
-      type="button"
-      class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 shadow-sm transition-colors flex items-center gap-2"
-    >
+      type="button">
       ← Volver a mis KPIs
-    </button>
+    </BotonesRegreso>
 
     <div class="bg-white rounded-xl border border-[#beaed8]/60 shadow-md overflow-hidden">
 
-      <div class="p-4 bg-gray-50/50 border-b border-[#beaed8]/30 flex items-center justify-between">
+      <div class="p-4 py-2 bg-gray-50/50 border-b border-[#beaed8]/30 flex items-center justify-between">
         <div>
           <h2 class="text-sm font-bold text-gray-700 uppercase tracking-wider">Registrar Métrica</h2>
           <p class="text-[10px] text-gray-400 mt-0.5">Captura el valor medido para el periodo correspondiente</p>
@@ -186,19 +185,19 @@ function guardarMetrica() {
 
           <!-- Botones -->
           <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
-            <button
+            <Bottones
               type="button"
               @click="emit('cancelar')"
-              class="text-gray-500 hover:text-gray-800 text-xs font-bold px-4 py-2.5 rounded-lg transition-colors"
+            
             >
               Cancelar
-            </button>
-            <button
+            </bottones>
+
+            <bottones
               type="submit"
-              class="bg-[#3f2a52] hover:bg-[#77a9d4] text-white font-bold text-xs px-5 py-2.5 rounded-lg transition-all duration-300 shadow-sm"
             >
               Guardar Registro
-            </button>
+            </bottones>
           </div>
 
         </form>

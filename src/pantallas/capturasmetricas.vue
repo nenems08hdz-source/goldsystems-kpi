@@ -4,7 +4,7 @@ import { usePanelStore } from '../stores/panelStore'
 import PlantillaTabla    from '../components/PlantillaTabla.vue'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
 import ModalConfirmacion from '../components/ModalConfirmacion.vue'
-import RegistroMetricas  from './RegistroMetricas.vue'
+import RegistroMetricas  from './registrometricas.vue'
 
 const store = usePanelStore()
 const { proxy } = getCurrentInstance()
@@ -98,30 +98,30 @@ function ejecutarEliminacion() {
           <template #default="{ fila }">
 
             <td class="p-4 text-left min-w-[200px]">
-              <div class="font-bold text-gray-800 text-xs leading-snug">{{ fila.nombre }}</div>
-              <div class="text-[11px] text-gray-400 mt-0.5">{{ fila.departamento }}</div>
+              <div class="text-m font-bold tracking-wide" style="color: var(--text-general);">{{ fila.nombre }}</div>
+              <div  class="text-xs font-normal mt-0.5 style="color: var(--subtext-general);>{{ fila.departamento }}</div>
             </td>
 
             <td class="p-4 text-left min-w-[140px]">
               <div class="flex flex-col gap-1">
-                <span class="text-[10px] font-bold bg-[#3f2a52]/8 text-[#3f2a52] px-2 py-0.5 rounded uppercase tracking-wide w-fit">
+                <span text-xs font-normal mt-0.5 style="color: var(--subtext-general);">
                   {{ fila.periodicidad }}
                 </span>
-                <span class="text-[10px] font-bold bg-gray-100 text-gray-500 px-2 py-0.5 rounded uppercase tracking-wide w-fit">
+                <span class="text-[10px] font-bold bg-gray-100 text-gray-500 px-2 py-0.5 rounded uppercase tracking-wide w-fit" >
                   {{ fila.tipoMetrica }}
                 </span>
               </div>
             </td>
 
             <td class="p-4 text-left min-w-[110px]">
-              <div class="text-sm font-black text-gray-800">{{ fila.progreso }}</div>
-              <div class="text-[10px] text-gray-400 mt-0.5">Meta: {{ fila.meta }}</div>
+              <div class="text-sm font-black text-gray-800" style="color: var(--text-general);">{{ fila.progreso }}</div>
+              <div  class="text-xs font-normal mt-0.5" style="color: var(--subtext-general);">Meta: {{ fila.meta }}</div>
             </td>
 
             <td class="p-4 text-left min-w-[130px]">
               <span
                 class="text-[10px] font-bold px-2.5 py-1 rounded-full border uppercase tracking-wide inline-block"
-                :class="infoEstadoCaptura(fila).clase"
+                :class="infoEstadoCaptura(fila).clases"
               >
                 {{ infoEstadoCaptura(fila).texto }}
               </span>
@@ -129,14 +129,16 @@ function ejecutarEliminacion() {
 
             <td class="p-4 min-w-[120px]">
               <div class="flex items-center gap-2">
-                <button
+
+                <bottones
                   @click="abrirFormulario(fila)"
                   title="Registrar métrica"
-                  class="flex items-center gap-1.5 bg-[#3f2a52] hover:bg-[#77a9d4] text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all duration-200 shadow-sm"
+                  class="flex items-center gap-1.5 bg-[#3f2a52] hover:bg-[#beaed8] text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all duration-200 shadow-sm"
                 >
                   <i class="fi fi-sr-edit text-[10px]"></i>
                   Registrar
-                </button>
+                </bottones>
+
                 <button
                   @click="prepararEliminacion(fila)"
                   title="Eliminar asignación"
