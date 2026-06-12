@@ -1,6 +1,5 @@
 <script setup>
 defineProps({
-  //PlantillaTabla
   titulo: String,
   icon: String,
   encabezados: Array,
@@ -30,12 +29,12 @@ defineProps({
           <tr class="sticky top-0 z-10" style="background: var(--tabla-header-bg);">
             <th v-for="header in encabezados" :key="header"
               class="p-4 text-[11px] font-bold uppercase tracking-wider"
-              style="color: var(--text-general);">
+              style="color: var(--tabla-header-text);">
               {{ header }}
             </th>
             <th v-if="mostrarAcciones"
               class="p-4 text-xs font-bold uppercase tracking-wider text-right pr-6 w-24"
-              style="color: var(--subtext-general);">
+              style="color: var(--tabla-header-text);">
               Acciones
             </th>
           </tr>

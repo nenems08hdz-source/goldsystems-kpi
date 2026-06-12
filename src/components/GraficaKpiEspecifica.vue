@@ -1,17 +1,14 @@
 <script setup>
-// Este componente recibe UN kpi completo y muestra su historial
-// en el tipo de gráfica que el usuario eligió.
+
 import apexchart from 'vue3-apexcharts'
 import { computed } from 'vue'
 
 const props = defineProps({
-  // El objeto KPI completo (con historial, etiquetas, etc.)
+ 
   kpi: { type: Object, required: true },
-  // Qué tipo de gráfica mostrar: 'linea', 'barras', 'area', 'radial'
   tipo: { type: String, default: 'linea' }
 })
 
-// El tipo de gráfica que ApexCharts entiende según lo que eligió el usuario
 const tipoApex = computed(() => {
   if (props.tipo === 'linea') return 'line'
   if (props.tipo === 'barras') return 'bar'
@@ -20,8 +17,6 @@ const tipoApex = computed(() => {
   return 'line'
 })
 
-// Para la gráfica radial, el dato es el progreso actual (un solo número)
-// Para las demás, es el historial completo
 const series = computed(() => {
   if (props.tipo === 'radial') {
     return [props.kpi.progreso]
@@ -30,7 +25,6 @@ const series = computed(() => {
 })
 
 const chartOptions = computed(() => {
-  // Opciones para la gráfica radial (igual que MedidorKpi pero con datos del KPI)
   if (props.tipo === 'radial') {
     return {
       chart: { type: 'radialBar', sparkline: { enabled: true } },
@@ -63,14 +57,12 @@ const chartOptions = computed(() => {
     }
   }
 
-  // Opciones compartidas para línea, barras y área
   return {
     chart: {
       type: tipoApex.value,
       toolbar: { show: false },
       background: 'transparent',
     },
-    // Color según el estado del KPI
     colors: [
       props.kpi.estadoTipo === 'success' ? '#10b981' :
       props.kpi.estadoTipo === 'warning' ? '#f59e0b' : '#f43f5e'
@@ -112,7 +104,6 @@ const chartOptions = computed(() => {
 
 <template>
   <div class="w-full h-full flex flex-col">
-    <!-- Título del KPI encima de la gráfica -->
     <p class="text-[10px] text-[#beaed8] uppercase tracking-widest font-semibold mb-1">
       {{ kpi.departamento }} — {{ kpi.subtitulo }}
     </p>

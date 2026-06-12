@@ -26,10 +26,7 @@ const layout = useLayoutStore()
     </div>
 
     <div class="flex items-center gap-4">
-      <!--
-        CAMBIO CLAVE: toggleModoOscuro → toggleDarkMode
-        Debe coincidir exactamente con lo que exporta layout.js
-      -->
+      
       <button
         @click="layout.toggleDarkMode()"
         class="p-2 rounded-full transition-colors"

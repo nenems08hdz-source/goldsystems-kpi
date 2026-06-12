@@ -1,31 +1,66 @@
 <script setup>
-//FormularioKpis
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { getCurrentInstance } from 'vue'
-import { usePanelStore } from '../stores/panelStore'
-import Bottones from '../components/Bottones.vue'
-import BotonesRegreso from '../components/BotonesRegreso.vue'
+import { useKpiStore } from '../stores/kpiStore'
+import { useOrgStore } from '../stores/orgStore'
+import AppButton  from '@/components/ui/AppButton.vue'
+import AppInput   from '@/components/ui/AppInput.vue'
+import AppSelect  from '@/components/ui/AppSelect.vue'
+import FormField  from '@/components/ui/FormField.vue'
 
-const router = useRouter()
-const store = usePanelStore()
+const router   = useRouter()
+const store    = useKpiStore()
+const orgStore = useOrgStore()
 const { proxy } = getCurrentInstance()
 
 const nuevoKpi = ref({
-  nombre: '',
-  formula: '',
-  departamento: '',
-  responsable: '',
-  progreso: 0,       // valor inicial numérico para las gráficas
-  periodicidad: 'Mensual',
-  meta: '',
-  subtitulo: '',     // descripción corta que aparece en las tarjetas
-  tipoMetrica: 'Porcentaje',
+  nombre:          '',
+  formula:         '',
+  departamento_id: null,
+  equipo_id:       null,
+  usuario_id:      null,
+  progreso:        0,
+  periodicidad:    'Mensual',
+  meta:            '',
+  subtitulo:       '',
+  tipoMetrica:     'Porcentaje',
 })
 
+const opcionesDepartamentos = orgStore.estructuraOrganizacional
+  .filter(n => n.tipo === 'departamento')
+  .map(d => ({ value: d.id, label: d.nombre }))
+
+const opcionesEquipos = computed(() => {
+  if (!nuevoKpi.value.departamento_id) return []
+  const deptId = Number(nuevoKpi.value.departamento_id)
+  return orgStore.estructuraOrganizacional
+    .filter(n => n.tipo === 'equipo' && n.padre_id === deptId)
+    .map(e => ({ value: e.id, label: e.nombre }))
+})
+
+const opcionesResponsable = computed(() => {
+  const deptId   = nuevoKpi.value.departamento_id ? Number(nuevoKpi.value.departamento_id) : null
+  const equipoId = nuevoKpi.value.equipo_id       ? Number(nuevoKpi.value.equipo_id)       : null
+
+  return orgStore.usuarios
+    .filter(u => {
+      if (equipoId) return u.equipo_id   === equipoId
+      if (deptId)   return u.departamento_id === deptId
+      return true
+    })
+    .map(u => ({ value: u.id, label: orgStore.nombreCompleto(u) }))
+})
+
+function onDepartamentoChange() {
+  nuevoKpi.value.equipo_id  = null
+  nuevoKpi.value.usuario_id = null
+}
+function onEquipoChange() {
+  nuevoKpi.value.usuario_id = null
+}
+
 function guardarKpi() {
-  // Calculamos el estado automáticamente según el progreso inicial
-  // Esto después lo hará el backend con la lógica de semáforos
   const obtenerEstado = (progreso) => {
     if (progreso >= 80) return { estado: 'saludable', estadoTipo: 'success' }
     if (progreso >= 50) return { estado: 'en riesgo', estadoTipo: 'warning' }
@@ -34,38 +69,55 @@ function guardarKpi() {
 
   const { estado, estadoTipo } = obtenerEstado(nuevoKpi.value.progreso)
 
-  // Construimos el objeto completo compatible con el store
-  // Generamos un ID temporal basado en el tamaño actual del array
-  // Cuando llegue el backend, el ID lo asignará la base de datos
+  const deptNombre = orgStore.estructuraOrganizacional
+    .find(n => n.id === Number(nuevoKpi.value.departamento_id))?.nombre ?? ''
+
+  const uidNum         = Number(nuevoKpi.value.usuario_id)
+  const usuarioElegido = orgStore.usuarios.find(u => u.id === uidNum)
+
   const kpiNuevo = {
-    id: store.indicadores.length + 1,
-    nombre: nuevoKpi.value.nombre,
-    formula: nuevoKpi.value.formula,
-    departamento: nuevoKpi.value.departamento,
-    subtitulo: nuevoKpi.value.subtitulo || nuevoKpi.value.nombre,
-    responsable: nuevoKpi.value.responsable,
-    progreso: Number(nuevoKpi.value.progreso),
-    periodicidad: nuevoKpi.value.periodicidad,
-    meta: nuevoKpi.value.meta,
-    objetivo: nuevoKpi.value.meta,
-    tipoMetrica: nuevoKpi.value.tipoMetrica,
+    id:                  store.indicadores.length + 1,
+    nombre:              nuevoKpi.value.nombre,
+    formula:             nuevoKpi.value.formula,
+    departamento:        deptNombre,
+    subtitulo:           nuevoKpi.value.subtitulo || nuevoKpi.value.nombre,
+    responsable:         usuarioElegido ? orgStore.nombreCompleto(usuarioElegido) : '',
+    progreso:            Number(nuevoKpi.value.progreso),
+    periodicidad:        nuevoKpi.value.periodicidad,
+    meta:                nuevoKpi.value.meta,
+    objetivo:            nuevoKpi.value.meta,
+    tipoMetrica:         nuevoKpi.value.tipoMetrica,
     estado,
     estadoTipo,
-    tendencia: 'estable',
+    tendencia:           'estable',
     ultimaActualizacion: new Date().toISOString().split('T')[0],
-    // Datos para gráficas — vacíos por ahora, se llenarán con capturas
-    historial: [Number(nuevoKpi.value.progreso)],
-    etiquetasHistorial: ['Inicio'],
+    historial:           [Number(nuevoKpi.value.progreso)],
+    etiquetasHistorial:  ['Inicio'],
     graficasCompatibles: ['linea', 'barras'],
   }
 
-  // Agregamos al store — la tabla de GestionKpis se actualiza sola
   store.indicadores.push(kpiNuevo)
+
+  if (uidNum) {
+    store.kpisAsignados.push({
+      usuario_id:      uidNum,
+      kpi_id:          kpiNuevo.id,
+      fechaAsignacion: new Date().toISOString().split('T')[0],
+    })
+  }
 
   proxy.$notify.success('KPI registrado correctamente', 'Éxito')
   router.push('/kpis')
 }
 
+/* Opciones estáticas */
+const opcionesPeriodicidad = ['Diario', 'Semanal', 'Mensual', 'Trimestral', 'Anual']
+const opcionesTipoMetrica  = [
+  { value: 'Porcentaje', label: 'Porcentaje (%)' },
+  { value: 'Monetario',  label: 'Monetario ($)'  },
+  { value: 'Tiempo',     label: 'Tiempo (ms, hrs)' },
+  { value: 'Puntaje',    label: 'Puntaje (pts)'  },
+]
 </script>
 
 <template>
@@ -73,143 +125,115 @@ function guardarKpi() {
 
     <div class="mb-6 flex justify-between items-center">
       <div>
-        <h1 class="text-4xl font-bold text-[#3f2a52] tracking-tight">Nuevo Indicador</h1>
-        <p class="text-xs text-gray-500 mt-1">Registra un nuevo KPI definiendo sus metas y responsable.</p>
+        <h1 class="text-4xl font-bold text-brand-purple tracking-tight">Nuevo Indicador</h1>
+        <p class="text-xs mt-1" style="color: var(--subtext-general);">
+          Registra un nuevo KPI definiendo sus metas y responsable.
+        </p>
       </div>
-
-      <BotonesRegreso
-        @click="router.push('/kpis')"
-        type="button" >
+      <AppButton variant="secondary" @click="router.push('/kpis')">
         ← Volver al Listado
-      </BotonesRegreso>
-
+      </AppButton>
     </div>
 
-    <form @submit.prevent="guardarKpi" class="bg-white rounded-xl shadow-md border border-[#beaed8]/50 overflow-hidden max-w-4xl">
+    <form
+      @submit.prevent="guardarKpi"
+      class="rounded-xl shadow-md border overflow-hidden max-w-4xl"
+      style="background: var(--card-bg); border-color: rgba(190,174,216,0.5);"
+    >
 
-      <div class="p-4 bg-gray-50/50 border-b border-[#beaed8]/30">
-        <h2 class="text-sm font-bold text-gray-700 uppercase tracking-wider">Configuración General del KPI</h2>
+      <div class="p-4 border-b" style="background: var(--tabla-header-bg); border-color: rgba(190,174,216,0.3);">
+        <h2 class="text-sm font-bold uppercase tracking-wider" style="color: var(--text-general);">
+          Configuración General del KPI
+        </h2>
       </div>
 
       <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
 
-        <!-- Nombre -->
-        <div class="flex flex-col gap-1.5">
-          <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Nombre del KPI *</label>
-          <input
+        <FormField label="Nombre del KPI" required>
+          <AppInput
             v-model="nuevoKpi.nombre"
-            type="text"
             placeholder="Ej. Uptime de Servidores"
             required
-            class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 transition-colors"
           />
-        </div>
+        </FormField>
 
-        <!-- Departamento — opciones dinámicas del store -->
-        <div class="flex flex-col gap-1.5">
-          <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Departamento *</label>
-          <select
-            v-model="nuevoKpi.departamento"
+        <FormField label="Departamento" required>
+          <AppSelect
+            v-model="nuevoKpi.departamento_id"
+            :options="opcionesDepartamentos"
+            placeholder="Selecciona un departamento"
             required
-            class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] cursor-pointer transition-colors"
-          >
-            <option value="" disabled>Selecciona un departamento</option>
-            <!--
-              store.departamentos devuelve los departamentos únicos
-              del store. Si agregas uno nuevo, aparece aquí solo.
-            -->
-            <option v-for="dep in store.departamentos" :key="dep" :value="dep">
-              {{ dep }}
-            </option>
-          </select>
-        </div>
+            @change="onDepartamentoChange"
+          />
+        </FormField>
 
-        <!-- Fórmula -->
-        <div class="flex flex-col gap-1.5 md:col-span-2">
-          <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Fórmula o Criterio de Cálculo *</label>
-          <input
+        <FormField
+          v-if="nuevoKpi.departamento_id"
+          label="Equipo"
+          hint="opcional"
+        >
+          <AppSelect
+            v-model="nuevoKpi.equipo_id"
+            :options="[{ value: null, label: 'Sin equipo específico' }, ...opcionesEquipos]"
+            placeholder="Sin equipo específico"
+            @change="onEquipoChange"
+          />
+        </FormField>
+
+        <FormField label="Responsable" required>
+          <AppSelect
+            v-model="nuevoKpi.usuario_id"
+            :options="opcionesResponsable"
+            :placeholder="nuevoKpi.departamento_id ? 'Selecciona un responsable' : 'Selecciona departamento primero'"
+            :disabled="!nuevoKpi.departamento_id"
+            required
+          />
+          <p v-if="nuevoKpi.departamento_id && opcionesResponsable.length === 0"
+            class="text-[10px] mt-1 text-amber-500">
+            No hay usuarios en este departamento/equipo.
+          </p>
+        </FormField>
+
+        <FormField label="Fórmula o Criterio de Cálculo" required :col-span="2">
+          <AppInput
             v-model="nuevoKpi.formula"
-            type="text"
             placeholder="Ej. (Tiempo Activo / Tiempo Total) * 100"
             required
-            class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 transition-colors"
           />
-        </div>
+        </FormField>
 
-        <!-- Subtítulo -->
-        <div class="flex flex-col gap-1.5 md:col-span-2">
-          <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">
-            Descripción corta
-            <span class="text-gray-400 normal-case font-normal ml-1">(aparece en las tarjetas del panel)</span>
-          </label>
-          <input
+        <FormField
+          label="Descripción corta"
+          hint="aparece en las tarjetas del panel"
+          :col-span="2"
+        >
+          <AppInput
             v-model="nuevoKpi.subtitulo"
-            type="text"
             placeholder="Ej. Disponibilidad de servidores en producción"
-            class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 transition-colors"
           />
-        </div>
+        </FormField>
 
-        <!-- Responsable -->
-        <div class="flex flex-col gap-1.5">
-          <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Responsable *</label>
-          <input
-            v-model="nuevoKpi.responsable"
-            type="text"
-            placeholder="Ej. Carlos Méndez"
-            required
-            class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 transition-colors"
-          />
-        </div>
+        <FormField label="Periodicidad" required>
+          <AppSelect v-model="nuevoKpi.periodicidad" :options="opcionesPeriodicidad" />
+        </FormField>
 
-        <!-- Periodicidad -->
-        <div class="flex flex-col gap-1.5">
-          <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Periodicidad *</label>
-          <select
-            v-model="nuevoKpi.periodicidad"
-            class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] cursor-pointer transition-colors"
-          >
-            <option value="Diario">Diario</option>
-            <option value="Semanal">Semanal</option>
-            <option value="Mensual">Mensual</option>
-            <option value="Trimestral">Trimestral</option>
-            <option value="Anual">Anual</option>
-          </select>
-        </div>
+        <FormField label="Tipo de Métrica" required>
+          <AppSelect v-model="nuevoKpi.tipoMetrica" :options="opcionesTipoMetrica" />
+        </FormField>
 
-        <!-- Tipo de métrica -->
-        <div class="flex flex-col gap-1.5">
-          <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Tipo de Métrica *</label>
-          <select
-            v-model="nuevoKpi.tipoMetrica"
-            class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] cursor-pointer transition-colors"
-          >
-            <option value="Porcentaje">Porcentaje (%)</option>
-            <option value="Monetario">Monetario ($)</option>
-            <option value="Tiempo">Tiempo (ms, hrs)</option>
-            <option value="Puntaje">Puntaje (pts)</option>
-          </select>
-        </div>
-
-        <!-- Valor inicial -->
-        <div class="flex flex-col gap-1.5">
-          <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">
-            Valor Inicial (0-100) *
-            <span class="text-gray-400 normal-case font-normal ml-1">— define el estado automáticamente</span>
-          </label>
-          <input
+        <FormField
+          label="Valor Inicial (0-100)"
+          hint="define el estado automáticamente"
+          required
+        >
+          <AppInput
             v-model="nuevoKpi.progreso"
             type="number"
-            min="0"
-            max="100"
+            :min="0"
+            :max="100"
             placeholder="Ej. 85"
             required
-            class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 transition-colors"
           />
-          <!--
-            Vista previa del estado que se asignará automáticamente
-            según el valor que ingrese el usuario
-          -->
           <p class="text-[10px] mt-1" :class="{
             'text-emerald-600': nuevoKpi.progreso >= 80,
             'text-amber-500':   nuevoKpi.progreso >= 50 && nuevoKpi.progreso < 80,
@@ -219,32 +243,28 @@ function guardarKpi() {
             <span v-else-if="nuevoKpi.progreso >= 50">● Estado: En riesgo</span>
             <span v-else-if="nuevoKpi.progreso > 0">● Estado: Crítico</span>
           </p>
-        </div>
+        </FormField>
 
-        <!-- Meta -->
-        <div class="flex flex-col gap-1.5 md:col-span-2">
-          <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Meta / Objetivo *</label>
-          <input
+        <FormField label="Meta / Objetivo" required :col-span="2">
+          <AppInput
             v-model="nuevoKpi.meta"
-            type="text"
             placeholder="Ej. > 95%  o  < 200ms  o  $5,000 USD"
             required
-            class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 transition-colors"
           />
-        </div>
+        </FormField>
 
       </div>
 
-      <div class="p-4 bg-gray-50/50 border-t border-[#beaed8]/20 flex justify-end gap-3">
-        <Bottones
-          @click="router.push('/kpis')"
-         >
+      <div
+        class="p-4 border-t flex justify-end gap-3"
+        style="background: var(--tabla-header-bg); border-color: rgba(190,174,216,0.2);"
+      >
+        <AppButton variant="secondary" @click="router.push('/kpis')">
           Cancelar
-        </Bottones>
-        <bottones
-        >
+        </AppButton>
+        <AppButton type="submit">
           Guardar KPI
-        </bottones>
+        </AppButton>
       </div>
 
     </form>

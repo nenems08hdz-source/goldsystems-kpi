@@ -2,28 +2,32 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { getCurrentInstance } from 'vue'
-import { usePanelStore } from '../stores/panelStore'
-import Bottones from '../components/Bottones.vue'
-import BotonesRegreso from '../components/BotonesRegreso.vue'
+import { useOrgStore } from "../stores/orgStore"
+import EncabezadoPantalla from '@/components/EncabezadoPantalla.vue'
+import AppButton from '@/components/ui/AppButton.vue'
+import AppInput  from '@/components/ui/AppInput.vue'
+import AppSelect from '@/components/ui/AppSelect.vue'
+import FormField from '@/components/ui/FormField.vue'
 
 const router = useRouter()
-const store  = usePanelStore()
+const store  = useOrgStore()
 const { proxy } = getCurrentInstance()
 
 const nuevaEmpresa = ref({
-  nombre:       '',
-  razonSocial:  '',
-  rfc:          '',
-  email:        '',
-  telefono:     '',
-  plan:         'Pro',
-  nombreAdmin:  '',
-  emailAdmin:   '',
+  nombre:      '',
+  razonSocial: '',
+  rfc:         '',
+  email:       '',
+  telefono:    '',
+  plan:        'Pro',
+  nombreAdmin: '',
+  emailAdmin:  '',
 })
+
+const opcionesPlan = ['Básico', 'Pro', 'Enterprise']
 
 function guardarEmpresa() {
   const empresaNueva = {
-
     id:            Date.now(),
     nombre:        nuevaEmpresa.value.nombre,
     razonSocial:   nuevaEmpresa.value.razonSocial,
@@ -32,13 +36,12 @@ function guardarEmpresa() {
     telefono:      nuevaEmpresa.value.telefono,
     plan:          nuevaEmpresa.value.plan,
     estado:        'activo',
-    usuarios:      1,   
+    usuarios:      1,
     kpis:          0,
     fechaRegistro: new Date().toISOString().split('T')[0],
   }
 
   store.guardarEmpresa(empresaNueva)
-
   proxy.$notify.success('Empresa registrada correctamente', 'Éxito')
   router.push('/GestionEmpresas')
 }
@@ -48,146 +51,106 @@ function guardarEmpresa() {
   <div class="p-3 min-h-screen">
 
     <div class="mb-6 flex justify-between items-center">
-      <div>
-        <h1 class="text-4xl font-bold text-[#3f2a52] tracking-tight">Nueva Empresa</h1>
-        <p class="text-xs text-gray-500 mt-1">Registra una nueva empresa en el sistema y configura su cuenta Admin.</p>
-      </div>
-      <BotonesRegreso
-        @click="router.push('/GestionEmpresas')"
-        type="button"
-        class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 shadow-sm transition-colors flex items-center gap-2"
-      >
+      <EncabezadoPantalla
+        titulo="Nueva Empresa"
+        descripcion="Registra una nueva empresa en el sistema y configura su cuenta Admin."
+      />
+      <AppButton variant="secondary" @click="router.push('/GestionEmpresas')">
         ← Volver
-      </BotonesRegreso>
+      </AppButton>
     </div>
 
     <form @submit.prevent="guardarEmpresa" class="flex flex-col gap-6 max-w-4xl">
 
-      <!-- ── Datos de la empresa ──────────── -->
-      <div class="bg-white rounded-xl shadow-md border border-[#beaed8]/50 overflow-hidden">
-        <div class="p-4 bg-gray-50/50 border-b border-[#beaed8]/30">
-          <h2 class="text-sm font-bold text-gray-700 uppercase tracking-wider">Datos de la Empresa</h2>
+      <div
+        class="rounded-xl shadow-md border overflow-hidden"
+        style="background: var(--card-bg); border-color: rgba(190,174,216,0.5);"
+      >
+        <div
+          class="p-4 border-b"
+          style="background: var(--tabla-header-bg); border-color: rgba(190,174,216,0.3);"
+        >
+          <h2 class="text-sm font-bold uppercase tracking-wider" style="color: var(--text-general);">
+            Datos de la Empresa
+          </h2>
         </div>
+
         <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
 
-          <div class="flex flex-col gap-1.5">
-            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Nombre Comercial *</label>
-            <input
-              v-model="nuevaEmpresa.nombre"
-              type="text"
-              placeholder="Ej. TechSol SA"
-              required
-              class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 transition-colors"
-            />
-          </div>
+          <FormField label="Nombre Comercial" required>
+            <AppInput v-model="nuevaEmpresa.nombre" placeholder="Ej. TechSol SA" required />
+          </FormField>
 
-          <div class="flex flex-col gap-1.5">
-            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Razón Social *</label>
-            <input
-              v-model="nuevaEmpresa.razonSocial"
-              type="text"
-              placeholder="Ej. TechSol Soluciones S.A."
-              required
-              class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 transition-colors"
-            />
-          </div>
+          <FormField label="Razón Social" required>
+            <AppInput v-model="nuevaEmpresa.razonSocial" placeholder="Ej. TechSol Soluciones S.A." required />
+          </FormField>
 
-          <div class="flex flex-col gap-1.5">
-            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">RFC *</label>
-            <input
-              v-model="nuevaEmpresa.rfc"
-              type="text"
-              placeholder="Ej. TSO2024010101"
-              required
-              class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 transition-colors"
-            />
-          </div>
+          <FormField label="RFC" required>
+            <AppInput v-model="nuevaEmpresa.rfc" placeholder="Ej. TSO2024010101" required />
+          </FormField>
 
-          <div class="flex flex-col gap-1.5">
-            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Email Corporativo *</label>
-            <input
+          <FormField label="Email Corporativo" required>
+            <AppInput
               v-model="nuevaEmpresa.email"
               type="email"
               placeholder="contacto@empresa.com"
               required
-              class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 transition-colors"
             />
-          </div>
+          </FormField>
 
-          <div class="flex flex-col gap-1.5">
-            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Teléfono</label>
-            <input
-              v-model="nuevaEmpresa.telefono"
-              type="tel"
-              placeholder="+52 999 000 0000"
-              class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 transition-colors"
-            />
-          </div>
+          <FormField label="Teléfono" hint="opcional">
+            <AppInput v-model="nuevaEmpresa.telefono" type="tel" placeholder="+52 999 000 0000" />
+          </FormField>
 
-          <div class="flex flex-col gap-1.5">
-            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Plan *</label>
-            <select
-              v-model="nuevaEmpresa.plan"
-              required
-              class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] cursor-pointer transition-colors"
-            >
-              <option value="Básico">Básico</option>
-              <option value="Pro">Pro</option>
-              <option value="Enterprise">Enterprise</option>
-            </select>
-          </div>
+          <FormField label="Plan" required>
+            <AppSelect v-model="nuevaEmpresa.plan" :options="opcionesPlan" required />
+          </FormField>
 
         </div>
       </div>
 
-      <!-- ── Cuenta Admin ─────────────────── -->
-      <div class="bg-white rounded-xl shadow-md border border-[#beaed8]/50 overflow-hidden">
-        <div class="p-4 bg-gray-50/50 border-b border-[#beaed8]/30">
-          <h2 class="text-sm font-bold text-gray-700 uppercase tracking-wider">Cuenta Admin de la Empresa</h2>
-          <p class="text-[10px] text-gray-400 mt-0.5">
+      <div
+        class="rounded-xl shadow-md border overflow-hidden"
+        style="background: var(--card-bg); border-color: rgba(190,174,216,0.5);"
+      >
+        <div
+          class="p-4 border-b"
+          style="background: var(--tabla-header-bg); border-color: rgba(190,174,216,0.3);"
+        >
+          <h2 class="text-sm font-bold uppercase tracking-wider" style="color: var(--text-general);">
+            Cuenta Admin de la Empresa
+          </h2>
+          <p class="text-[10px] mt-0.5" style="color: var(--card-text-hint);">
             Se creará automáticamente un usuario con rol Admin para gestionar esta empresa.
           </p>
         </div>
+
         <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
 
-          <div class="flex flex-col gap-1.5">
-            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Nombre del Admin *</label>
-            <input
-              v-model="nuevaEmpresa.nombreAdmin"
-              type="text"
-              placeholder="Ej. Juan Pérez"
-              required
-              class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 transition-colors"
-            />
-          </div>
+          <FormField label="Nombre del Admin" required>
+            <AppInput v-model="nuevaEmpresa.nombreAdmin" placeholder="Ej. Juan Pérez" required />
+          </FormField>
 
-          <div class="flex flex-col gap-1.5">
-            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Email del Admin *</label>
-            <input
+          <FormField label="Email del Admin" required>
+            <AppInput
               v-model="nuevaEmpresa.emailAdmin"
               type="email"
               placeholder="admin@empresa.com"
               required
-              class="bg-white text-gray-700 text-xs rounded-lg border border-[#beaed8]/80 p-2.5 outline-none focus:border-[#3f2a52] focus:ring-2 focus:ring-[#3f2a52]/20 transition-colors"
             />
-          </div>
+          </FormField>
 
         </div>
       </div>
 
+      <!-- Botones -->
       <div class="flex justify-end gap-3">
-        <Bottones
-          @click="router.push('/GestionEmpresas')"
-          type="button"
-        >
+        <AppButton variant="secondary" @click="router.push('/GestionEmpresas')">
           Cancelar
-        </bottones>
-
-        <Bottones
-          type="submit"
-        >
+        </AppButton>
+        <AppButton type="submit">
           Registrar Empresa
-        </bottones>
+        </AppButton>
       </div>
 
     </form>

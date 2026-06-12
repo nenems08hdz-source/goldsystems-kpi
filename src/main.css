@@ -1,5 +1,10 @@
 @import "tailwindcss";
-/* main.css */
+
+
+@theme {
+  --color-brand-purple:   var(--sidebar-bg);
+  --color-brand-lavender: var(--color-kpi-morado);
+}
 
 .apexcharts-canvas {
   transition: opacity 0.2s ease;
@@ -8,132 +13,113 @@
 /* MODO CLARO */
 
 :root {
-
-  
   /* Sidebar */
-  --sidebar-bg:        #3f2a52;
-  --sidebar-text:      #e2e8f0;   
-  --sidebar-active-bg: #beaed8;
+  --sidebar-bg:          #3f2a52;
+  --sidebar-text:        #e2e8f0;
+  --sidebar-active-bg:   #beaed8;
   --sidebar-active-text: #3f2a52;
-  --sidebar-hover-bg:  #beaed8;
-  --tsidebar-hover-tex: #3f2a52;
-
-   
-  /* boton */
-  --botton-n2:          #beaed8;
-  --botton-on:           #beaed8;
-  --botton-off:          #3f2a52;
+  --sidebar-hover-bg:    #beaed8;
+  --sidebar-hover-text:  #3f2a52;
 
   /* Navbar */
-  --navbar-bg:         #ffffff;
-  --navbar-border:     #e5e7eb;  
-  --navbar-icon:       #3f2a52;
+  --navbar-bg:     #ffffff;
+  --navbar-border: #e5e7eb;
+  --navbar-icon:   #3f2a52;
 
-    /* Encabezado */
-  --text-encabezado: #3f2a52;
+  /* Encabezado */
+  --text-encabezado:    #3f2a52;
   --subtext-encabezado: oklch(20.8% 0.042 265.755);
 
-  /* Texto en general: tablas, cards, filtros */
-  --text-general:      #1f2937;
-  --subtext-general:   oklch(37.2% 0.044 257.287);
+  /* Texto general */
+  --text-general:   #1f2937;
+  --subtext-general: oklch(37.2% 0.044 257.287);
 
-  /* Graficas */
+  /* Gráficas */
   --grafics-bg: #3f2a52;
-  --grafics-border: #3f2a52;
 
-  /* Layout / fondo principal */
-  --layout-bg:         #f9fafb;   
-  --layout-text:       #1f2937;  
+  /* Layout */
+  --layout-bg:   #f9fafb;
+  --layout-text: #1f2937;
 
   /* Acento de marca */
-  --color-kpi-morado:  #beaed8;
-  --color-kpi-azul:    #77a9d4;
+  --color-kpi-morado: #beaed8;
 
-  /* Tarjetas y superficies */
-  --card-bg:           #ffffff;
-  --card2-bg:          #3f2a52;
-  --card2-text:        #9ca3af;
-  --card-estado:        #0ce27bee;   
-  --card-text:         #3f2a52; 
-  --card-text-muted:   #6b7280;  
-  --card-text-hint:    #9ca3af;   
-  --card-border:       #f3f4f6;   
+  /* Tarjetas */
+  --card-bg:         #ffffff;
+  --card2-bg:        #3f2a52;
+  --card2-text:      #9ca3af;
+  --card-text:       #3f2a52;
+  --card-text-muted: #6b7280;
+  --card-text-hint:  #9ca3af;
+  --card-border:     #f3f4f6;
 
   /* Tablas */
   --tabla-bg:          #ffffff;
-  --tabla-header-bg:   #f9fafb;  
-  --tabla-header-text: #6b7280;  
-  --tabla-borde:       #e5e7eb;   
+  --tabla-header-bg:   #f9fafb;
+  --tabla-header-text: #3f2a52;
+  --tabla-borde:       #e5e7eb;
   --tabla-hover:       rgba(63, 42, 82, 0.08);
 
-  /* Inputs / selects */
-  --input-bg:          #ffffff;
-  --input-text:        #374151;   
-  --input-border:      #e2e8f0;   
+  /* Inputs */
+  --input-bg:     #ffffff;
+  --input-text:   #374151;
+  --input-border: #e2e8f0;
 }
 
 /* MODO OSCURO */
 
 .dark {
-
   /* Sidebar */
-  --sidebar-bg:         #23182c;  
-  --sidebar-text:       #cbd5e1;  
-  --sidebar-active-bg:  #6d4e8a;
+  --sidebar-bg:          #23182c;
+  --sidebar-text:        #cbd5e1;
+  --sidebar-active-bg:   #6d4e8a;
   --sidebar-active-text: #f1e9ff;
-  --sidebar-hover-bg:   #6d4e8a;
-  --sidebar-hover-text: #f1e9ff;
-  --botton-n2:          #1e1327;
+  --sidebar-hover-bg:    #6d4e8a;
+  --sidebar-hover-text:  #f1e9ff;
 
   /* Navbar */
-  --navbar-bg:          #1f2937;  
-  --navbar-border:      #374151;  
-  --navbar-icon:        #beaed8;
+  --navbar-bg:     #1f2937;
+  --navbar-border: #374151;
+  --navbar-icon:   #beaed8;
 
-   /* Texto en general: tablas, cards, filtros */
-  --text-general: #e2e8f0;
+  /* Texto general */
+  --text-general:   #e2e8f0;
   --subtext-general: oklch(86.9% 0.022 252.894);
 
   /* Encabezado */
-  --text-encabezado: #beaed8;
+  --text-encabezado:    #beaed8;
   --subtext-encabezado: oklch(81.1% 0.111 293.571);
 
-   /* Graficas */
+  /* Gráficas */
   --grafics-bg: #1e1327;
-  --grafics-border: #beaed8;
 
-  /* Layout / fondo principal */
-  --layout-bg:          #111827;  
-  --layout-text:        #f9fafb;  
+  /* Layout */
+  --layout-bg:   #111827;
+  --layout-text: #f9fafb;
 
   /* Acento de marca */
-  --color-kpi-morado:   #beaed8;
-  --color-kpi-azul:     #77a9d4;
+  --color-kpi-morado: #beaed8;
 
-  /* Tarjetas y superficies */
-  --card-bg:           #1f2937;
-  --card2-bg:          #6d4e8a;
-  --card2-text:        #e2e8f0; 
-  --card-estado:       #06ff87ee;    
-  --card-text:         #9ca3af;   
-  --card-text-muted:   #9ca3af;   
-  --card-text-hint:    #6b7280; 
-  --card-border:       #374151;  
+  /* Tarjetas */
+  --card-bg:         #1f2937;
+  --card2-bg:        #6d4e8a;
+  --card2-text:      #e2e8f0;
+  --card-text:       #9ca3af;
+  --card-text-muted: #9ca3af;
+  --card-text-hint:  #6b7280;
+  --card-border:     #374151;
 
-  /* Texto tablas y cards */
-  --text-general: #e2e8f0;
-  --subtext-general: oklch(86.9% 0.022 252.894);
-   /* Tabla */
+  /* Tablas */
   --tabla-bg:          #1f2937;
-  --tabla-header-bg:   #111827;  
-  --tabla-header-text: #9ca3af;   
-  --tabla-borde:       #374151;  
+  --tabla-header-bg:   #111827;
+  --tabla-header-text: #beaed8;
+  --tabla-borde:       #374151;
   --tabla-hover:       rgba(190, 174, 216, 0.08);
 
-  /* Inputs / selects */
-  --input-bg:          #374151;
-  --input-text:        #e5e7eb;  
-  --input-border:      #4b5563;   
+  /* Inputs */
+  --input-bg:     #374151;
+  --input-text:   #e5e7eb;
+  --input-border: #4b5563;
 }
 
 #toast-container > div,
@@ -163,4 +149,49 @@
 .router-link-active.sidebar-link {
   background-color: var(--sidebar-active-bg);
   color: var(--sidebar-active-text);
+}
+
+/* ── Inputs y selects reutilizables (AppInput.vue / AppSelect.vue) ── */
+.app-input,
+.app-select {
+  background: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid var(--input-border);
+  width: 100%;
+  font-size: 0.75rem;
+  border-radius: 0.5rem;
+  padding: 0.625rem;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.app-input:focus,
+.app-select:focus {
+  border-color: var(--sidebar-bg);
+  box-shadow: 0 0 0 3px rgba(63, 42, 82, 0.15);
+}
+.dark .app-input:focus,
+.dark .app-select:focus {
+  border-color: var(--sidebar-active-bg);
+  box-shadow: 0 0 0 3px rgba(190, 174, 216, 0.2);
+}
+.app-select { cursor: pointer; }
+
+/* ── Badge de tabla */
+.table-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  background: transparent;
+  color: var(--sidebar-bg);
+  border: 1.5px solid var(--sidebar-bg);
+}
+.dark .table-badge {
+  background: transparent;
+  color: #e9e0f5;
+  border: 1.5px solid #e9e0f5;
 }

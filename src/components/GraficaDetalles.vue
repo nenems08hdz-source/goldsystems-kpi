@@ -8,7 +8,7 @@ const series = ref([
       type: 'column', 
       data: [1.4, 2, 2.5, 1.5, 2.5, 2.8, 3.8, 4.6] 
   },
-  // La serie 'Cashflow' ha sido eliminada
+
   { 
     name: 'Revenue', 
     type: 'line', 
@@ -19,7 +19,6 @@ const series = ref([
 const chartOptions = ref({
   chart: { height: 350, type: 'line', stacked: false },
   dataLabels: { enabled: false },
-  // Ajusta el stroke: el primer valor es para 'Income' (columna), el segundo para 'Revenue' (línea)
   stroke: { width: [0, 1] }, 
   title: { text: 'XYZ - Stock Analysis (2009 - 2016)', align: 'left', offsetX: 110 },
   xaxis: { categories: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016] },
@@ -31,7 +30,6 @@ const chartOptions = ref({
       labels: { style: { colors: '#008FFB' } },
       title: { text: 'Income (thousand crores)', style: { color: '#008FFB' } }
     },
-    // El eje Y para 'Cashflow' ha sido eliminado
     {
       seriesName: 'Revenue',
       opposite: true,

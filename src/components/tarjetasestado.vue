@@ -11,7 +11,6 @@ defineProps({
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-1">
     
     <!-- Tarjeta 1: KPIs Saludables -->
-    <!-- bg-[#3f2a52] YA usa --sidebar-bg automáticamente, no necesita cambio -->
     <div class=" rounded-xl shadow-lg p-5 border border-[#beaed8]/20 flex flex-col justify-between"
     style="background: var(--card2-bg);">
       <div class="flex justify-between items-center mb-4">
@@ -68,7 +67,6 @@ defineProps({
       </div>
     </div>
 
-    <!-- Tarjeta 4: Eficiencia — ESTA ES LA QUE NECESITABA CAMBIOS -->
     <div 
       class="rounded-xl shadow-lg p-5 border flex flex-col justify-between h-full transition-colors duration-300"
       style="background: var(--card-bg); border-color: rgba(190, 174, 216, 0.5);"

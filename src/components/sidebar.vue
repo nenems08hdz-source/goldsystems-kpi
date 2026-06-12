@@ -2,10 +2,10 @@
 /*sidebar*/
 import { RouterLink } from 'vue-router'
 import { useLayoutStore } from '@/stores/layout'
-import { usePanelStore } from '@/stores/panelStore' 
+import { useOrgStore } from '@/stores/orgStore' 
 
 const layout = useLayoutStore()
-const store = usePanelStore()  
+const store = useOrgStore()  
 </script>
 
 <template>

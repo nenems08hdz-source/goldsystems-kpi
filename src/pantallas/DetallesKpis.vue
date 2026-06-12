@@ -1,27 +1,18 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { usePanelStore } from '../stores/panelStore'
+import { useKpiStore } from '../stores/kpiStore'
 import GraficaKpiEspecifica from '../components/GraficaKpiEspecifica.vue'
-import BotonesRegreso from '../components/BotonesRegreso.vue'
+import StatusBadge from '../components/StatusBadge.vue'
 
 const route  = useRoute()
 const router = useRouter()
-const store  = usePanelStore()
+const store  = useKpiStore()
 
 const idKpi = Number(route.params.id)
 const kpi   = computed(() => store.indicadores.find(i => i.id === idKpi))
 const tipoSeleccionado = ref(kpi.value?.graficasCompatibles?.[0] ?? 'linea')
 
-// ── EVENTOS BASE (auditoría fija, no viene del store) ─────────────────────
-// Estos son registros de eventos históricos: cambios de meta, de responsable,
-// de fórmula. NO son capturas de valor — son cambios de configuración del KPI.
-// Se mantienen aquí porque en producción vendrían de una tabla separada
-// tipo `kpi_eventos` o `audit_log`. Por ahora son datos fijos de demostración.
-//
-// CAMPO CLAVE: usan `fecha` (no `fechaCorte`) para distinguirlos de las
-// capturas reales que tienen `fechaCorte`. El computed `registrosCombinados`
-// normaliza ambos al mismo campo `fechaNormalizada` para ordenar y filtrar.
 const eventosBase = ref([
   { id: 'ev-1',  tipo: 'evento', titulo: 'Actualización de Meta SLA',   desc: 'El umbral de Óptimo se elevó al nivel actual.',  fecha: '2024-01-15', autor: 'Carlos M.' },
   { id: 'ev-2',  tipo: 'evento', titulo: 'Nuevo Responsable',           desc: 'Asignación del equipo SRE-A al indicador.',      fecha: '2024-02-20', autor: 'Admin'     },
@@ -29,36 +20,23 @@ const eventosBase = ref([
   { id: 'ev-4',  tipo: 'evento', titulo: 'Cambio de Periodicidad',      desc: 'Se ajustó la frecuencia de medición.',           fecha: '2024-06-01', autor: 'Admin'     },
 ])
 
-// ── CAPTURAS REALES desde el store ───────────────────────────────────────
-// `store.capturasPorKpi(idKpi)` devuelve las capturas guardadas desde
-// CapturaMetricas, ya ordenadas cronológicamente.
-// Son reactivas: cuando el usuario guarda una nueva captura en
-// CapturaMetricas, este computed se recalcula automáticamente y el
-// historial aquí se actualiza sin recargar la página.
 const capturasReales = computed(() =>
   store.capturasPorKpi(idKpi).map(c => ({
-    // Normalizamos al mismo formato que eventosBase para poder combinarlos
     id:    `cap-${c.id}`,
     tipo:  'captura',
     titulo: 'Medición registrada',
     desc:  `Valor: ${c.valor} — ${c.observaciones || 'Sin observaciones'}`,
-    fecha: c.fechaCorte,       // usamos fechaCorte como fecha de visualización
+    fecha: c.fechaCorte,       
     autor: `Usuario #${c.usuario_id}`,
     valor: c.valor,
   }))
 )
 
-// ── REGISTROS COMBINADOS: eventos + capturas reales ───────────────────────
-// Fusiona los eventos fijos y las capturas reales en un solo array,
-// ordenado por fecha de más antiguo a más reciente.
-// Así el historial siempre está en orden cronológico sin importar
-// cuándo se guardó la captura.
 const registrosCombinados = computed(() => {
   const todos = [...eventosBase.value, ...capturasReales.value]
   return todos.sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
 })
 
-// ── OPCIONES DE FILTRO (sin cambios respecto al original) ────────────────
 const opcionesFiltro = computed(() => {
   if (!kpi.value) return []
   const p = kpi.value.periodicidad
@@ -88,9 +66,6 @@ const opcionesFiltro = computed(() => {
 
 const filtroActivo = ref('todos')
 
-// ── FILTRADO sobre registrosCombinados ───────────────────────────────────
-// Misma lógica que antes, pero ahora filtra `registrosCombinados`
-// (que incluye las capturas reales) en lugar del array local `registros`.
 const registrosFiltrados = computed(() => {
   if (filtroActivo.value === 'todos') return registrosCombinados.value
 
@@ -118,11 +93,6 @@ const registrosFiltrados = computed(() => {
   })
 })
 
-function bgEstado(estadoTipo) {
-  if (estadoTipo === 'success') return 'bg-emerald-400'
-  if (estadoTipo === 'warning') return 'bg-amber-400'
-  return 'bg-rose-400'
-}
 </script>
 
 <template>
@@ -144,7 +114,6 @@ function bgEstado(estadoTipo) {
 
     <template v-if="kpi">
 
-      <!-- ── Encabezado (sin cambios — ya era reactivo al store) ───────── -->
       <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
         <div class="flex justify-between items-start flex-wrap gap-4">
           <div>
@@ -160,17 +129,7 @@ function bgEstado(estadoTipo) {
             </div>
           </div>
           <div class="flex flex-col items-end gap-2">
-            <span
-              class="text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider inline-flex items-center gap-1.5 border"
-              :class="{
-                'bg-emerald-50 text-emerald-700 border-emerald-200': kpi.estadoTipo === 'success',
-                'bg-amber-50  text-amber-700  border-amber-200':     kpi.estadoTipo === 'warning',
-                'bg-rose-50   text-rose-700   border-rose-200':      kpi.estadoTipo === 'danger',
-              }"
-            >
-              <span class="w-1.5 h-1.5 rounded-full animate-pulse" :class="bgEstado(kpi.estadoTipo)"></span>
-              {{ kpi.estado }}
-            </span>
+            <StatusBadge :tipo="kpi.estadoTipo" :texto="kpi.estado" />
             <p class="text-xs text-gray-500 text-right">
               Valor actual: <strong class="text-gray-800">{{ kpi.progreso }}</strong>
             </p>
@@ -181,7 +140,6 @@ function bgEstado(estadoTipo) {
         </div>
       </div>
 
-      <!-- ── Gráfica (sin cambios — ya era reactiva a kpi.historial) ──── -->
       <div class="bg-[#3f2a52] border border-[#beaed8]/70 rounded-2xl p-6 shadow-lg">
         <div class="flex justify-between items-center mb-4 flex-wrap gap-3">
           <p class="text-[11px] font-bold text-[#beaed8] uppercase tracking-wider">Registro de Mediciones</p>
@@ -202,7 +160,6 @@ function bgEstado(estadoTipo) {
         <GraficaKpiEspecifica :kpi="kpi" :tipo="tipoSeleccionado" />
       </div>
 
-      <!-- ── Historial de Registros ──────────────────────────────────── -->
       <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
 
         <div class="mb-6 flex justify-between items-center flex-wrap gap-3">
@@ -212,11 +169,7 @@ function bgEstado(estadoTipo) {
               Capturas y eventos de auditoría —
               <strong class="text-[#3f2a52]">Periodicidad {{ kpi.periodicidad }}</strong>
               ·
-              <!--
-                Contador reactivo: muestra cuántas capturas reales hay
-                para este KPI en el store. Se actualiza automáticamente
-                cuando se guarda una nueva captura desde CapturaMetricas.
-              -->
+              
               <span class="text-[#3f2a52]">{{ capturasReales.length }} captura(s) registrada(s)</span>
             </p>
           </div>
@@ -242,12 +195,7 @@ function bgEstado(estadoTipo) {
           >
             <div class="flex justify-between items-start gap-4">
               <div class="flex gap-4 flex-grow">
-                <!--
-                  El ícono cambia según el tipo de registro:
-                  - captura  → ícono de estadística (valor medido)
-                  - evento   → ícono de lápiz (cambio de configuración)
-                  Así el usuario puede distinguir visualmente ambos tipos.
-                -->
+               
                 <div
                   class="p-2 rounded-lg text-sm flex-shrink-0"
                   :class="r.tipo === 'captura'
@@ -259,10 +207,7 @@ function bgEstado(estadoTipo) {
                 <div>
                   <div class="flex items-center gap-2">
                     <p class="text-sm font-bold text-black">{{ r.titulo }}</p>
-                    <!--
-                      Badge que diferencia visualmente capturas de eventos.
-                      Las capturas tienen el valor registrado como badge.
-                    -->
+  
                     <span
                       v-if="r.tipo === 'captura'"
                       class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[#3f2a52]/10 text-[#3f2a52] uppercase tracking-wide"
@@ -282,7 +227,6 @@ function bgEstado(estadoTipo) {
             </div>
           </div>
 
-          <!-- Estado vacío -->
           <div v-if="registrosFiltrados.length === 0" class="text-center py-8">
             <p class="text-gray-400 text-sm">No hay registros en este periodo.</p>
             <p class="text-xs text-gray-300 mt-1">
