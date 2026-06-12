@@ -6,7 +6,7 @@ import { useOrgStore } from "../stores/orgStore"
 import EncabezadoPantalla from '@/components/EncabezadoPantalla.vue'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppInput  from '@/components/ui/AppInput.vue'
-import AppSelect from '@/components/ui/AppSelect.vue'
+
 import FormField from '@/components/ui/FormField.vue'
 
 const router = useRouter()
@@ -19,12 +19,10 @@ const nuevaEmpresa = ref({
   rfc:         '',
   email:       '',
   telefono:    '',
-  plan:        'Pro',
+
   nombreAdmin: '',
   emailAdmin:  '',
 })
-
-const opcionesPlan = ['Básico', 'Pro', 'Enterprise']
 
 function guardarEmpresa() {
   const empresaNueva = {
@@ -34,7 +32,7 @@ function guardarEmpresa() {
     rfc:           nuevaEmpresa.value.rfc,
     email:         nuevaEmpresa.value.email,
     telefono:      nuevaEmpresa.value.telefono,
-    plan:          nuevaEmpresa.value.plan,
+
     estado:        'activo',
     usuarios:      1,
     kpis:          0,
@@ -100,10 +98,6 @@ function guardarEmpresa() {
 
           <FormField label="Teléfono" hint="opcional">
             <AppInput v-model="nuevaEmpresa.telefono" type="tel" placeholder="+52 999 000 0000" />
-          </FormField>
-
-          <FormField label="Plan" required>
-            <AppSelect v-model="nuevaEmpresa.plan" :options="opcionesPlan" required />
           </FormField>
 
         </div>
