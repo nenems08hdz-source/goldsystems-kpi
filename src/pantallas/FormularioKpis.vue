@@ -4,10 +4,11 @@ import { useRouter } from 'vue-router'
 import { getCurrentInstance } from 'vue'
 import { useKpiStore } from '../stores/kpiStore'
 import { useOrgStore } from '../stores/orgStore'
-import AppButton  from '@/components/ui/AppButton.vue'
-import AppInput   from '@/components/ui/AppInput.vue'
-import AppSelect  from '@/components/ui/AppSelect.vue'
-import FormField  from '@/components/ui/FormField.vue'
+import AppButton          from '@/components/ui/AppButton.vue'
+import AppInput            from '@/components/ui/AppInput.vue'
+import AppSelect           from '@/components/ui/AppSelect.vue'
+import FormField           from '@/components/ui/FormField.vue'
+import EncabezadoPantalla  from '@/components/EncabezadoPantalla.vue'
 
 const router   = useRouter()
 const store    = useKpiStore()
@@ -124,12 +125,10 @@ const opcionesTipoMetrica  = [
   <div class="p-3 min-h-screen">
 
     <div class="mb-6 flex justify-between items-center">
-      <div>
-        <h1 class="text-4xl font-bold text-brand-purple tracking-tight">Nuevo Indicador</h1>
-        <p class="text-xs mt-1" style="color: var(--subtext-general);">
-          Registra un nuevo KPI definiendo sus metas y responsable.
-        </p>
-      </div>
+      <EncabezadoPantalla
+        titulo="Nuevo Indicador"
+        descripcion="Registra un nuevo KPI definiendo sus metas y responsable."
+      />
       <AppButton variant="secondary" @click="router.push('/kpis')">
         ← Volver al Listado
       </AppButton>

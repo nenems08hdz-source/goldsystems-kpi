@@ -56,15 +56,15 @@ const misEventos = ref([
       descripcion="Supervisión en tiempo real de la integridad del sistema y actividad del usuario."
     />
       <div class="flex gap-3">
-        <button class="px-4 py-2 rounded-lg text-xs font-semibold shadow-sm transition-colors flex items-center gap-2"
-          style="background: var(--card-bg); border: 1px solid var(--tabla-borde); color: var(--card-text);"
-          @mouseover="$event.currentTarget.style.background='var(--tabla-header-bg)'"
-          @mouseleave="$event.currentTarget.style.background='var(--card-bg)'"
+        <button class="px-4 py-2 rounded-lg text-xs font-semibold shadow-sm transition-all flex items-center gap-2"
+          style="background: var(--sidebar-active-bg); color: var(--sidebar-active-text);"
+          @mouseover="$event.currentTarget.style.opacity='0.85'"
+          @mouseleave="$event.currentTarget.style.opacity='1'"
         ><i class="fi fi-sr-file-pdf"></i> Exportar PDF</button>
-        <button class="px-4 py-2 rounded-lg text-xs font-semibold shadow-sm transition-colors flex items-center gap-2 text-white"
-          style="background: var(--sidebar-bg);"
+        <button class="px-4 py-2 rounded-lg text-xs font-semibold shadow-sm transition-colors flex items-center gap-2"
+          style="background: #16a34a; color: #fff;"
           @mouseover="$event.currentTarget.style.background='#15803d'"
-          @mouseleave="$event.currentTarget.style.background='var(--sidebar-bg)'"
+          @mouseleave="$event.currentTarget.style.background='#16a34a'"
         ><i class="fi fi-sr-file-excel"></i> Exportar Excel</button>
       </div>
     </div>
@@ -156,10 +156,10 @@ const misEventos = ref([
 
     <div class="flex items-center gap-4 w-full mb-4 my-4">
       <h2 class="text-xl font-bold tracking-tight whitespace-nowrap"
-        style="color: var(--sidebar-bg);">
+        style="color: var(--text-encabezado);">
         Resumen de Cambios Operativos
       </h2>
-      <div class="h-[1.5px] flex-grow mt-1" style="background: var(--sidebar-bg); opacity: 0.3;"></div>
+      <div class="h-[1.5px] flex-grow mt-1" style="background: var(--tabla-borde);"></div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 rounded-xl mt-5 overflow-hidden shadow-lg"
