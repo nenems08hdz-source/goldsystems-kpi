@@ -1,5 +1,4 @@
 <script setup>
-// Definimos los "props", que son los datos que este componente necesita recibir desde fuera
 defineProps({
   nombre: { type: String, required: true },
   departamento: { type: String, required: true },

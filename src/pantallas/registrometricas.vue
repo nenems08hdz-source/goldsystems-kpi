@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import { useRouter }     from 'vue-router'
 import { getCurrentInstance } from 'vue'
-import { usePanelStore } from '../stores/panelStore'
+import { useKpiStore } from '../stores/kpiStore'
 
 const props = defineProps({
   kpi: {
@@ -12,11 +12,10 @@ const props = defineProps({
 })
 const emit = defineEmits(['guardado', 'cancelar'])
 
-const store  = usePanelStore()
+const store  = useKpiStore()
 const router = useRouter()
 const { proxy } = getCurrentInstance()
 
-// ── Estado del formulario ────────────────────────────────────────────────
 const form = ref({
   fechaCorte:    '',
   valor:         '',
@@ -40,7 +39,6 @@ const placeholderValor = computed(() => {
   return `Meta: ${props.kpi.meta}`
 })
 
-// ── Computed: texto de ayuda para el campo de fecha ──────
 const textoAyudaFecha = computed(() => {
   const textos = {
     'Diario':     'Ingresa la fecha exacta del día que estás reportando.',
@@ -82,7 +80,6 @@ function guardarMetrica() {
 <template>
   <div class="w-full mt-6">
 
-    <!-- Botón "Volver" para regresar sin guardar -->
     <button
       @click="emit('cancelar')"
       type="button"
@@ -184,7 +181,6 @@ function guardarMetrica() {
             {{ errorMensaje }}
           </div>
 
-          <!-- Botones -->
           <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
             <button
               type="button"

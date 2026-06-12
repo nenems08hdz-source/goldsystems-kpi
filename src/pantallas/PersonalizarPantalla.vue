@@ -1,29 +1,27 @@
 <script setup>
-//PersonalizarPantalla
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import draggable from 'vuedraggable'
-import { usePanelStore } from '../stores/panelStore'
+import { useUiStore }  from '../stores/uiStore'
+import { useKpiStore } from '../stores/kpiStore'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
 
 const router = useRouter()
-const store = usePanelStore()
+const store    = useUiStore()
+const kpiStore = useKpiStore()
 
-// ─── ESTADO LOCAL (copias independientes para poder cancelar) ────────────
 const listaLocal = ref([])
 const kpisActivosLocal = ref([])
 const modoGraficaLocal = ref('general')
 const kpiSeleccionadoLocal = ref(1)
 const tipoGraficaLocal = ref('linea')
 
-// Filtro de búsqueda en la barra lateral
 const filtroBusqueda = ref('')
 const filtroEstado = ref('todos')
 
 onMounted(() => {
   store.cargarOrden()
   store.cargarPreferencias()
-  // Copiamos todo del store a variables locales
   listaLocal.value = JSON.parse(JSON.stringify(store.widgets))
   kpisActivosLocal.value = [...store.kpisActivos]
   modoGraficaLocal.value = store.modoGrafica
@@ -31,39 +29,28 @@ onMounted(() => {
   tipoGraficaLocal.value = store.tipoGraficaEspecifica
 })
 
-// ─── COMPUTED para filtrar la lista de KPIs en la barra lateral ──────────
 const indicadoresFiltrados = computed(() => {
-  return store.indicadores.filter(ind => {
-    // Filtro por texto
-    const coincideTexto = ind.departamento
+  return kpiStore.indicadores.filter(ind => {
+    const coincideTexto = ind.nombre
       .toLowerCase()
       .includes(filtroBusqueda.value.toLowerCase())
-    // Filtro por estado
     const coincideEstado =
       filtroEstado.value === 'todos' || ind.estadoTipo === filtroEstado.value
     return coincideTexto && coincideEstado
   })
 })
 
-// El KPI seleccionado completo (para mostrar sus gráficas compatibles)
 const kpiSeleccionadoCompleto = computed(() =>
-  store.indicadores.find(i => i.id === kpiSeleccionadoLocal.value)
+  kpiStore.indicadores.find(i => i.id === kpiSeleccionadoLocal.value)
 )
 
-// ─── FUNCIONES ───────────────────────────────────────────────────────────
-
-// Activa o desactiva un KPI de la lista
 function toggleKpi(id) {
   const index = kpisActivosLocal.value.indexOf(id)
   if (index === -1) {
-    // No estaba activo → lo activamos
-    // Máximo 4 KPIs activos al mismo tiempo
     if (kpisActivosLocal.value.length < 4) {
       kpisActivosLocal.value.push(id)
     }
   } else {
-    // Ya estaba activo → lo desactivamos
-    // Mínimo 1 KPI activo siempre
     if (kpisActivosLocal.value.length > 1) {
       kpisActivosLocal.value.splice(index, 1)
     }
@@ -71,9 +58,7 @@ function toggleKpi(id) {
 }
 
 function guardarCambios() {
-  // Guardamos el orden de widgets
   store.guardarOrden(listaLocal.value)
-  // Guardamos las preferencias de KPIs y gráficas
   store.kpisActivos = kpisActivosLocal.value
   store.modoGrafica = modoGraficaLocal.value
   store.kpiSeleccionadoGrafica = kpiSeleccionadoLocal.value
@@ -89,8 +74,6 @@ function cancelar() {
 
 <template>
   <div class="flex min-h-screen" style="background-color: var(--layout-bg);">
-
-    <!-- ── COLUMNA IZQUIERDA: lista arrastrable ── -->
     <div class="flex-1 p-6 overflow-y-auto">
 
       <div class="flex justify-between items-center mb-8">
@@ -145,32 +128,22 @@ function cancelar() {
       </draggable>
 
     </div>
-
-    <!-- ── BARRA LATERAL DERECHA: configuración ── -->
     <div class="w-80 bg-white border-l border-slate-200 flex flex-col overflow-y-auto" style="background-color: var(--card-bg); border-color: var(--tabla-borde);">
-
-      <!-- Encabezado de la barra -->
       <div class="p-4 border-b border-slate-100 bg-[#3f2a52]">
         <p class="text-xs font-bold text-[#beaed8] uppercase tracking-wider" style="color: var(--text-general);"> Configuración del Panel</p>
         <p class="text-[10px] text-[#beaed8]/60 mt-0.5">Máximo 4 KPIs activos al mismo tiempo</p>
       </div>
-
-      <!-- ── SECCIÓN 1: KPIs activos ── -->
       <div class="p-4 border-b border-slate-100">
         <p class="text-xs font-bold uppercase tracking-wider mb-3" style="color: var(--text-general)">
            KPIs en el Panel
         </p>
-
-        <!-- Filtro de búsqueda -->
         <input 
           v-model="filtroBusqueda"
           type="text"
-          placeholder="Buscar departamento..." 
+          placeholder="Buscar KPI..."
           class="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 mb-2 focus:outline-none focus:border-[#3f2a52] transition-colors"
           style="color: var(--text-general);"
         />
-
-        <!-- Filtro por estado -->
         <select
           v-model="filtroEstado"
           class="w-full text-xs border border-slate-200 rounded-lg px-3 py-2 mb-3 focus:outline-none focus:border-[#3f2a52] transition-colors bg-white"
@@ -181,13 +154,9 @@ function cancelar() {
           <option value="warning"> En riesgo</option>
           <option value="danger"> Crítico</option>
         </select>
-
-        <!-- Contador de KPIs activos -->
         <p class="text-[10px] text-slate-400 mb-2">
           {{ kpisActivosLocal.length }}/4 KPIs activos
         </p>
-
-        <!-- Lista de KPIs para activar/desactivar -->
         <div class="flex flex-col gap-1.5 max-h-64 overflow-y-auto">
           <div
             v-for="ind in indicadoresFiltrados"
@@ -198,7 +167,6 @@ function cancelar() {
               ? 'border-[#3f2a52] bg-purple-50'
               : 'border-slate-100 hover:border-slate-300 bg-white'"
           >
-            <!-- Checkbox visual -->
             <div
               class="w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all"
               :class="kpisActivosLocal.includes(ind.id)
@@ -207,14 +175,10 @@ function cancelar() {
             >
               <span v-if="kpisActivosLocal.includes(ind.id)" class="text-white text-[8px] font-bold">✓</span>
             </div>
-
-            <!-- Info del KPI -->
             <div class="flex flex-col flex-1 min-w-0">
-              <span class="text-xs font-semibold text-slate-700 truncate">{{ ind.departamento }}</span>
+              <span class="text-xs font-semibold text-slate-700 truncate">{{ ind.nombre }}</span>
               <span class="text-[10px] text-slate-400 truncate">{{ ind.subtitulo }}</span>
             </div>
-
-            <!-- Punto de estado -->
             <span
               class="w-2 h-2 rounded-full flex-shrink-0"
               :class="{
@@ -225,8 +189,6 @@ function cancelar() {
             ></span>
           </div>
         </div>
-
-        <!-- Aviso cuando se llega al límite -->
         <p
           v-if="kpisActivosLocal.length >= 4"
           class="text-[10px] text-amber-500 mt-2 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1.5"
@@ -234,14 +196,10 @@ function cancelar() {
            Límite alcanzado. Desactiva uno para activar otro.
         </p>
       </div>
-
-      <!-- ── SECCIÓN 2: Tipo de gráficas ── -->
       <div class="p-4">
         <p class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">
            Gráficas del Panel
         </p>
-
-        <!-- Opción 1: Resumen general -->
         <div
           @click="modoGraficaLocal = 'general'"
           class="flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all mb-2"
@@ -262,8 +220,6 @@ function cancelar() {
             <p class="text-[10px] text-slate-400 mt-0.5">Medidor de salud global y barras de progreso de todos los KPIs</p>
           </div>
         </div>
-
-        <!-- Opción 2: Gráfica específica -->
         <div
           @click="modoGraficaLocal = 'especifica'"
           class="flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all"
@@ -285,29 +241,22 @@ function cancelar() {
           </div>
         </div>
 
-        <!-- Sub-opciones que aparecen solo si eligió "específica" -->
         <div v-if="modoGraficaLocal === 'especifica'" class="mt-3 pl-2 border-l-2 border-[#beaed8] flex flex-col gap-2">
-
-          <!-- Selector de KPI -->
           <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">KPI a mostrar</p>
           <select
             v-model="kpiSeleccionadoLocal"
             class="w-full text-xs border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#3f2a52] bg-white"
           >
-            <!--
-              Solo mostramos los KPIs que el usuario activó arriba.
-              No tiene sentido mostrar la gráfica de un KPI que no está activo.
-            -->
+          
             <option
               v-for="id in kpisActivosLocal"
               :key="id"
               :value="id"
             >
-              {{ store.indicadores.find(i => i.id === id)?.departamento }}
+              {{ kpiStore.indicadores.find(i => i.id === id)?.nombre }}
             </option>
           </select>
 
-          <!-- Selector de tipo de gráfica (solo las compatibles con ese KPI) -->
           <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-1">Tipo de gráfica</p>
           <div class="flex flex-col gap-1">
             <div
@@ -319,7 +268,6 @@ function cancelar() {
                 ? 'border-[#3f2a52] bg-purple-50 text-[#3f2a52] font-semibold'
                 : 'border-slate-100 hover:border-slate-300 text-slate-600'"
             >
-              <!-- Ícono según el tipo -->
               <span>
                 {{ tipo === 'linea' ? '📉' : tipo === 'barras' ? '📊' : tipo === 'area' ? '🏔️' : '🎯' }}
               </span>
@@ -328,8 +276,10 @@ function cancelar() {
             </div>
           </div>
         </div>
+
       </div>
 
     </div>
+
   </div>
 </template>

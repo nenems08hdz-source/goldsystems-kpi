@@ -5,7 +5,6 @@ import ModalConfirmacion from '../components/ModalConfirmacion.vue'
 
 const { proxy } = getCurrentInstance()
 
-// Estados para contraseña
 const editandoPassword = ref(false)
 const passwordForm = ref({
     actual: '',
@@ -13,7 +12,6 @@ const passwordForm = ref({
     confirmar: ''
 });
 
-// Otros estados
 const is2FAEnabled = ref(false)
 const toggle2FA = () => { is2FAEnabled.value = !is2FAEnabled.value }
 
@@ -88,15 +86,14 @@ const guardarcambios = () => {
 
 // Modal de eliminación
 const showModal = ref(false)
-const idAEliminar = ref(null) // Cambiamos a idAEliminar para ser más claros
+const idAEliminar = ref(null) 
 
 function confirmarEliminacion(id) {
-  idAEliminar.value = id    // Guardamos el ID que viene del clic
+  idAEliminar.value = id    
   showModal.value = true
 } 
 
 function ejecutarEliminacion() {
-  // Buscamos el índice en el array de 'registrosActividad' usando el ID guardado
   const index = registrosActividad.value.findIndex(r => r.id === idAEliminar.value)
   
   if (index !== -1) {
@@ -104,7 +101,7 @@ function ejecutarEliminacion() {
     proxy.$notify.success('Registro eliminado correctamente', 'Éxito')
   }
   
-  idAEliminar.value = null // Limpiamos la variable
+  idAEliminar.value = null
   showModal.value = false
 }
 </script>

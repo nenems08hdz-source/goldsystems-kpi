@@ -69,14 +69,12 @@ const descartarCambios = () => {
   kpis.value = JSON.parse(JSON.stringify(kpisIniciales))
 }
 
-// Dentro de tu <script setup>
 const horarioSilencio = ref({
-    inicio: '22:00', // Formato 24h para el input type="time"
+    inicio: '22:00', 
     fin: '08:00'
 });
 
 const guardarcambios = () => {
-    // Aquí envías 'horarioSilencio' a tu base de datos o API
     console.log("Nuevo horario guardado:", horarioSilencio.value);
     proxy.$notify.success('Horario de silencio actualizado', 'Éxito');
 }

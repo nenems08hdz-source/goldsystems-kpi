@@ -34,19 +34,14 @@ const alertasConfig = ref([
 ])
 const { proxy } = getCurrentInstance() 
 
-const mensajeExito = ref(false) // Nuevo estado
+const mensajeExito = ref(false) 
 
-// Dentro de tu <script setup> en AjustesPerfil.vue
 const guardarPerfil = async () => {
   try {
-    // 1. Aquí va tu lógica para enviar datos al servidor
-    // await api.put('/perfil', datos.value);
-
-    // 2. DISPARA LA NOTIFICACIÓN CON EL MISMO DISEÑO
+   
     proxy.$notify.success('Los cambios han sido guardados correctamente', 'Éxito');
     
   } catch (error) {
-    // 3. Si hay error, puedes usar el mismo estilo pero en rojo
     proxy.$notify.error('Hubo un error al guardar', 'Error');
   }
 }

@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import plantillatabla from '../components/PlantillaTabla.vue'
 import tarjetasresumen from '../components/TarjetasResumen.vue'
-
+import EncabezadoPantalla from '@/components/EncabezadoPantalla.vue'
 const misEventos = ref([
   {
     id: 1,
@@ -50,16 +50,11 @@ const misEventos = ref([
 <template>
   <div class="p-3 min-h-screen" style="background: transparent;">
 
-    <!-- Encabezado con botones exportar -->
     <div class="flex justify-between items-center mb-6">
-      <div>
-        <h1 class="text-4xl font-bold tracking-tight" style="color: var(--sidebar-bg);">
-          Centro de Auditoría
-        </h1>
-        <p class="text-xs mt-1" style="color: var(--card-text-muted);">
-          Supervisión en tiempo real de la integridad del sistema y actividad del usuario.
-        </p>
-      </div>
+       <EncabezadoPantalla
+      titulo="Centro de Auditoría"
+      descripcion="Supervisión en tiempo real de la integridad del sistema y actividad del usuario."
+    />
       <div class="flex gap-3">
         <button class="px-4 py-2 rounded-lg text-xs font-semibold shadow-sm transition-colors flex items-center gap-2"
           style="background: var(--card-bg); border: 1px solid var(--tabla-borde); color: var(--card-text);"
@@ -74,7 +69,6 @@ const misEventos = ref([
       </div>
     </div>
 
-    <!-- Tarjetas resumen — TarjetasResumen ya usa variables, sin cambios -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
       <tarjetasresumen
         titulo="Eventos Totales (24h)" valor="1,284" subtexto="Flujo de datos normal"
@@ -97,7 +91,6 @@ const misEventos = ref([
       />
     </div>
 
-    <!-- Tabla registro histórico -->
     <plantillatabla
       titulo="Registro Histórico"
       :encabezados="['Usuario', 'Acción', 'Fecha / Hora', 'Departamento', 'Detalle', 'Estado', 'Acciones']"
@@ -111,41 +104,36 @@ const misEventos = ref([
               {{ fila.usuario.charAt(0) }}
             </div>
             <div>
-              <div class="font-bold text-xs" style="color: var(--card-text);">{{ fila.usuario }}</div>
-              <div class="text-[11px]" style="color: var(--card-text-hint);">{{ fila.correo }}</div>
+              <div class="font-bold text-xs" style="color: var(--text-general);">{{ fila.usuario }}</div>
+              <div class="text-[11px]" style="color: var(--subtext-general);">{{ fila.correo }}</div>
             </div>
           </div>
         </td>
 
         <td class="p-4 align-middle text-xs font-medium md:w-2/12 min-w-[130px]"
-          style="color: var(--card-text);">
+          style="color: var(--text-general);">
           {{ fila.accion }}
         </td>
 
         <td class="p-4 align-middle text-xs whitespace-nowrap md:w-1/12 min-w-[110px]"
-          style="color: var(--card-text-muted);">
+          style="color: var(--subtext-general);">
           {{ fila.fecha }}
         </td>
 
-        <!-- Badge módulo -->
-        <td class="p-4 align-middle md:w-1/12 min-w-[120px]">
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded border uppercase tracking-wide inline-block"
-            style="background: var(--tabla-header-bg); color: var(--card-text-muted); border-color: var(--tabla-borde);">
-            {{ fila.modulo }}
-          </span>
+        <td class="p-4 align-middle text-center md:w-1/12 min-w-[120px]">
+          <span class="table-badge">{{ fila.modulo }}</span>
         </td>
 
         <td class="p-4 align-middle text-xs max-w-xs truncate md:w-2/12 min-w-[150px]"
-          style="color: var(--card-text-muted);">
+          style="color: var(--subtext-general);">
           {{ fila.detalle }}
         </td>
 
-        <!-- Badges de estado — semánticos, NO cambian -->
-        <td class="p-4 align-middle md:w-2/12 min-w-[110px]">
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide flex items-center gap-1 w-fit border"
+        <td class="p-4 align-middle text-center md:w-2/12 min-w-[110px]">
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide inline-flex items-center gap-1 border"
             :class="{
-              'bg-emerald-50 text-emerald-700 border-emerald-200': fila.estado === 'Exitosa',
-              'bg-amber-50 text-amber-700 border-amber-200': fila.estado === 'Revisión'
+              'text-emerald-600 border-emerald-500 dark:text-emerald-400 dark:border-emerald-400': fila.estado === 'Exitosa',
+              'text-amber-600 border-amber-500 dark:text-amber-400 dark:border-amber-400':         fila.estado === 'Revisión'
             }">
             <span class="w-1.5 h-1.5 rounded-full"
               :class="{
@@ -166,7 +154,6 @@ const misEventos = ref([
       </template>
     </plantillatabla>
 
-    <!-- Título separador Resumen Operativo -->
     <div class="flex items-center gap-4 w-full mb-4 my-4">
       <h2 class="text-xl font-bold tracking-tight whitespace-nowrap"
         style="color: var(--sidebar-bg);">
@@ -175,11 +162,9 @@ const misEventos = ref([
       <div class="h-[1.5px] flex-grow mt-1" style="background: var(--sidebar-bg); opacity: 0.3;"></div>
     </div>
 
-    <!-- Panel de estadísticas -->
     <div class="grid grid-cols-1 md:grid-cols-3 rounded-xl mt-5 overflow-hidden shadow-lg"
       style="background: var(--card-bg); border: 1px solid var(--tabla-borde);">
 
-      <!-- Metas editadas -->
       <div class="p-4 flex justify-between items-end h-20"
         style="border-bottom: 1px solid var(--card-border);">
         <div class="flex flex-col justify-between h-full text-left">
@@ -195,7 +180,6 @@ const misEventos = ref([
         </div>
       </div>
 
-      <!-- Cambios de datos -->
       <div class="p-4 flex justify-between items-end h-20"
         style="border-bottom: 1px solid var(--card-border); border-left: 1px solid var(--card-border); border-right: 1px solid var(--card-border);">
         <div class="flex flex-col justify-between h-full text-left">
@@ -211,7 +195,6 @@ const misEventos = ref([
         </div>
       </div>
 
-      <!-- Cancelaciones -->
       <div class="p-4 flex justify-between items-end h-20">
         <div class="flex flex-col justify-between h-full text-left">
           <span class="font-bold uppercase text-[10px] tracking-wider"
