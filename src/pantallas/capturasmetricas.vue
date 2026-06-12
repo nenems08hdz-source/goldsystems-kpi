@@ -5,7 +5,7 @@ import { useOrgStore } from '../stores/orgStore'
 import PlantillaTabla    from '../components/PlantillaTabla.vue'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
 import ModalConfirmacion from '../components/ModalConfirmacion.vue'
-import RegistroMetricas  from './Registrometricas.vue'
+import RegistroMetricas  from './RegistroMetricas.vue'
 
 const store    = useKpiStore()
 const orgStore = useOrgStore()

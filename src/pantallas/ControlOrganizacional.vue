@@ -232,16 +232,16 @@ function eliminarNodo(nodo) {
         <div class="p-3 flex gap-2" style="border-top: 1px solid var(--tabla-borde);">
           <button @click="$router.push('/FormularioDepartamento')"
             class="flex-1 text-[10px] font-bold uppercase tracking-wider py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all"
-            style="background: var(--card-bg); color: var(--sidebar-bg); border: 1px solid var(--input-border);"
+            style="background: var(--card-bg); color: var(--text-general); border: 1px solid var(--input-border);"
             @mouseover="$event.currentTarget.style.background='var(--tabla-hover)'"
             @mouseleave="$event.currentTarget.style.background='var(--card-bg)'"
-          ><span class="text-[#beaed8]">+</span> Departamento</button>
+          ><span style="color: var(--color-kpi-morado);">+</span> Departamento</button>
           <button @click="$router.push('/FormularioEquipo')"
             class="flex-1 text-[10px] font-bold uppercase tracking-wider py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all"
-            style="background: var(--card-bg); color: var(--sidebar-bg); border: 1px solid var(--input-border);"
+            style="background: var(--card-bg); color: var(--text-general); border: 1px solid var(--input-border);"
             @mouseover="$event.currentTarget.style.background='var(--tabla-hover)'"
             @mouseleave="$event.currentTarget.style.background='var(--card-bg)'"
-          ><span class="text-[#beaed8]">+</span> Equipo</button>
+          ><span style="color: var(--color-kpi-morado);">+</span> Equipo</button>
         </div>
       </div>
 

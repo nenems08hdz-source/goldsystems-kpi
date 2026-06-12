@@ -166,7 +166,6 @@ function ejecutarEliminacion() {
            <bottones @click="confirmarEliminacion(fila.id)" 
           >  Cerrar
           </bottones>
-
           </td>
         </template>
       </plantillatabla>

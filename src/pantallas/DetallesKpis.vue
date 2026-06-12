@@ -14,21 +14,21 @@ const kpi   = computed(() => store.indicadores.find(i => i.id === idKpi))
 const tipoSeleccionado = ref(kpi.value?.graficasCompatibles?.[0] ?? 'linea')
 
 const eventosBase = ref([
-  { id: 'ev-1',  tipo: 'evento', titulo: 'Actualización de Meta SLA',   desc: 'El umbral de Óptimo se elevó al nivel actual.',  fecha: '2024-01-15', autor: 'Carlos M.' },
-  { id: 'ev-2',  tipo: 'evento', titulo: 'Nuevo Responsable',           desc: 'Asignación del equipo SRE-A al indicador.',      fecha: '2024-02-20', autor: 'Admin'     },
-  { id: 'ev-3',  tipo: 'evento', titulo: 'Ajuste de Fórmula',           desc: 'Se corrigió el cálculo base del indicador.',     fecha: '2024-03-25', autor: 'Usuario'   },
-  { id: 'ev-4',  tipo: 'evento', titulo: 'Cambio de Periodicidad',      desc: 'Se ajustó la frecuencia de medición.',           fecha: '2024-06-01', autor: 'Admin'     },
+  { id: 'ev-1', tipo: 'evento', titulo: 'Actualización de Meta SLA',   desc: 'El umbral de Óptimo se elevó al nivel actual.',  fecha: '2024-01-15', autor: 'Carlos M.' },
+  { id: 'ev-2', tipo: 'evento', titulo: 'Nuevo Responsable',           desc: 'Asignación del equipo SRE-A al indicador.',      fecha: '2024-02-20', autor: 'Admin'     },
+  { id: 'ev-3', tipo: 'evento', titulo: 'Ajuste de Fórmula',           desc: 'Se corrigió el cálculo base del indicador.',     fecha: '2024-03-25', autor: 'Usuario'   },
+  { id: 'ev-4', tipo: 'evento', titulo: 'Cambio de Periodicidad',      desc: 'Se ajustó la frecuencia de medición.',           fecha: '2024-06-01', autor: 'Admin'     },
 ])
 
 const capturasReales = computed(() =>
   store.capturasPorKpi(idKpi).map(c => ({
-    id:    `cap-${c.id}`,
-    tipo:  'captura',
+    id:     `cap-${c.id}`,
+    tipo:   'captura',
     titulo: 'Medición registrada',
-    desc:  `Valor: ${c.valor} — ${c.observaciones || 'Sin observaciones'}`,
-    fecha: c.fechaCorte,       
-    autor: `Usuario #${c.usuario_id}`,
-    valor: c.valor,
+    desc:   `Valor: ${c.valor} — ${c.observaciones || 'Sin observaciones'}`,
+    fecha:  c.fechaCorte,
+    autor:  `Usuario #${c.usuario_id}`,
+    valor:  c.valor,
   }))
 )
 
@@ -40,7 +40,6 @@ const registrosCombinados = computed(() => {
 const opcionesFiltro = computed(() => {
   if (!kpi.value) return []
   const p = kpi.value.periodicidad
-
   if (p === 'Mensual') return [
     { label: 'Todos los meses', valor: 'todos' },
     ...['Enero','Febrero','Marzo','Abril','Mayo','Junio',
@@ -68,20 +67,17 @@ const filtroActivo = ref('todos')
 
 const registrosFiltrados = computed(() => {
   if (filtroActivo.value === 'todos') return registrosCombinados.value
-
   const p = kpi.value?.periodicidad
-
   return registrosCombinados.value.filter(r => {
     const fecha = new Date(r.fecha + 'T00:00:00')
     const mes   = fecha.getMonth()
     const dia   = fecha.getDate()
-
-    if (p === 'Mensual')     return r.fecha.startsWith(filtroActivo.value)
+    if (p === 'Mensual')    return r.fecha.startsWith(filtroActivo.value)
     if (p === 'Trimestral') {
-      if (filtroActivo.value === 'Q1') return mes >= 0  && mes <= 2
-      if (filtroActivo.value === 'Q2') return mes >= 3  && mes <= 5
-      if (filtroActivo.value === 'Q3') return mes >= 6  && mes <= 8
-      if (filtroActivo.value === 'Q4') return mes >= 9  && mes <= 11
+      if (filtroActivo.value === 'Q1') return mes >= 0 && mes <= 2
+      if (filtroActivo.value === 'Q2') return mes >= 3 && mes <= 5
+      if (filtroActivo.value === 'Q3') return mes >= 6 && mes <= 8
+      if (filtroActivo.value === 'Q4') return mes >= 9 && mes <= 11
     }
     if (p === 'Semanal' || p === 'Diario') {
       if (filtroActivo.value === 'sem-1') return dia >= 1  && dia <= 7
@@ -92,7 +88,6 @@ const registrosFiltrados = computed(() => {
     return true
   })
 })
-
 </script>
 
 <template>
@@ -100,47 +95,51 @@ const registrosFiltrados = computed(() => {
 
     <BotonesRegreso
       @click="router.push('/kpis')"
-      class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 shadow-sm transition-colors flex items-center gap-2 w-fit"
+      class="px-4 py-2 rounded-lg text-xs font-semibold shadow-sm transition-colors flex items-center gap-2 w-fit"
+      style="background: var(--card-bg); border: 1px solid var(--tabla-borde); color: var(--text-general);"
+      @mouseover="$event.currentTarget.style.background='var(--tabla-hover)'"
+      @mouseleave="$event.currentTarget.style.background='var(--card-bg)'"
     >
       ← Volver al Listado
     </BotonesRegreso>
 
-    <div v-if="!kpi" class="bg-white rounded-xl border border-gray-200 p-8 text-center">
-      <p class="text-gray-400 text-sm">No se encontró el KPI solicitado.</p>
-      <button @click="router.push('/kpis')" class="mt-4 text-[#3f2a52] text-xs font-bold underline">
+    <div v-if="!kpi" class="rounded-xl p-8 text-center"
+      style="background: var(--card-bg); border: 1px solid var(--tabla-borde);">
+      <p class="text-sm" style="color: var(--subtext-general);">No se encontró el KPI solicitado.</p>
+      <button @click="router.push('/kpis')" class="mt-4 text-xs font-bold underline"
+        style="color: var(--sidebar-bg);">
         Volver al listado
       </button>
     </div>
 
     <template v-if="kpi">
 
-      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+      <div class="rounded-xl shadow-sm p-5"
+        style="background: var(--card-bg); border: 1px solid var(--tabla-borde);">
         <div class="flex justify-between items-start flex-wrap gap-4">
           <div>
-            <span class="text-[10px] font-bold bg-[#3f2a52]/10 text-[#3f2a52] px-2 py-0.5 rounded border border-[#3f2a52]/20 uppercase tracking-wider">
-              {{ kpi.departamento }}
-            </span>
-            <h1 class="text-xl font-bold text-gray-900 mt-2">{{ kpi.nombre }}</h1>
-            <p class="text-xs text-gray-400 mt-0.5">{{ kpi.formula }}</p>
+            <span class="table-badge">{{ kpi.departamento }}</span>
+            <h1 class="text-xl font-bold mt-2" style="color: var(--text-general);">{{ kpi.nombre }}</h1>
+            <p class="text-xs mt-0.5" style="color: var(--subtext-general);">{{ kpi.formula }}</p>
             <div class="flex items-center gap-2 mt-3 flex-wrap">
-              <span class="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded border border-gray-200 uppercase">{{ kpi.tipoMetrica }}</span>
-              <span class="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded border border-gray-200 uppercase">{{ kpi.periodicidad }}</span>
-              <span class="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded border border-gray-200 uppercase">Resp: {{ kpi.responsable }}</span>
+              <span class="table-badge">{{ kpi.tipoMetrica }}</span>
+              <span class="table-badge">{{ kpi.periodicidad }}</span>
+              <span class="table-badge">Resp: {{ kpi.responsable }}</span>
             </div>
           </div>
           <div class="flex flex-col items-end gap-2">
             <StatusBadge :tipo="kpi.estadoTipo" :texto="kpi.estado" />
-            <p class="text-xs text-gray-500 text-right">
-              Valor actual: <strong class="text-gray-800">{{ kpi.progreso }}</strong>
+            <p class="text-xs text-right" style="color: var(--subtext-general);">
+              Valor actual: <strong style="color: var(--text-general);">{{ kpi.progreso }}</strong>
             </p>
-            <p class="text-xs text-gray-500 text-right">
-              Meta: <strong class="text-gray-800">{{ kpi.meta }}</strong>
+            <p class="text-xs text-right" style="color: var(--subtext-general);">
+              Meta: <strong style="color: var(--text-general);">{{ kpi.meta }}</strong>
             </p>
           </div>
         </div>
       </div>
 
-      <div class="bg-[#3f2a52] border border-[#beaed8]/70 rounded-2xl p-6 shadow-lg">
+      <div class="border border-[#beaed8]/70 rounded-2xl p-6 shadow-lg" style="background: var(--grafics-bg);">
         <div class="flex justify-between items-center mb-4 flex-wrap gap-3">
           <p class="text-[11px] font-bold text-[#beaed8] uppercase tracking-wider">Registro de Mediciones</p>
           <div class="flex gap-2">
@@ -160,23 +159,23 @@ const registrosFiltrados = computed(() => {
         <GraficaKpiEspecifica :kpi="kpi" :tipo="tipoSeleccionado" />
       </div>
 
-      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+      <div class="p-6 rounded-xl shadow-sm"
+        style="background: var(--card-bg); border: 1px solid var(--tabla-borde);">
 
         <div class="mb-6 flex justify-between items-center flex-wrap gap-3">
           <div>
-            <h2 class="text-lg font-bold text-black">Historial de Registros</h2>
-            <p class="text-xs text-gray-500">
+            <h2 class="text-lg font-bold" style="color: var(--text-general);">Historial de Registros</h2>
+            <p class="text-xs" style="color: var(--subtext-general);">
               Capturas y eventos de auditoría —
-              <strong class="text-[#3f2a52]">Periodicidad {{ kpi.periodicidad }}</strong>
+              <strong style="color: var(--tabla-header-text);">Periodicidad {{ kpi.periodicidad }}</strong>
               ·
-              
-              <span class="text-[#3f2a52]">{{ capturasReales.length }} captura(s) registrada(s)</span>
+              <span style="color: var(--tabla-header-text);">{{ capturasReales.length }} captura(s) registrada(s)</span>
             </p>
           </div>
 
           <select
             v-model="filtroActivo"
-            class="text-white bg-[#3f2a52] px-4 py-2 rounded-lg hover:bg-[#5a3f73] transition-colors cursor-pointer outline-none text-xs"
+            class="app-select w-auto"
           >
             <option v-for="opcion in opcionesFiltro" :key="opcion.valor" :value="opcion.valor">
               {{ opcion.label }}
@@ -188,48 +187,42 @@ const registrosFiltrados = computed(() => {
           <div
             v-for="r in registrosFiltrados"
             :key="r.id"
-            class="p-4 rounded-lg border transition-colors"
-            :class="r.tipo === 'captura'
-              ? 'border-[#beaed8]/60 bg-[#3f2a52]/3 hover:bg-[#3f2a52]/5'
-              : 'border-gray-100 hover:bg-gray-50'"
+            class="p-4 rounded-lg transition-colors"
+            :style="r.tipo === 'captura'
+              ? 'border: 1px solid var(--tabla-borde); background: transparent;'
+              : 'border: 1px solid var(--tabla-borde); background: transparent;'"
+            @mouseover="$event.currentTarget.style.background='var(--tabla-hover)'"
+            @mouseleave="$event.currentTarget.style.background='transparent'"
           >
             <div class="flex justify-between items-start gap-4">
               <div class="flex gap-4 flex-grow">
-               
-                <div
-                  class="p-2 rounded-lg text-sm flex-shrink-0"
-                  :class="r.tipo === 'captura'
-                    ? 'bg-[#3f2a52]/10 text-[#3f2a52]'
-                    : 'bg-gray-100 text-gray-600'"
-                >
-                  <i :class="r.tipo === 'captura' ? 'fi fi-sr-stats' : 'fi fi-rr-pencil'"></i>
-                </div>
                 <div>
                   <div class="flex items-center gap-2">
-                    <p class="text-sm font-bold text-black">{{ r.titulo }}</p>
-  
+                    <p class="text-sm font-bold" style="color: var(--text-general);">{{ r.titulo }}</p>
                     <span
                       v-if="r.tipo === 'captura'"
-                      class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[#3f2a52]/10 text-[#3f2a52] uppercase tracking-wide"
+                      class="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide"
+                      style="background: rgba(63,42,82,0.1); color: var(--tabla-header-text);"
                     >
                       CAPTURA
                     </span>
                   </div>
-                  <p class="text-xs text-gray-600 mt-1">{{ r.desc }}</p>
-                  <p class="text-[10px] text-gray-400 mt-2 font-bold uppercase tracking-wider">
+                  <p class="text-xs mt-1" style="color: var(--subtext-general);">{{ r.desc }}</p>
+                  <p class="text-[10px] mt-2 font-bold uppercase tracking-wider" style="color: var(--card-text-hint);">
                     Por: {{ r.autor }}
                   </p>
                 </div>
               </div>
-              <span class="text-[10px] text-gray-500 font-bold bg-gray-100 px-2 py-1 rounded whitespace-nowrap">
+              <span class="text-[10px] font-bold px-2 py-1 rounded whitespace-nowrap"
+                style="background: var(--tabla-header-bg); color: var(--subtext-general);">
                 {{ r.fecha }}
               </span>
             </div>
           </div>
 
           <div v-if="registrosFiltrados.length === 0" class="text-center py-8">
-            <p class="text-gray-400 text-sm">No hay registros en este periodo.</p>
-            <p class="text-xs text-gray-300 mt-1">
+            <p class="text-sm" style="color: var(--subtext-general);">No hay registros en este periodo.</p>
+            <p class="text-xs mt-1" style="color: var(--card-text-hint);">
               Las capturas guardadas desde "Captura de Métricas" aparecerán aquí.
             </p>
           </div>
