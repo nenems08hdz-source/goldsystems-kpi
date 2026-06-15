@@ -15,7 +15,7 @@ const categorias = [
 </script>
 
 <template>
-  <div class="p-6 min-h-screen w-full flex flex-col gap-6" style="background-color: var(--layout-bg);">
+  <div class="p-6 min-h-screen w-full flex flex-col gap-6" style="background-color: var(--layout-bg); transition: background-color 300ms ease;">
     <div class="grid gap-2 grid-cols-1 lg:grid-cols-4">
 
       <div class="lg:col-span-1 w-full">

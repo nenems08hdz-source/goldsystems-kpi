@@ -2,12 +2,15 @@
 import { computed, onMounted, ref } from 'vue'
 import { useUiStore }  from '../stores/uiStore'
 import { useKpiStore } from '../stores/kpiStore'
-import EncabezadoPantalla      from '../components/EncabezadoPantalla.vue'
-import GraficaKpiEspecifica    from '../components/GraficaKpiEspecifica.vue'
-import MedidorKpi              from '../components/MedidorKpi.vue'
-import ProgresoKpi             from '../components/ProgresoKpi.vue'
-import plantillatabla          from '../components/PlantillaTabla.vue'
-import TarjetasKpi             from '../components/TarjetasKpi.vue'
+import EncabezadoPantalla     from '../components/EncabezadoPantalla.vue'
+import GraficaKpiEspecifica   from '../components/GraficaKpiEspecifica.vue'
+import MedidorKpi             from '../components/MedidorKpi.vue'
+import ProgresoKpi            from '../components/ProgresoKpi.vue'
+import plantillatabla         from '../components/PlantillaTabla.vue'
+import TarjetasKpi            from '../components/TarjetasKpi.vue'
+import StatusBadge            from '../components/StatusBadge.vue'
+import EtiquetaBadge          from '../components/ui/EtiquetaBadge.vue'
+import AppButton              from '../components/ui/AppButton.vue'
 
 const store    = useUiStore()
 const kpiStore = useKpiStore()
@@ -41,20 +44,15 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
 <template>
   <div class="p-3 min-h-screen" style="background: transparent;">
 
-    <div class="flex justify-between items-center w-full mb-6">
-      <div class="flex-none">
-        <EncabezadoPantalla
-          titulo="Panel Principal"
-          descripcion="Visualización general de la empresa e indicadores (Kpis)."
-        />
-      </div>
-      <div class="flex-none">
-        <button
-          @click="$router.push('/personalizar')"
-          class="flex items-center gap-2 bg-[#3f2a52] hover:bg-[#beaed8] hover:text-[#3f2a52] text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all"
-        >
-          ⚙️ Personalizar
-        </button>
+    <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-6">
+      <EncabezadoPantalla
+        titulo="Panel Principal"
+        descripcion="Visualización general de la empresa e indicadores (Kpis)."
+      />
+      <div class="flex-shrink-0">
+        <AppButton variant="primary" class="flex items-center gap-2" @click="$router.push('/personalizar')">
+          Personalizar
+        </AppButton>
       </div>
     </div>
 
@@ -128,30 +126,16 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
             <template #default="{ fila }">
               <td class="p-4 align-middle w-full">
                 <div class="flex justify-between items-center w-full">
-                  <div class="text-xs font-medium tracking-wide">
-                    <span class="font-bold uppercase" style="color: var(--text-general);">
+                  <div class="text-sm font-medium tracking-wide">
+                    <span class="font-bold " style="color: var(--text-general);">
                       {{ fila.departamento }}
                     </span>
                     <span class="mx-2" style="color: var(--card-text-hint);">—</span>
-                    <span class="font-normal" style="color: var(--subtext-general);">
+                    <span class="font-normal text-xs" style="color: var(--subtext-general);">
                       {{ fila.subtitulo }}
                     </span>
                   </div>
-                  <span
-                    class="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full border flex-shrink-0"
-                    :class="{
-                      'text-amber-500 bg-amber-50/60 border-amber-200/50': fila.estadoTipo === 'warning',
-                      'text-rose-500 bg-rose-50/60 border-rose-200/50':   fila.estadoTipo === 'danger'
-                    }"
-                  >
-                    <span class="w-1.5 h-1.5 rounded-full"
-                      :class="{
-                        'bg-amber-500': fila.estadoTipo === 'warning',
-                        'bg-rose-500':  fila.estadoTipo === 'danger'
-                      }">
-                    </span>
-                    {{ fila.estado }}
-                  </span>
+                  <StatusBadge :tipo="fila.estadoTipo" :texto="fila.estado" class="flex-shrink-0" />
                 </div>
               </td>
             </template>
@@ -172,7 +156,7 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
 
             <td class="p-4 align-middle w-2/5">
               <div class="flex flex-col">
-                <span class="text-m font-bold tracking-wide" style="color: var(--text-general);">
+                <span class="text-sm font-bold tracking-wide" style="color: var(--text-general);">
                   {{ fila.departamento }}
                 </span>
                 <span class="text-xs font-normal mt-0.5" style="color: var(--subtext-general);">
@@ -182,7 +166,7 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
             </td>
 
             <td class="p-4 align-middle text-center">
-              <span class="table-badge">{{ fila.periodicidad }}</span>
+              <EtiquetaBadge :texto="fila.periodicidad" />
             </td>
 
             <td class="p-4 align-middle text-center font-bold text-sm" style="color: var(--text-general);">
@@ -201,23 +185,7 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
             </td>
 
             <td class="p-4 align-middle text-center">
-              <span
-                class="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full border"
-                :class="{
-                  'text-emerald-600 bg-emerald-50 border-emerald-200/50': fila.estadoTipo === 'success',
-                  'text-amber-500 bg-amber-50 border-amber-200/50':       fila.estadoTipo === 'warning',
-                  'text-rose-500 bg-rose-50 border-rose-200/50':          fila.estadoTipo === 'danger'
-                }"
-              >
-                <span class="w-1.5 h-1.5 rounded-full"
-                  :class="{
-                    'bg-emerald-500': fila.estadoTipo === 'success',
-                    'bg-amber-500':   fila.estadoTipo === 'warning',
-                    'bg-rose-500':    fila.estadoTipo === 'danger'
-                  }">
-                </span>
-                {{ fila.estado }}
-              </span>
+              <StatusBadge :tipo="fila.estadoTipo" :texto="fila.estado" />
             </td>
 
           </template>

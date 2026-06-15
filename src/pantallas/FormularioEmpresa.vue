@@ -48,12 +48,12 @@ function guardarEmpresa() {
 <template>
   <div class="p-3 min-h-screen">
 
-    <div class="mb-6 flex justify-between items-center">
+    <div class="mb-6 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
       <EncabezadoPantalla
         titulo="Nueva Empresa"
         descripcion="Registra una nueva empresa en el sistema y configura su cuenta Admin."
       />
-      <AppButton variant="secondary" @click="router.push('/GestionEmpresas')">
+      <AppButton variant="secondary" class="flex-shrink-0" @click="router.push('/GestionEmpresas')">
         ← Volver
       </AppButton>
     </div>

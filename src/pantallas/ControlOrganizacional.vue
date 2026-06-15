@@ -4,8 +4,11 @@ import { getCurrentInstance } from 'vue'
 import plantillatabla from '../components/PlantillaTabla.vue'
 import ModalConfirmacion from '../components/ModalConfirmacion.vue'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
-import AppButton from '../components/ui/AppButton.vue'
-import FormField from '../components/ui/FormField.vue'
+import AppButton     from '../components/ui/AppButton.vue'
+import FormField     from '../components/ui/FormField.vue'
+import BotonAccion   from '../components/ui/BotonAccion.vue'
+import EtiquetaBadge from '../components/ui/EtiquetaBadge.vue'
+import StatusBadge   from '../components/StatusBadge.vue'
 import { useOrgStore } from "../stores/orgStore"
 import { useKpiStore } from "../stores/kpiStore"
 
@@ -125,7 +128,7 @@ function eliminarNodo(nodo) {
       descripcion="Estructura jerárquica de la empresa, control de acceso por roles y gestión de usuarios."
     />
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 p-5 rounded-xl shadow-md border border-[#beaed8]/90 mt-6"
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 p-5 rounded-xl shadow-md border border-[#beaed8]/90 mt-6"
       style="background: var(--card-bg);">
 
       <FormField label="Buscar usuario" :col-span="2">
@@ -216,32 +219,26 @@ function eliminarNodo(nodo) {
               <span v-if="nodo.tipo !== 'empresa'"
                 class="text-[9px] px-2 py-0.5 rounded-md font-black tracking-wider"
                 :style="nodoSeleccionado?.id === nodo.id
-                  ? 'background: var(--sidebar-bg); color: white;'
+                  ? 'background: var(--sidebar-active-bg); color: var(--sidebar-active-text);'
                   : 'background: var(--tabla-borde); color: var(--subtext-general);'"
               >{{ contarUsuarios(nodo) }}</span>
-              <button v-if="nodo.tipo !== 'empresa'"
+              <BotonAccion v-if="nodo.tipo !== 'empresa'"
+                variante="trash"
+                titulo="Eliminar"
+                class="opacity-0 group-hover:opacity-100"
                 @click.stop="eliminarNodo(nodo)"
-                class="opacity-0 group-hover:opacity-100 hover:text-red-500 hover:bg-red-50 p-1 rounded-lg transition-all text-xs"
-                style="color: var(--card-text-hint);">
-                <i class="fi fi-sr-trash"></i>
-              </button>
+              />
             </div>
           </div>
         </div>
 
         <div class="p-3 flex gap-2" style="border-top: 1px solid var(--tabla-borde);">
-          <button @click="$router.push('/FormularioDepartamento')"
-            class="flex-1 text-[10px] font-bold uppercase tracking-wider py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all"
-            style="background: var(--card-bg); color: var(--text-general); border: 1px solid var(--input-border);"
-            @mouseover="$event.currentTarget.style.background='var(--tabla-hover)'"
-            @mouseleave="$event.currentTarget.style.background='var(--card-bg)'"
-          ><span style="color: var(--color-kpi-morado);">+</span> Departamento</button>
-          <button @click="$router.push('/FormularioEquipo')"
-            class="flex-1 text-[10px] font-bold uppercase tracking-wider py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all"
-            style="background: var(--card-bg); color: var(--text-general); border: 1px solid var(--input-border);"
-            @mouseover="$event.currentTarget.style.background='var(--tabla-hover)'"
-            @mouseleave="$event.currentTarget.style.background='var(--card-bg)'"
-          ><span style="color: var(--color-kpi-morado);">+</span> Equipo</button>
+          <AppButton variant="secondary" size="sm" class="flex-1 flex items-center justify-center gap-1" @click="$router.push('/FormularioDepartamento')">
+            <span style="color: var(--color-kpi-morado);">+</span> Departamento
+          </AppButton>
+          <AppButton variant="secondary" size="sm" class="flex-1 flex items-center justify-center gap-1" @click="$router.push('/FormularioEquipo')">
+            <span style="color: var(--color-kpi-morado);">+</span> Equipo
+          </AppButton>
         </div>
       </div>
 
@@ -251,7 +248,7 @@ function eliminarNodo(nodo) {
           <p class="text-xs" style="color: var(--card-text-hint);">
             Mostrando <strong style="color: var(--card-text);">{{ usuariosFiltrados.length }}</strong>
             de <strong style="color: var(--card-text);">{{ store.usuarios.length }}</strong> usuarios
-            <span v-if="nodoSeleccionado" class="font-semibold" style="color: var(--sidebar-bg);">
+            <span v-if="nodoSeleccionado" class="font-semibold" style="color: var(--text-encabezado);">
               — {{ nodoSeleccionado.nombre }}
             </span>
           </p>
@@ -283,10 +280,10 @@ function eliminarNodo(nodo) {
             </td>
 
             <td class="p-4 align-middle text-center">
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded border uppercase tracking-wide"
-                :class="store.colorPorRol(fila.rol)">
-                {{ store.rolesDisponibles.find(r => r.codigo === fila.rol)?.nombre ?? fila.rol }}
-              </span>
+              <EtiquetaBadge
+                :texto="store.rolesDisponibles.find(r => r.codigo === fila.rol)?.nombre ?? fila.rol"
+                :clase="store.colorPorRol(fila.rol)"
+              />
             </td>
 
             <td class="p-4 align-middle text-left">
@@ -301,45 +298,15 @@ function eliminarNodo(nodo) {
             </td>
 
             <td class="p-4 align-middle text-center">
-              <span
-                class="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide inline-flex items-center gap-1.5 border"
-                :class="{
-                  'text-emerald-600 border-emerald-500 dark:text-emerald-400 dark:border-emerald-400': fila.estado === 'activo',
-                  'text-amber-600 border-amber-500 dark:text-amber-400 dark:border-amber-400':         fila.estado === 'ausente',
-                  'text-rose-600 border-rose-500 dark:text-rose-400 dark:border-rose-400':             fila.estado === 'bloqueado'
-                }"
-              >
-                <span class="w-1.5 h-1.5 rounded-full animate-pulse"
-                  :class="{
-                    'bg-emerald-500': fila.estado === 'activo',
-                    'bg-yellow-500':  fila.estado === 'ausente',
-                    'bg-red-500':     fila.estado === 'bloqueado'
-                  }"></span>
-                {{ fila.estado }}
-              </span>
+              <StatusBadge :tipo="fila.estado" />
             </td>
 
           </template>
 
           <template #iconos-acciones="{ item }">
-            <button @click="abrirModificarRol(item)" title="Modificar Rol"
-              class="p-2 rounded-lg transition-all text-sm"
-              style="color: var(--card-text-hint); background: var(--tabla-header-bg);"
-              @mouseover="$event.currentTarget.style.color='var(--sidebar-bg)'; $event.currentTarget.style.background='var(--tabla-hover)'"
-              @mouseleave="$event.currentTarget.style.color='var(--card-text-hint)'; $event.currentTarget.style.background='var(--tabla-header-bg)'"
-            ><i class="fi fi-sr-pencil"></i></button>
-            <button @click="abrirPanelKpis(item)" title="Ver KPIs Asignados"
-              class="p-2 rounded-lg transition-all text-sm"
-              style="color: var(--card-text-hint); background: var(--tabla-header-bg);"
-              @mouseover="$event.currentTarget.style.color='#77a9d4'; $event.currentTarget.style.background='rgba(119,169,212,0.1)'"
-              @mouseleave="$event.currentTarget.style.color='var(--card-text-hint)'; $event.currentTarget.style.background='var(--tabla-header-bg)'"
-            ><i class="fi fi-sr-stats"></i></button>
-            <button @click="confirmarEliminacion(item)" title="Eliminar Usuario"
-              class="p-2 rounded-lg transition-all text-sm"
-              style="color: var(--card-text-hint); background: var(--tabla-header-bg);"
-              @mouseover="$event.currentTarget.style.color='#ef4444'; $event.currentTarget.style.background='#fef2f2'"
-              @mouseleave="$event.currentTarget.style.color='var(--card-text-hint)'; $event.currentTarget.style.background='var(--tabla-header-bg)'"
-            ><i class="fi fi-sr-trash"></i></button>
+            <BotonAccion variante="edit"  titulo="Modificar Rol"      @click="abrirModificarRol(item)" />
+            <BotonAccion variante="stats" titulo="Ver KPIs Asignados" @click="abrirPanelKpis(item)" />
+            <BotonAccion variante="trash" titulo="Eliminar Usuario"   @click="confirmarEliminacion(item)" />
           </template>
         </plantillatabla>
       </div>
@@ -354,50 +321,46 @@ function eliminarNodo(nodo) {
         style="background: var(--card-bg); border-left: 1px solid var(--tabla-borde);"
         @click.stop>
         <div>
-          <div class="flex justify-between items-start pb-4 mb-6" style="border-bottom: 1px solid var(--card-border);">
+          <div class="flex justify-between items-start pb-4 mb-6" style="border-bottom: 1px solid var(--tabla-borde);">
             <div>
-              <span class="text-[10px] font-black uppercase tracking-wider text-[#77a9d4]">KPIs Asignados</span>
-              <h3 class="text-lg font-bold leading-tight" style="color: var(--sidebar-bg);">
+              <span class="text-[10px] font-black uppercase tracking-wider" style="color: var(--sidebar-active-bg);">KPIs Asignados</span>
+              <h3 class="text-lg font-bold leading-tight" style="color: var(--text-encabezado);">
                 {{ store.nombreCompleto(usuarioSeleccionado) }}
               </h3>
-              <p class="text-xs mt-0.5" style="color: var(--card-text-hint);">{{ usuarioSeleccionado?.email }}</p>
+              <p class="text-xs mt-0.5" style="color: var(--subtext-general);">{{ usuarioSeleccionado?.email }}</p>
             </div>
-            <button @click="mostrarPanelKpis = false"
-              class="p-1 px-2.5 rounded-lg text-sm font-bold"
-              style="color: var(--card-text-muted); background: var(--tabla-header-bg);">✕</button>
+            <BotonAccion variante="close" titulo="Cerrar" @click="mostrarPanelKpis = false" />
           </div>
 
           <div class="flex flex-col gap-3">
             <label class="text-[11px] font-bold uppercase tracking-wider block mb-1"
-              style="color: var(--card-text-muted);">
+              style="color: var(--tabla-header-text);">
               Métricas en seguimiento ({{ kpisDelUsuario.length }})
             </label>
             <div v-for="kpi in kpisDelUsuario" :key="kpi.id"
               class="flex items-center p-3 rounded-xl"
-              style="border: 1px solid var(--card-border); background: var(--tabla-header-bg);">
+              style="border: 1px solid var(--tabla-borde); background: var(--tabla-hover);">
               <span class="text-base mr-2.5">📈</span>
               <div>
-                <div class="text-xs font-bold" style="color: var(--card-text);">{{ kpi.nombre }}</div>
-                <div class="text-[10px]" style="color: var(--card-text-hint);">Meta: {{ kpi.meta }}</div>
+                <div class="text-xs font-bold" style="color: var(--text-general);">{{ kpi.nombre }}</div>
+                <div class="text-[10px]" style="color: var(--subtext-general);">Meta: {{ kpi.meta }}</div>
               </div>
             </div>
             <div v-if="kpisDelUsuario.length === 0"
               class="text-center py-8 text-xs rounded-xl"
-              style="color: var(--card-text-hint); border: 1px dashed var(--card-border);">
+              style="color: var(--subtext-general); border: 1px dashed var(--tabla-borde);">
               Este usuario no tiene KPIs asignados.
             </div>
           </div>
         </div>
 
-        <div class="pt-4" style="border-top: 1px solid var(--card-border);">
-          <p class="text-[10px] text-center mb-3" style="color: var(--card-text-hint);">
+        <div class="pt-4" style="border-top: 1px solid var(--tabla-borde);">
+          <p class="text-[10px] text-center mb-3" style="color: var(--subtext-general);">
             La asignación de KPIs se gestiona desde el módulo de Gestión de KPIs.
           </p>
-          <button @click="$router.push('/kpis'); mostrarPanelKpis = false"
-            class="w-full text-white font-bold text-xs py-3 rounded-lg transition-all uppercase tracking-wider"
-            style="background: var(--sidebar-bg);">
+          <AppButton variant="primary" class="w-full justify-center" @click="$router.push('/kpis'); mostrarPanelKpis = false">
             Ir a Gestión de KPIs
-          </button>
+          </AppButton>
         </div>
       </div>
     </div>
@@ -410,18 +373,18 @@ function eliminarNodo(nodo) {
       <div class="w-full max-w-sm h-full shadow-2xl flex flex-col p-6 animate-slideLeft"
         style="background: var(--card-bg); border-left: 1px solid var(--tabla-borde);"
         @click.stop>
-        <div class="flex justify-between items-start pb-4 mb-6" style="border-bottom: 1px solid var(--card-border);">
+        <div class="flex justify-between items-start pb-4 mb-6" style="border-bottom: 1px solid var(--tabla-borde);">
           <div>
-            <h3 class="text-lg font-bold" style="color: var(--sidebar-bg);">Modificar Rol</h3>
-            <p class="text-xs mt-0.5" style="color: var(--card-text-hint);">
+            <h3 class="text-lg font-bold" style="color: var(--text-encabezado);">Modificar Rol</h3>
+            <p class="text-xs mt-0.5" style="color: var(--subtext-general);">
               {{ store.nombreCompleto(usuarioSeleccionado) }}
             </p>
           </div>
-          <button @click="mostrarPanelRol = false" class="text-lg" style="color: var(--card-text-muted);">✕</button>
+          <BotonAccion variante="close" titulo="Cerrar" @click="mostrarPanelRol = false" />
         </div>
 
         <div class="flex flex-col gap-3 flex-1">
-          <label class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--card-text-muted);">
+          <label class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--tabla-header-text);">
             Selecciona el nuevo rol
           </label>
           <div class="flex flex-col gap-2">
@@ -429,31 +392,28 @@ function eliminarNodo(nodo) {
               @click="rol.eliminable && (rolSeleccionado = rol.codigo)"
               class="flex items-start gap-3 p-3 rounded-lg transition-all"
               :style="rol.codigo === rolSeleccionado
-                ? 'border: 1px solid var(--sidebar-bg); background: rgba(190,174,216,0.15);'
-                : 'border: 1px solid var(--card-border);'"
+                ? 'border: 1px solid var(--sidebar-active-bg); background: var(--tabla-hover);'
+                : 'border: 1px solid var(--tabla-borde);'"
               :class="!rol.eliminable ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'"
             >
               <div class="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5"
-                :style="rol.codigo === rolSeleccionado ? 'border-color: var(--sidebar-bg)' : 'border-color: var(--card-text-muted)'">
-                <div v-if="rol.codigo === rolSeleccionado" class="w-2 h-2 rounded-full" style="background: var(--sidebar-bg);"></div>
+                :style="rol.codigo === rolSeleccionado ? 'border-color: var(--sidebar-active-bg)' : 'border-color: var(--subtext-general)'">
+                <div v-if="rol.codigo === rolSeleccionado" class="w-2 h-2 rounded-full" style="background: var(--sidebar-active-bg);"></div>
               </div>
               <div>
-                <p class="text-xs font-semibold" style="color: var(--card-text);">
+                <p class="text-xs font-semibold" style="color: var(--text-general);">
                   {{ rol.nombre }}
-                  <span v-if="!rol.eliminable" class="text-[9px] ml-1" style="color: var(--card-text-hint);">(no asignable)</span>
+                  <span v-if="!rol.eliminable" class="text-[9px] ml-1" style="color: var(--subtext-general);">(no asignable)</span>
                 </p>
-                <p class="text-[10px] mt-0.5" style="color: var(--card-text-hint);">{{ rol.descripcion }}</p>
+                <p class="text-[10px] mt-0.5" style="color: var(--subtext-general);">{{ rol.descripcion }}</p>
               </div>
             </div>
           </div>
         </div>
 
-        <button @click="guardarRol"
-          class="mt-6 w-full text-white font-bold text-xs py-3 rounded-lg transition-all uppercase tracking-wider"
-          style="background: var(--sidebar-bg);"
-          @mouseover="$event.currentTarget.style.background='var(--sidebar-active-bg)'; $event.currentTarget.style.color='var(--sidebar-active-text)'"
-          @mouseleave="$event.currentTarget.style.background='var(--sidebar-bg)'; $event.currentTarget.style.color='white'"
-        >Guardar Cambios</button>
+        <AppButton variant="primary" class="mt-6 w-full justify-center" @click="guardarRol">
+          Guardar Cambios
+        </AppButton>
       </div>
     </div>
 

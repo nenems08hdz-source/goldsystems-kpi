@@ -100,7 +100,8 @@ const router = createRouter({
      {
         path: '/personalizar',
         name: 'personalizar',
-        component: PersonalizarPanel
+        component: PersonalizarPanel,
+        meta: { fullWidth: true }
   },
     {
       path: '/registroMetricas',

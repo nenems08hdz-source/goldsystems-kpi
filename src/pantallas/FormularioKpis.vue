@@ -124,12 +124,12 @@ const opcionesTipoMetrica  = [
 <template>
   <div class="p-3 min-h-screen">
 
-    <div class="mb-6 flex justify-between items-center">
+    <div class="mb-6 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
       <EncabezadoPantalla
         titulo="Nuevo Indicador"
         descripcion="Registra un nuevo KPI definiendo sus metas y responsable."
       />
-      <AppButton variant="secondary" @click="router.push('/kpis')">
+      <AppButton variant="secondary" class="flex-shrink-0" @click="router.push('/kpis')">
         ← Volver al Listado
       </AppButton>
     </div>

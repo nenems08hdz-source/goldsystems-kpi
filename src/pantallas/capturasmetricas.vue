@@ -1,11 +1,15 @@
 <script setup>
 import { ref, computed, getCurrentInstance } from 'vue'
-import { useKpiStore } from '../stores/kpiStore'
-import { useOrgStore } from '../stores/orgStore'
-import PlantillaTabla    from '../components/PlantillaTabla.vue'
+import { useKpiStore }    from '../stores/kpiStore'
+import { useOrgStore }    from '../stores/orgStore'
+import PlantillaTabla     from '../components/PlantillaTabla.vue'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
-import ModalConfirmacion from '../components/ModalConfirmacion.vue'
-import RegistroMetricas  from './RegistroMetricas.vue'
+import ModalConfirmacion  from '../components/ModalConfirmacion.vue'
+import RegistroMetricas   from './RegistroMetricas.vue'
+import EtiquetaBadge      from '../components/ui/EtiquetaBadge.vue'
+import BotonAccion        from '../components/ui/BotonAccion.vue'
+import StatusBadge        from '../components/StatusBadge.vue'
+import AppButton          from '../components/ui/AppButton.vue'
 
 const store    = useKpiStore()
 const orgStore = useOrgStore()
@@ -27,15 +31,9 @@ const misKpis = computed(() =>
   store.kpisDeUsuario(orgStore.usuarioActual.id)
 )
 
-const estiloEstado = {
-  retrasada: { clase: 'text-rose-600 border-rose-500 dark:text-rose-400 dark:border-rose-400',         texto: 'RETRASADA'  },
-  porVencer: { clase: 'text-amber-600 border-amber-500 dark:text-amber-400 dark:border-amber-400',     texto: 'POR VENCER' },
-  aTiempo:   { clase: 'text-emerald-600 border-emerald-500 dark:text-emerald-400 dark:border-emerald-400', texto: 'A TIEMPO' },
-}
-
-function infoEstadoCaptura(kpi) {
-  const clave = store.estadoCaptura(kpi)
-  return estiloEstado[clave] ?? { clase: 'text-gray-500 bg-gray-50 border-gray-200', texto: 'DESCONOCIDO' }
+// Devuelve el tipo que entiende StatusBadge
+function tipoEstadoCaptura(kpi) {
+  return store.estadoCaptura(kpi) ?? 'danger'
 }
 
 const showModal    = ref(false)
@@ -91,8 +89,8 @@ function ejecutarEliminacion() {
 
             <td class="p-4 text-center align-middle min-w-[140px]">
               <div class="flex flex-col items-center gap-1">
-                <span class="table-badge">{{ fila.periodicidad }}</span>
-                <span class="table-badge">{{ fila.tipoMetrica }}</span>
+                <EtiquetaBadge :texto="fila.periodicidad" />
+                <EtiquetaBadge :texto="fila.tipoMetrica" />
               </div>
             </td>
 
@@ -102,34 +100,15 @@ function ejecutarEliminacion() {
             </td>
 
             <td class="p-4 text-center align-middle min-w-[130px]">
-              <span
-                class="text-[10px] font-bold px-2.5 py-1 rounded-full border uppercase tracking-wide inline-block"
-                :class="infoEstadoCaptura(fila).clase"
-              >
-                {{ infoEstadoCaptura(fila).texto }}
-              </span>
+              <StatusBadge :tipo="tipoEstadoCaptura(fila)" />
             </td>
 
             <td class="p-4 min-w-[120px]">
               <div class="flex items-center gap-2">
-                <button
-                  @click="abrirFormulario(fila)"
-                  title="Registrar métrica"
-                  class="flex items-center gap-1.5 bg-[#3f2a52] hover:bg-[#77a9d4] text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all duration-200 shadow-sm"
-                >
-                  <i class="fi fi-sr-edit text-[10px]"></i>
-                  Registrar
-                </button>
-                <button
-                  @click="prepararEliminacion(fila)"
-                  title="Eliminar asignación"
-                  class="p-1.5 rounded-lg transition-colors"
-                  style="color: var(--card-text-hint); background: var(--tabla-header-bg);"
-                  @mouseover="$event.currentTarget.style.color='#ef4444'; $event.currentTarget.style.background='rgba(239,68,68,0.1)'"
-                  @mouseleave="$event.currentTarget.style.color='var(--card-text-hint)'; $event.currentTarget.style.background='var(--tabla-header-bg)'"
-                >
-                  <i class="fi fi-sr-trash text-xs"></i>
-                </button>
+                <AppButton variant="primary" size="sm" class="flex items-center gap-1.5" @click="abrirFormulario(fila)">
+                  <i class="fi fi-sr-edit text-[10px]"></i> Registrar
+                </AppButton>
+                <BotonAccion variante="trash" titulo="Eliminar asignación" @click="prepararEliminacion(fila)" />
               </div>
             </td>
 

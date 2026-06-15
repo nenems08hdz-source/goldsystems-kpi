@@ -5,9 +5,11 @@ import plantillatabla from '../components/PlantillaTabla.vue'
 import tarjetasestado from '../components/TarjetasEstado.vue'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
 import ModalConfirmacion from '../components/ModalConfirmacion.vue'
-import StatusBadge from '../components/StatusBadge.vue'
-import AppButton   from '../components/ui/AppButton.vue'
-import FormField   from '../components/ui/FormField.vue'
+import StatusBadge   from '../components/StatusBadge.vue'
+import AppButton     from '../components/ui/AppButton.vue'
+import FormField     from '../components/ui/FormField.vue'
+import BotonAccion   from '../components/ui/BotonAccion.vue'
+import EtiquetaBadge from '../components/ui/EtiquetaBadge.vue'
 import { useKpiStore } from '../stores/kpiStore'
 
 const { proxy } = getCurrentInstance()
@@ -82,7 +84,7 @@ function ejecutarEliminacion() {
       :eficiencia="eficienciaPlanta"
     />
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 p-5 rounded-xl shadow-md border border-[#beaed8]/90 mt-8"
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 p-5 rounded-xl shadow-md border border-[#beaed8]/90 mt-8"
       style="background: var(--card-bg);">
 
       <FormField label="Buscar" :col-span="2">
@@ -119,9 +121,9 @@ function ejecutarEliminacion() {
         </select>
       </FormField>
 
-      <div class="flex items-end gap-2 lg:col-span-6">
+      <div class="flex flex-wrap items-end gap-2 lg:col-span-6">
         <AppButton variant="secondary" @click="limpiarFiltros">Limpiar filtros</AppButton>
-        <AppButton class="ml-auto" @click="$router.push('/kpis/nuevo')">+ Nuevo KPI</AppButton>
+        <AppButton class="ml-auto flex-shrink-0" @click="$router.push('/kpis/nuevo')">+ Nuevo KPI</AppButton>
       </div>
     </div>
 
@@ -144,22 +146,22 @@ function ejecutarEliminacion() {
       <template #default="{ fila }">
 
         <td class="p-4 text-left">
-          <div class="font-bold text-m" style="color: var(--text-general);">{{ fila.nombre }}</div>
+          <div class="font-bold text-sm" style="color: var(--text-general);">{{ fila.nombre }}</div>
           <div class="text-xs mt-0.5" style="color: var(--text-general);">{{ fila.formula }}</div>
         </td>
 
         <td class="p-4 align-middle text-center">
-          <span class="table-badge">{{ fila.departamento }}</span>
+          <EtiquetaBadge :texto="fila.departamento" />
         </td>
 
         <td class="p-4 align-middle text-center">
-          <span class="table-badge">{{ fila.tipoMetrica }}</span>
+          <EtiquetaBadge :texto="fila.tipoMetrica" />
         </td>
 
         <td class="p-4 text-xs text-left" style="color: var(--card-text-muted);">{{ fila.responsable }}</td>
 
         <td class="p-4 text-center">
-          <span class="table-badge">{{ fila.periodicidad }}</span>
+          <EtiquetaBadge :texto="fila.periodicidad" />
         </td>
 
         <td class="p-4 text-left">
@@ -179,18 +181,8 @@ function ejecutarEliminacion() {
       </template>
 
       <template #iconos-acciones="{ item }">
-        <button @click="$router.push(`/kpis/detalle/${item.id}`)" title="Ver Detalles"
-          class="p-1.5 rounded-lg transition-colors"
-          style="color: var(--card-text-hint); background: var(--tabla-header-bg);"
-          @mouseover="$event.currentTarget.style.color='var(--sidebar-bg)'; $event.currentTarget.style.background='var(--tabla-hover)'"
-          @mouseleave="$event.currentTarget.style.color='var(--card-text-hint)'; $event.currentTarget.style.background='var(--tabla-header-bg)'"
-        ><i class="fi fi-sr-eye"></i></button>
-        <button @click="prepararEliminacion(item)" title="Eliminar KPI"
-          class="p-1.5 rounded-lg transition-colors"
-          style="color: var(--card-text-hint); background: var(--tabla-header-bg);"
-          @mouseover="$event.currentTarget.style.color='#ef4444'; $event.currentTarget.style.background='#fef2f2'"
-          @mouseleave="$event.currentTarget.style.color='var(--card-text-hint)'; $event.currentTarget.style.background='var(--tabla-header-bg)'"
-        ><i class="fi fi-sr-trash"></i></button>
+        <BotonAccion variante="eye"   titulo="Ver Detalles" @click="$router.push(`/kpis/detalle/${item.id}`)" />
+        <BotonAccion variante="trash" titulo="Eliminar KPI" @click="prepararEliminacion(item)" />
       </template>
     </plantillatabla>
 
