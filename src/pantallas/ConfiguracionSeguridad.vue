@@ -1,6 +1,6 @@
 <script setup>
 import { ref, getCurrentInstance } from 'vue'
-import PlantillaTabla from '../components/PlantillaTabla.vue'
+import plantillatabla from '../components/PlantillaTabla.vue'
 import ModalConfirmacion from '../components/ModalConfirmacion.vue'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
 

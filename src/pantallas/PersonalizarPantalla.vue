@@ -72,13 +72,6 @@ function guardarCambios() {
           descripcion="Arrastra los bloques y configura tus KPIs desde la barra lateral."
         />
         <div class="flex gap-3">
-<<<<<<< HEAD
-         <Bottones  @click="cancelar" > Cancelar </Bottones>
-
-         <Bottones  @click="guardarCambios" >Guardar Cambios </Bottones>
-          
-          
-=======
           <button
             @click="router.push('/')"
             class="px-4 py-2 rounded-lg text-sm font-medium transition-all"
@@ -93,7 +86,6 @@ function guardarCambios() {
             @mouseover="$event.currentTarget.style.background='var(--sidebar-active-bg)'; $event.currentTarget.style.color='var(--sidebar-active-text)'"
             @mouseleave="$event.currentTarget.style.background='var(--sidebar-bg)'; $event.currentTarget.style.color='white'"
           >Guardar cambios</button>
->>>>>>> 6848967a5caccb711dd224e147d7a877adf1165c
         </div>
       </div>
 

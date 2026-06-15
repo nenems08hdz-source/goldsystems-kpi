@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { getCurrentInstance } from 'vue'
-import PlantillaTabla from '../components/PlantillaTabla.vue'
+import plantillatabla from '../components/PlantillaTabla.vue'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
 
 const canales = ref([
