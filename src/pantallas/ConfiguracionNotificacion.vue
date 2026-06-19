@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { getCurrentInstance } from 'vue'
 import plantillatabla from '../components/PlantillaTabla.vue'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
+import AppButton from '../components/ui/AppButton.vue'
 
 const canales = ref([
   { nombre: 'Correo Electrónico',    descripcion: 'Reportes detallados y alertas críticas.',    activo: true  },
@@ -44,7 +45,7 @@ const guardarcambios = () => {
 </script>
 
 <template>
-  <div class="w-full px-8 min-h-screen flex flex-col" style="background-color: var(--layout-bg);">
+  <div class="w-full px-8 flex flex-col" style="background-color: var(--layout-bg); transition: background-color 300ms ease;">
 
     <header class="mb-8">
       <EncabezadoPantalla
@@ -60,15 +61,15 @@ const guardarcambios = () => {
           <i class="fi fi-sr-link-alt text-base"></i>
           Canales de Notificación
         </h2>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div
             v-for="canal in canales"
             :key="canal.nombre"
             @click="canal.activo = !canal.activo"
             class="p-4 rounded-xl cursor-pointer transition-all duration-300"
             :style="canal.activo
-              ? 'background: var(--sidebar-active-bg); color: var(--sidebar-active-text); border: 1px solid var(--sidebar-active-bg);'
-              : 'background: var(--card-bg); color: var(--text-general); border: 1px solid var(--tabla-borde);'"
+              ? 'background: var(--sidebar-active-bg); color: var(--sidebar-active-text); border: 1px solid var(--sidebar-active-bg); box-shadow: var(--card-shadow);'
+              : 'background: var(--card-bg); color: var(--text-general); border: 1px solid var(--tabla-borde); box-shadow: var(--card-shadow);'"
           >
             <div class="flex justify-between items-start mb-2">
               <p class="font-bold text-sm">{{ canal.nombre }}</p>
@@ -137,18 +138,8 @@ const guardarcambios = () => {
           </div>
           <p class="text-[10px]" style="color: var(--card-text-hint);">Solo alertas críticas durante este periodo.</p>
           <div class="flex justify-end gap-3 mt-6">
-            <button
-              class="px-5 py-2.5 text-xs font-bold rounded-xl transition-colors"
-              style="background: rgba(255,255,255,0.1); color: var(--sidebar-text); border: 1px solid rgba(255,255,255,0.2);"
-              @mouseover="$event.currentTarget.style.background='rgba(255,255,255,0.2)'"
-              @mouseleave="$event.currentTarget.style.background='rgba(255,255,255,0.1)'"
-            >Cancelar</button>
-            <button @click="guardarcambios"
-              class="px-6 py-2.5 text-xs font-bold rounded-xl transition-all"
-              style="background: var(--sidebar-active-bg); color: var(--sidebar-active-text);"
-              @mouseover="$event.currentTarget.style.opacity='0.85'"
-              @mouseleave="$event.currentTarget.style.opacity='1'"
-            >Guardar</button>
+            <AppButton variant="ghost" @click="descartarCambios">Cancelar</AppButton>
+            <AppButton variant="primary" @click="guardarcambios">Guardar</AppButton>
           </div>
         </section>
 
@@ -156,19 +147,8 @@ const guardarcambios = () => {
     </div>
 
     <div class="max-w-5xl w-full flex justify-end gap-3 pt-6 mt-8">
-      <button
-        class="px-5 py-2 text-sm font-bold rounded-lg transition-colors"
-        style="background: var(--card-bg); border: 1px solid var(--tabla-borde); color: var(--text-general);"
-        @click="descartarCambios"
-        @mouseover="$event.currentTarget.style.background='var(--tabla-hover)'"
-        @mouseleave="$event.currentTarget.style.background='var(--card-bg)'"
-      >Descartar</button>
-      <button @click="guardarNotificacion"
-        class="px-5 py-2 text-sm font-bold rounded-lg transition-all"
-        style="background: var(--sidebar-active-bg); color: var(--sidebar-active-text);"
-        @mouseover="$event.currentTarget.style.opacity='0.85'"
-        @mouseleave="$event.currentTarget.style.opacity='1'"
-      >Guardar Cambios</button>
+      <AppButton variant="ghost" @click="descartarCambios">Descartar</AppButton>
+      <AppButton variant="primary" @click="guardarNotificacion">Guardar Cambios</AppButton>
     </div>
 
   </div>

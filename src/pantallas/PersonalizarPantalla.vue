@@ -5,7 +5,7 @@ import draggable from 'vuedraggable'
 import { useUiStore }  from '../stores/uiStore'
 import { useKpiStore } from '../stores/kpiStore'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
-import Bottones from '../components/Bottones.vue'
+import AppButton          from '../components/ui/AppButton.vue'
 
 const router = useRouter()
 const store    = useUiStore()
@@ -62,30 +62,20 @@ function guardarCambios() {
 </script>
 
 <template>
-  <div class="flex min-h-screen" style="background-color: var(--layout-bg);">
+  <div class="flex flex-col lg:flex-row min-h-screen" style="background-color: var(--layout-bg);">
 
-    <div class="flex-1 p-6 overflow-y-auto">
+    <div class="flex-1 min-w-0 p-8 overflow-y-auto">
 
-      <div class="flex justify-between items-center mb-8">
-        <EncabezadoPantalla
-          titulo="Personalizar Panel"
-          descripcion="Arrastra los bloques y configura tus KPIs desde la barra lateral."
-        />
-        <div class="flex gap-3">
-          <button
-            @click="router.push('/')"
-            class="px-4 py-2 rounded-lg text-sm font-medium transition-all"
-            style="border: 1px solid var(--tabla-borde); color: var(--text-general); background: var(--card-bg);"
-            @mouseover="$event.currentTarget.style.background='var(--tabla-hover)'"
-            @mouseleave="$event.currentTarget.style.background='var(--card-bg)'"
-          >Cancelar</button>
-          <button
-            @click="guardarCambios"
-            class="px-4 py-2 rounded-lg text-sm font-medium text-white transition-all"
-            style="background: var(--sidebar-bg);"
-            @mouseover="$event.currentTarget.style.background='var(--sidebar-active-bg)'; $event.currentTarget.style.color='var(--sidebar-active-text)'"
-            @mouseleave="$event.currentTarget.style.background='var(--sidebar-bg)'; $event.currentTarget.style.color='white'"
-          >Guardar cambios</button>
+      <div class="flex flex-wrap justify-between items-start gap-4 mb-8">
+        <div class="flex-1 min-w-0">
+          <EncabezadoPantalla
+            titulo="Personalizar Panel"
+            descripcion="Arrastra los bloques y configura tus KPIs desde la barra lateral."
+          />
+        </div>
+        <div class="flex gap-3 flex-shrink-0">
+          <AppButton variant="secondary" @click="router.push('/')">Cancelar</AppButton>
+          <AppButton variant="primary"   @click="guardarCambios">Guardar cambios</AppButton>
         </div>
       </div>
 
@@ -120,7 +110,7 @@ function guardarCambios() {
 
     </div>
 
-    <div class="w-80 flex flex-col overflow-y-auto"
+    <div class="w-full lg:w-80 lg:flex-shrink-0 flex flex-col overflow-y-auto"
       style="background: var(--card-bg); border-left: 1px solid var(--tabla-borde);">
 
       <div class="p-4" style="background: var(--grafics-bg); border-bottom: 1px solid var(--tabla-borde);">

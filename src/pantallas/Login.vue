@@ -5,19 +5,20 @@ const handleLogin = () => {
 </script>
 
 <template>
-  <div class="absolute top-8 left-8 flex items-center gap-3 z-50">
-  <div class="w-10 h-10 bg-[#3f2a52] text-white rounded-xl flex items-center justify-center text-xl shadow-md border border-white/10">
-    <i class="fi fi-sr-speedometer-kpi"></i>
-  </div>
-  
-  <div class="flex flex-col text-left">
-    <span class="text-white font-black tracking-tight text-lg leading-none">
-      KPI360 <span class="text-gray-400 font-medium text-xs block mt-0.5 tracking-wider uppercase">Enterprise</span>
-    </span>
-  </div>
-</div>
-
   <div class="login-page">
+    
+    <div class="absolute top-8 left-8 flex items-center gap-3 z-50">
+      <div class="w-10 h-10 bg-[#3f2a52] text-white rounded-xl flex items-center justify-center text-xl shadow-md border border-white/10">
+        <i class="fi fi-sr-speedometer-kpi"></i>
+      </div>
+      
+      <div class="flex flex-col text-left">
+        <span class="text-white font-black tracking-tight text-lg leading-none">
+          KPI360 <span class="text-gray-400 font-medium text-xs block mt-0.5 tracking-wider uppercase">Enterprise</span>
+        </span>
+      </div>
+    </div>
+
     <div class="main-container">
       <div class="welcome-side">
         <h1>Bienvenido</h1>
@@ -39,8 +40,8 @@ const handleLogin = () => {
             </div>
 
             <button 
-            @click="$router.push('/')"
-            type="submit" class="glow-btn"
+              @click="$router.push('/')"
+              type="submit" class="glow-btn"
             >
               Entrar
             </button>
@@ -48,30 +49,37 @@ const handleLogin = () => {
         </div>
       </div>
     </div>
+
+    <div class="absolute bottom-8 left-8 text-[11px] text-white font-medium tracking-wider uppercase opacity-60 z-50">
+      v1.0.0
+    </div>
+
   </div>
-   <div class="absolute bottom-8 left-8 text-[11px] text-white font-medium tracking-wider uppercase opacity-60 z-50">
-  v1.0.0
-</div>
 </template>
 
 <style scoped>
-/* Esto aplica el estilo al body aunque el scoped esté activo */
-:global(body) {
+/* Reseteo global para limpiar los márgenes del navegador de raíz */
+:global(body, html) {
   margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
   background-color: #08040e;
+  overflow-x: hidden; /* Evita cualquier desborde horizontal accidental */
 }
 
 .login-page {
   background-color: #08040e;
   min-height: 100vh;
-  width: 100vw; /* Asegura que ocupe todo el ancho */
+  width: 100%; /* Cambiado a 100% para acoplarse de forma limpia sin generar barras de scroll */
   display: flex;
   justify-content: center;
   align-items: center;
   color: white;
   font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  position: relative; /* Clave para que el logo y la versión absolutos se alineen con la pantalla */
+  padding: 24px;
 }
-
 
 /* Contenedor Principal con Difuminado */
 .main-container {
@@ -83,13 +91,13 @@ const handleLogin = () => {
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 0 40px rgba(116, 41, 236, 0.3);
+  z-index: 10; /* Asegura que la tarjeta no se superponga de forma extraña */
 }
 
 /* Panel Izquierdo con Diagonal */
 .welcome-side {
   width: 55%; 
   background: #7429ec;
-  /* 0 0: arriba-izq | 100% 0: arriba-der | 90% 100%: punto inferior más a la derecha | 0% 100%: abajo-izq */
   clip-path: polygon(0 0, 100% 0, 65% 100%, 0% 100%);
   display: flex;
   justify-content: center; 
@@ -99,7 +107,7 @@ const handleLogin = () => {
   font-weight: bold;
 }
 
-/* Panel Derecho: Estructura para fijar el título arriba */
+/* Panel Derecho */
 .form-side {
   width: 45%; 
   display: flex;

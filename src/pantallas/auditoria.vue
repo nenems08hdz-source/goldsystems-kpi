@@ -1,8 +1,12 @@
 <script setup>
 import { ref } from 'vue'
 import plantillatabla from '../components/PlantillaTabla.vue'
-import TarjetasResumen from '../components/TarjetasResumen.vue'
+import tarjetasresumen from '../components/TarjetasResumen.vue'
 import EncabezadoPantalla from '@/components/EncabezadoPantalla.vue'
+import EtiquetaBadge from '../components/ui/EtiquetaBadge.vue'
+import StatusBadge  from '../components/StatusBadge.vue'
+import AppButton    from '../components/ui/AppButton.vue'
+import BotonAccion  from '../components/ui/BotonAccion.vue'
 const misEventos = ref([
   {
     id: 1,
@@ -50,22 +54,18 @@ const misEventos = ref([
 <template>
   <div class="p-3 min-h-screen" style="background: transparent;">
 
-    <div class="flex justify-between items-center mb-6">
-       <EncabezadoPantalla
-      titulo="Centro de Auditoría"
-      descripcion="Supervisión en tiempo real de la integridad del sistema y actividad del usuario."
-    />
-      <div class="flex gap-3">
-        <button class="px-4 py-2 rounded-lg text-xs font-semibold shadow-sm transition-all flex items-center gap-2"
-          style="background: var(--sidebar-active-bg); color: var(--sidebar-active-text);"
-          @mouseover="$event.currentTarget.style.opacity='0.85'"
-          @mouseleave="$event.currentTarget.style.opacity='1'"
-        ><i class="fi fi-sr-file-pdf"></i> Exportar PDF</button>
-        <button class="px-4 py-2 rounded-lg text-xs font-semibold shadow-sm transition-colors flex items-center gap-2"
-          style="background: #16a34a; color: #fff;"
-          @mouseover="$event.currentTarget.style.background='#15803d'"
-          @mouseleave="$event.currentTarget.style.background='#16a34a'"
-        ><i class="fi fi-sr-file-excel"></i> Exportar Excel</button>
+    <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-6">
+      <EncabezadoPantalla
+        titulo="Centro de Auditoría"
+        descripcion="Supervisión en tiempo real de la integridad del sistema y actividad del usuario."
+      />
+      <div class="flex gap-3 flex-shrink-0">
+        <AppButton variant="primary" class="flex items-center gap-2">
+          <i class="fi fi-sr-file-pdf"></i> Exportar PDF
+        </AppButton>
+        <AppButton variant="primary" class="flex items-center gap-2">
+          <i class="fi fi-sr-file-excel"></i> Exportar Excel
+        </AppButton>
       </div>
     </div>
 
@@ -121,7 +121,7 @@ const misEventos = ref([
         </td>
 
         <td class="p-4 align-middle text-center md:w-1/12 min-w-[120px]">
-          <span class="table-badge">{{ fila.modulo }}</span>
+          <EtiquetaBadge :texto="fila.modulo" />
         </td>
 
         <td class="p-4 align-middle text-xs max-w-xs truncate md:w-2/12 min-w-[150px]"
@@ -130,26 +130,14 @@ const misEventos = ref([
         </td>
 
         <td class="p-4 align-middle text-center md:w-2/12 min-w-[110px]">
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide inline-flex items-center gap-1 border"
-            :class="{
-              'text-emerald-600 border-emerald-500 dark:text-emerald-400 dark:border-emerald-400': fila.estado === 'Exitosa',
-              'text-amber-600 border-amber-500 dark:text-amber-400 dark:border-amber-400':         fila.estado === 'Revisión'
-            }">
-            <span class="w-1.5 h-1.5 rounded-full"
-              :class="{
-                'bg-emerald-500': fila.estado === 'Exitosa',
-                'bg-amber-500': fila.estado === 'Revisión'
-              }"></span>
-            {{ fila.estado }}
-          </span>
+          <StatusBadge
+            :tipo="fila.estado === 'Exitosa' ? 'exitosa' : 'revision'"
+            :texto="fila.estado"
+          />
         </td>
 
         <td class="p-4 align-middle text-center md:w-1/12 min-w-[70px]">
-          <button class="font-bold px-2 text-base transition-colors"
-            style="color: var(--card-text-hint);"
-            @mouseover="$event.currentTarget.style.color='var(--sidebar-bg)'"
-            @mouseleave="$event.currentTarget.style.color='var(--card-text-hint)'"
-          >⋮</button>
+          <BotonAccion variante="menu" titulo="Opciones" />
         </td>
       </template>
     </plantillatabla>
@@ -169,8 +157,8 @@ const misEventos = ref([
         style="border-bottom: 1px solid var(--card-border);">
         <div class="flex flex-col justify-between h-full text-left">
           <span class="font-bold uppercase text-[10px] tracking-wider"
-            style="color: var(--text-general);">Metas Editadas</span>
-          <span class="text-2xl font-bold leading-none" style="color: var(--text-general);">24</span>
+            style="color: var(--card-text-hint);">Metas Editadas</span>
+          <span class="text-2xl font-bold leading-none" style="color: var(--card-text);">24</span>
         </div>
         <div class="flex items-end gap-1 pb-1">
           <div class="w-1 h-3 rounded-sm" style="background: var(--card-text-hint);"></div>
@@ -184,8 +172,8 @@ const misEventos = ref([
         style="border-bottom: 1px solid var(--card-border); border-left: 1px solid var(--card-border); border-right: 1px solid var(--card-border);">
         <div class="flex flex-col justify-between h-full text-left">
           <span class="font-bold uppercase text-[10px] tracking-wider"
-            style="color: var(--text-general);">Cambios de Datos</span>
-          <span class="text-2xl font-bold leading-none" style="color: var(--text-general);">112</span>
+            style="color: var(--card-text-hint);">Cambios de Datos</span>
+          <span class="text-2xl font-bold leading-none" style="color: var(--card-text);">112</span>
         </div>
         <div class="flex items-end gap-1 pb-1">
           <div class="w-1 h-6 rounded-sm" style="background: var(--card-text-hint);"></div>
@@ -198,8 +186,8 @@ const misEventos = ref([
       <div class="p-4 flex justify-between items-end h-20">
         <div class="flex flex-col justify-between h-full text-left">
           <span class="font-bold uppercase text-[10px] tracking-wider"
-            style="color: var(--text-general);">Cancelaciones</span>
-          <span class="text-2xl font-bold leading-none" style="color: var(--text-general);">3</span>
+            style="color: var(--card-text-hint);">Cancelaciones</span>
+          <span class="text-2xl font-bold leading-none" style="color: var(--card-text);">3</span>
         </div>
         <div class="flex items-end gap-1 pb-1">
           <div class="w-1 h-2 rounded-sm" style="background: var(--card-text-hint);"></div>

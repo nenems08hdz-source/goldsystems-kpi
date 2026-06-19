@@ -2,6 +2,7 @@
 import { getCurrentInstance } from 'vue'
 import { ref } from 'vue'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
+import AppButton          from '../components/ui/AppButton.vue'
 
 const usuario = ref({
   nombre: 'Alejandro',
@@ -30,7 +31,7 @@ const guardarPerfil = async () => {
 </script>
 
 <template>
-  <div class="w-full px-8 min-h-screen flex flex-col" style="background-color: var(--layout-bg);">
+  <div class="w-full px-8 min-h-screen flex flex-col" style="background-color: var(--layout-bg); transition: background-color 300ms ease;">
 
     <header class="mb-8">
       <EncabezadoPantalla
@@ -88,18 +89,8 @@ const guardarPerfil = async () => {
       </div>
 
       <div class="p-6 border-t flex justify-end gap-3" style="border-color: var(--tabla-borde);">
-        <button type="button"
-          class="px-5 py-2.5 text-xs font-bold rounded-xl transition-colors"
-          style="background: var(--card-bg); border: 1px solid var(--tabla-borde); color: var(--text-general);"
-          @mouseover="$event.currentTarget.style.background='var(--tabla-hover)'"
-          @mouseleave="$event.currentTarget.style.background='var(--card-bg)'"
-        >Cancelar</button>
-        <button @click="guardarPerfil" type="button"
-          class="px-6 py-2.5 text-xs font-bold rounded-xl transition-all"
-          style="background: var(--sidebar-active-bg); color: var(--sidebar-active-text);"
-          @mouseover="$event.currentTarget.style.opacity='0.85'"
-          @mouseleave="$event.currentTarget.style.opacity='1'"
-        >Guardar Cambios</button>
+        <AppButton variant="secondary">Cancelar</AppButton>
+        <AppButton variant="primary" @click="guardarPerfil">Guardar Cambios</AppButton>
       </div>
     </div>
 
@@ -131,18 +122,8 @@ const guardarPerfil = async () => {
       </div>
 
       <div class="p-6 border-t flex justify-end gap-3" style="border-color: var(--tabla-borde);">
-        <button type="button"
-          class="px-5 py-2.5 text-xs font-bold rounded-xl transition-colors"
-          style="background: var(--card-bg); border: 1px solid var(--tabla-borde); color: var(--text-general);"
-          @mouseover="$event.currentTarget.style.background='var(--tabla-hover)'"
-          @mouseleave="$event.currentTarget.style.background='var(--card-bg)'"
-        >Cancelar</button>
-        <button @click="guardarPerfil" type="button"
-          class="px-6 py-2.5 text-xs font-bold rounded-xl transition-all"
-          style="background: var(--sidebar-active-bg); color: var(--sidebar-active-text);"
-          @mouseover="$event.currentTarget.style.opacity='0.85'"
-          @mouseleave="$event.currentTarget.style.opacity='1'"
-        >Guardar Cambios</button>
+        <AppButton variant="secondary">Cancelar</AppButton>
+        <AppButton variant="primary" @click="guardarPerfil">Guardar Cambios</AppButton>
       </div>
     </div>
 

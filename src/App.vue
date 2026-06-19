@@ -1,48 +1,51 @@
 <script setup>
 import { RouterView, useRoute } from 'vue-router'
-import { useLayoutStore } from '@/stores/layout' 
+import { useLayoutStore } from '@/stores/layout'
 import sidebar from './components/Sidebar.vue'
 import navbar from './components/Navbar.vue'
-
-import { onMounted } from 'vue';
-
-onMounted(() => {
-  // Esto agrega la clase .dark al body apenas carga la app
-  document.documentElement.classList.add('dark');
-});
+import { onMounted, onUnmounted } from 'vue'
 
 const layout = useLayoutStore()
-const route = useRoute()
+const route  = useRoute()
+
+// Auto-colapsa el sidebar en pantallas pequeñas (<1024px)
+const handleResize = () => {
+  if (window.innerWidth < 1024) {
+    layout.isSidebarOpen = false
+  }
+}
+
+onMounted(() => {
+  document.documentElement.classList.add('dark')
+  handleResize()
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
 </script>
 
 <template>
-  <!-- transition-colors hace que el cambio de modo sea suave -->
-  <div 
+  <div
     class="flex h-screen w-screen overflow-hidden transition-colors duration-300"
     style="background-color: var(--layout-bg); color: var(--layout-text);"
   >
-    
-    <aside 
-      v-if="route.path !== '/login'" 
-      :class="layout.isSidebarOpen ? 'w-64' : 'w-20'" 
+
+    <aside
+      v-if="route.path !== '/login'"
+      :class="layout.isSidebarOpen ? 'w-64' : 'w-20'"
       class="transition-all duration-300 ease-in-out flex-shrink-0"
     >
       <sidebar />
     </aside>
 
-    <div class="flex-1 flex flex-col w-full transition-all duration-300">
+    <div class="flex-1 flex flex-col min-w-0 transition-all duration-300">
       <navbar v-if="route.path !== '/login'" />
 
-      <main 
-  class="flex-1 overflow-y-auto" 
-  :class="route.path === '/login' ? 'p-0' : 'p-8'"
->
-  <RouterView v-slot="{ Component }">
-    <transition name="slide-fade" mode="out-in">
-      <component :is="Component" />
-    </transition>
-  </RouterView>
-</main>
+      <main :class="['flex-1 overflow-y-auto', route.path === '/login' || route.meta.fullWidth ? '' : 'p-4 md:p-6 lg:p-8']">
+        <RouterView />
+      </main>
     </div>
   </div>
 </template>

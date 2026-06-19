@@ -45,12 +45,12 @@ function guardarEquipo() {
 <template>
   <div class="p-3 min-h-screen">
 
-    <div class="mb-6 flex justify-between items-center">
+    <div class="mb-6 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
       <EncabezadoPantalla
         titulo="Nuevo Equipo"
         descripcion="Registra un equipo de trabajo dentro de un departamento."
       />
-      <AppButton variant="secondary" @click="router.push('/ControlOrganizacional')">
+      <AppButton variant="secondary" class="flex-shrink-0" @click="router.push('/ControlOrganizacional')">
         ← Volver
       </AppButton>
     </div>

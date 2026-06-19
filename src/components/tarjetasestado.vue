@@ -11,7 +11,7 @@ defineProps({
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-1">
     
     <!-- Tarjeta 1: KPIs Saludables -->
-    <div class=" rounded-xl shadow-lg p-5 border border-[#beaed8]/20 flex flex-col justify-between"
+    <div class=" rounded-xl shadow-lg p-5 border flex flex-col justify-between"
     style="background: var(--card2-bg);">
       <div class="flex justify-between items-center mb-4">
         <span class="text-xs font-bold tracking-wider text-[#beaed8] uppercase"
@@ -30,7 +30,7 @@ defineProps({
     </div>
 
     <!-- Tarjeta 2: KPIs en Alerta -->
-    <div class=" rounded-xl shadow-lg p-5 border border-[#beaed8]/20 flex flex-col justify-between"
+    <div class=" rounded-xl shadow-lg p-5 border flex flex-col justify-between"
     style="background: var(--card2-bg);">
       <div class="flex justify-between items-center mb-4">
         <span class="text-xs font-bold tracking-wider text-[#beaed8] uppercase"
@@ -49,7 +49,7 @@ defineProps({
     </div>
 
     <!-- Tarjeta 3: KPIs Críticos -->
-    <div class=" rounded-xl p-5 shadow-lg border border-[#beaed8]/20 flex flex-col justify-between"
+    <div class=" rounded-xl p-5 shadow-lg border flex flex-col justify-between"
     style="background: var(--card2-bg);">
       <div class="flex justify-between items-center mb-4">
         <span class="text-xs font-bold tracking-wider text-[#beaed8] uppercase"
@@ -69,7 +69,7 @@ defineProps({
 
     <div 
       class="rounded-xl shadow-lg p-5 border flex flex-col justify-between h-full transition-colors duration-300"
-      style="background: var(--card-bg); border-color: rgba(190, 174, 216, 0.5);"
+      style="background: var(--card-bg);"
     >
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">

@@ -5,7 +5,10 @@ import { getCurrentInstance } from 'vue'
 import { useOrgStore } from "../stores/orgStore"
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
 import ModalConfirmacion from '../components/ModalConfirmacion.vue'
-import FormField from '../components/ui/FormField.vue'
+import FormField     from '../components/ui/FormField.vue'
+import StatusBadge   from '../components/StatusBadge.vue'
+import BotonAccion   from '../components/ui/BotonAccion.vue'
+import AppButton     from '../components/ui/AppButton.vue'
 
 const router = useRouter()
 const store  = useOrgStore()
@@ -55,7 +58,7 @@ function colorPlan(plan) {
       descripcion="Panel exclusivo del Developer. Administra todas las empresas registradas en el sistema."
     />
 
-    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 p-5 rounded-xl shadow-md border border-[#beaed8]/90 mt-6 mb-6" style="background: var(--card-bg);">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-5 rounded-xl shadow-md border border-[#beaed8]/90 mt-6 mb-6" style="background: var(--card-bg);">
 
       <FormField label="Buscar empresa" :col-span="2">
         <input v-model="filtroBusqueda" type="text" placeholder="Nombre o razón social..." class="app-input" />
@@ -81,76 +84,50 @@ function colorPlan(plan) {
       <div
         v-for="empresa in empresasFiltradas"
         :key="empresa.id"
-        class="rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col"
-        style="background: var(--card-bg);"
+        class="rounded-xl shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col"
+        style="background: var(--card-bg); border: 1px solid var(--tabla-borde);"
       >
-        <div class="p-4 border-b border-gray-100 flex justify-between items-start"
-         style="background: var(--card-bg);">
+        <div class="p-4 flex justify-between items-start"
+          style="border-bottom: 1px solid var(--tabla-borde);">
           <div>
-            <!-- CAMBIO: text-gray-800 → --card-text | text-gray-400 → --card-text-hint -->
-            <h3 class="text-sm font-bold" style="color: var(--card-text); color: var(--text-general)">{{ empresa.nombre }}</h3>
-            <p class="text-[10px] mt-0.5" style="color: var(--card-text-hint); color: var(--text-general)">{{ empresa.razonSocial }}</p>
+            <h3 class="text-sm font-bold" style="color: var(--text-general);">{{ empresa.nombre }}</h3>
+            <p class="text-[10px] mt-0.5" style="color: var(--subtext-general);">{{ empresa.razonSocial }}</p>
           </div>
-          <div class="flex flex-col items-end gap-1.5">
-            <span
-              class="text-[10px] font-bold px-2 py-0.5 rounded border uppercase tracking-wide"
-              :class="colorPlan(empresa.plan)"
-            >
-              {{ empresa.plan }}
-            </span>
-            <span
-              class="text-[9px] font-bold uppercase tracking-wider inline-flex items-center gap-1"
-              :class="empresa.estado === 'activo' ? 'text-emerald-500' : 'text-gray-400'"
-            >
-              <span
-                class="w-1.5 h-1.5 rounded-full"
-                :class="empresa.estado === 'activo' ? 'bg-emerald-500 animate-pulse' : 'bg-gray-300'"
-              ></span>
-              {{ empresa.estado }}
-            </span>
-          </div>
+          <StatusBadge :tipo="empresa.estado === 'activo' ? 'activo' : 'bloqueado'" />
         </div>
 
-        <!-- Cuerpo: datos de contacto -->
         <div class="p-4 space-y-1.5 flex-grow">
-          <p class="text-[11px] text-gray-500 flex items-center gap-2" style="color: var(--text-general);">
-            <i class="fi fi-sr-envelope  text-[10px]"></i>
+          <p class="text-[11px] flex items-center gap-2" style="color: var(--subtext-general);">
+            <i class="fi fi-sr-envelope text-[10px]"></i>
             {{ empresa.email }}
           </p>
-          <p class="text-[11px] text-gray-500 flex items-center gap-2" style="color: var(--text-general);">
+          <p class="text-[11px] flex items-center gap-2" style="color: var(--subtext-general);">
             <i class="fi fi-sr-phone-call text-[10px]"></i>
             {{ empresa.telefono || '—' }}
           </p>
-          <p class="text-[11px] text-gray-500 flex items-center gap-2" style="color: var(--text-general);">
-            <i class="fi fi-sr-id-card  text-[10px]"></i>
+          <p class="text-[11px] flex items-center gap-2" style="color: var(--subtext-general);">
+            <i class="fi fi-sr-id-card text-[10px]"></i>
             RFC: {{ empresa.rfc }}
           </p>
         </div>
 
-        <div class="px-4 py-3 border-t border-gray-100 flex items-center gap-4" style="background: var(--card-bg); border: var(--card-bg);">
+        <div class="px-4 py-3 flex items-center gap-4"
+          style="border-top: 1px solid var(--tabla-borde);">
           <div class="text-center">
             <p class="text-base font-black" style="color: var(--text-encabezado);">{{ empresa.usuarios }}</p>
-            <p class="text-[9px] text-gray-400 uppercase tracking-wide" style="color: var(--text-general);">Usuarios</p>
+            <p class="text-[9px] uppercase tracking-wide" style="color: var(--subtext-general);">Usuarios</p>
           </div>
           <div class="text-center">
             <p class="text-base font-black" style="color: var(--text-encabezado);">{{ empresa.kpis }}</p>
-            <p class="text-[9px] text-gray-400 uppercase tracking-wide" style="color: var(--text-general);">KPIs</p>
+            <p class="text-[9px] uppercase tracking-wide" style="color: var(--subtext-general);">KPIs</p>
           </div>
           <div class="text-center">
             <p class="text-[10px] font-bold" style="color: var(--text-general);">{{ empresa.fechaRegistro }}</p>
             <p class="text-[9px] uppercase tracking-wide" style="color: var(--subtext-general);">Registro</p>
           </div>
-        </div>
-
-        <div class="px-4 py-3 border-tflex items-center justify-end gap-2" style="border: var(--card-bg);">
-          <button
-            @click="confirmarEliminacion(empresa)"
-            title="Eliminar empresa"
-            class="text-gray-400 hover:text-red-500 bg-gray-50 hover:bg-red-50 p-1.5 rounded-lg transition-colors text-sm"
-            style=" background: var(--layout-bg)"
-          >
-            <i class="fi fi-sr-trash"></i>
-          </button>
+          <div class="ml-auto">
+            <BotonAccion variante="trash" titulo="Eliminar empresa" @click="confirmarEliminacion(empresa)" />
+          </div>
         </div>
       </div>
 

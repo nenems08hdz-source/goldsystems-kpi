@@ -1,8 +1,11 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { getCurrentInstance } from 'vue'
-import { useKpiStore } from '../stores/kpiStore'
-import { useOrgStore } from '../stores/orgStore'
+import { useKpiStore }  from '../stores/kpiStore'
+import { useOrgStore }  from '../stores/orgStore'
+import EtiquetaBadge   from '../components/ui/EtiquetaBadge.vue'
+import AppButton       from '../components/ui/AppButton.vue'
+import BotonAccion     from '../components/ui/BotonAccion.vue'
 
 const props = defineProps({
   kpi: { type: Object, required: true },
@@ -71,16 +74,9 @@ function guardarMetrica() {
 <template>
   <div class="w-full mt-6">
 
-    <button
-      @click="emit('cancelar')"
-      type="button"
-      class="mb-4 px-4 py-2 rounded-lg text-xs font-semibold shadow-sm transition-colors flex items-center gap-2"
-      style="background: var(--card-bg); border: 1px solid var(--tabla-borde); color: var(--text-general);"
-      @mouseover="$event.currentTarget.style.background='var(--tabla-header-bg)'"
-      @mouseleave="$event.currentTarget.style.background='var(--card-bg)'"
-    >
+    <AppButton variant="secondary" class="mb-4 flex items-center gap-2" @click="emit('cancelar')">
       ← Volver a mis KPIs
-    </button>
+    </AppButton>
 
     <div class="rounded-xl shadow-md overflow-hidden"
       style="background: var(--card-bg); border: 1px solid var(--tabla-borde);">
@@ -91,16 +87,7 @@ function guardarMetrica() {
           <h2 class="text-sm font-bold uppercase tracking-wider" style="color: var(--tabla-header-text);">Registrar Métrica</h2>
           <p class="text-[10px] mt-0.5" style="color: var(--card-text-hint);">Captura el valor medido para el periodo correspondiente</p>
         </div>
-        <button
-          type="button"
-          @click="emit('cancelar')"
-          class="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
-          style="background: var(--tabla-borde); color: var(--card-text-hint);"
-          @mouseover="$event.currentTarget.style.color='#ef4444'; $event.currentTarget.style.background='rgba(239,68,68,0.1)'"
-          @mouseleave="$event.currentTarget.style.color='var(--card-text-hint)'; $event.currentTarget.style.background='var(--tabla-borde)'"
-        >
-          <i class="fi fi-sr-cross text-xs"></i>
-        </button>
+        <BotonAccion variante="close" titulo="Cerrar" @click="emit('cancelar')" />
       </div>
 
       <div class="p-6 space-y-6">
@@ -113,18 +100,18 @@ function guardarMetrica() {
           <p class="text-[11px] mt-0.5" style="color: var(--subtext-general);">{{ kpi.formula }}</p>
 
           <div class="flex flex-wrap gap-2 mt-3">
-            <span class="table-badge flex items-center gap-1">
+            <EtiquetaBadge clase="flex items-center gap-1">
               <i class="fi fi-sr-calendar text-[9px]"></i>
               {{ kpi.periodicidad }}
-            </span>
-            <span class="table-badge flex items-center gap-1">
+            </EtiquetaBadge>
+            <EtiquetaBadge clase="flex items-center gap-1">
               <i class="fi fi-sr-stats text-[9px]"></i>
               {{ kpi.tipoMetrica }}
-            </span>
-            <span class="table-badge flex items-center gap-1">
+            </EtiquetaBadge>
+            <EtiquetaBadge clase="flex items-center gap-1">
               <i class="fi fi-sr-target text-[9px]"></i>
               Meta: {{ kpi.meta }}
-            </span>
+            </EtiquetaBadge>
           </div>
         </div>
 
@@ -182,25 +169,8 @@ function guardarMetrica() {
           </div>
 
           <div class="flex justify-end gap-3 pt-4" style="border-top: 1px solid var(--tabla-borde);">
-            <button
-              type="button"
-              @click="emit('cancelar')"
-              class="text-xs font-bold px-4 py-2.5 rounded-lg transition-colors"
-              style="color: var(--subtext-general);"
-              @mouseover="$event.currentTarget.style.color='var(--text-general)'"
-              @mouseleave="$event.currentTarget.style.color='var(--subtext-general)'"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              class="text-white font-bold text-xs px-5 py-2.5 rounded-lg transition-all duration-300 shadow-sm"
-              style="background: var(--sidebar-bg);"
-              @mouseover="$event.currentTarget.style.background='var(--sidebar-active-bg)'; $event.currentTarget.style.color='var(--sidebar-active-text)'"
-              @mouseleave="$event.currentTarget.style.background='var(--sidebar-bg)'; $event.currentTarget.style.color='white'"
-            >
-              Guardar Registro
-            </button>
+            <AppButton variant="ghost" type="button" @click="emit('cancelar')">Cancelar</AppButton>
+            <AppButton variant="primary" type="submit">Guardar Registro</AppButton>
           </div>
 
         </form>

@@ -3,6 +3,7 @@ import { ref, getCurrentInstance } from 'vue'
 import plantillatabla from '../components/PlantillaTabla.vue'
 import ModalConfirmacion from '../components/ModalConfirmacion.vue'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
+import AppButton          from '../components/ui/AppButton.vue'
 
 const { proxy } = getCurrentInstance()
 
@@ -75,7 +76,7 @@ function ejecutarEliminacion() {
 </script>
 
 <template>
-  <div class="w-full px-8 min-h-screen flex flex-col pb-10" style="background-color: var(--layout-bg);">
+  <div class="w-full px-8 min-h-screen flex flex-col pb-10" style="background-color: var(--layout-bg); transition: background-color 300ms ease;">
 
     <header class="mb-8 mt-6">
       <EncabezadoPantalla
@@ -85,23 +86,22 @@ function ejecutarEliminacion() {
     </header>
 
     <section class="p-6 rounded-2xl mb-6"
-      style="background: var(--card-bg); border: 1px solid var(--tabla-borde);">
+      style="background: var(--card-bg); border: 1px solid var(--tabla-borde); box-shadow: var(--card-shadow);">
       <h2 class="text-lg font-bold mb-4 flex items-center gap-2" style="color: var(--text-general);">
         <i class="fi fi-sr-lock"></i> Autenticación
       </h2>
 
-      <div class="flex justify-between items-center p-4 rounded-xl mb-4"
+      <div class="flex flex-col gap-3 p-4 rounded-xl mb-4"
         style="background: var(--tabla-header-bg); border: 1px solid var(--tabla-borde);">
         <div>
           <p class="text-sm font-bold" style="color: var(--text-general);">Doble Factor (2FA)</p>
           <p class="text-xs" style="color: var(--subtext-general);">Protección extra para tu cuenta</p>
         </div>
-        <button @click="editandoPassword = !editandoPassword"
-          class="text-xs font-bold px-4 py-2 rounded-lg transition-all"
-          style="background: var(--card-bg); border: 1px solid var(--tabla-borde); color: var(--text-general);"
-          @mouseover="$event.currentTarget.style.background='var(--tabla-hover)'"
-          @mouseleave="$event.currentTarget.style.background='var(--card-bg)'"
-        >{{ editandoPassword ? 'Cancelar edición' : 'Cambiar contraseña' }}</button>
+        <div>
+          <AppButton variant="secondary" @click="editandoPassword = !editandoPassword">
+            {{ editandoPassword ? 'Cancelar edición' : 'Cambiar contraseña' }}
+          </AppButton>
+        </div>
       </div>
 
       <div v-if="editandoPassword" class="space-y-4 p-6 rounded-2xl mb-6"
@@ -121,12 +121,7 @@ function ejecutarEliminacion() {
           <input type="password" v-model="passwordForm.confirmar" class="app-input" />
         </div>
 
-        <button @click="guardarPassword"
-          class="px-5 py-2 text-xs font-bold rounded-lg transition-all"
-          style="background: var(--sidebar-active-bg); color: var(--sidebar-active-text);"
-          @mouseover="$event.currentTarget.style.opacity='0.85'"
-          @mouseleave="$event.currentTarget.style.opacity='1'"
-        >Actualizar Contraseña</button>
+        <AppButton variant="primary" @click="guardarPassword">Actualizar Contraseña</AppButton>
       </div>
     </section>
 
@@ -137,12 +132,7 @@ function ejecutarEliminacion() {
           <td class="p-4 text-xs" style="color: var(--text-general);">{{ fila.ubicacion }}</td>
           <td class="p-4 text-xs font-bold" style="color: var(--text-general);">{{ fila.tiempo }}</td>
           <td class="p-4">
-            <button @click="confirmarEliminacion(fila.id, 'sesion')"
-              class="px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all"
-              style="background: var(--sidebar-active-bg); color: var(--sidebar-active-text);"
-              @mouseover="$event.currentTarget.style.opacity='0.8'"
-              @mouseleave="$event.currentTarget.style.opacity='1'"
-            >Cerrar</button>
+            <AppButton variant="primary" size="sm" @click="confirmarEliminacion(fila.id, 'sesion')">Cerrar</AppButton>
           </td>
         </template>
       </plantillatabla>
@@ -155,30 +145,15 @@ function ejecutarEliminacion() {
           <td class="p-4 text-xs" style="color: var(--text-general);">{{ fila.detalle }}</td>
           <td class="p-4 text-xs font-bold" style="color: var(--text-general);">{{ fila.hora }}</td>
           <td class="p-4">
-            <button @click="confirmarEliminacion(fila.id, 'actividad')"
-              class="px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all"
-              style="background: #dc2626; color: white;"
-              @mouseover="$event.currentTarget.style.background='#b91c1c'"
-              @mouseleave="$event.currentTarget.style.background='#dc2626'"
-            >Eliminar</button>
+            <AppButton variant="primary" size="sm" @click="confirmarEliminacion(fila.id, 'actividad')">Eliminar</AppButton>
           </td>
         </template>
       </plantillatabla>
     </section>
 
     <div class="flex justify-end gap-3 mt-6 pb-6">
-      <button
-        class="px-5 py-2.5 text-xs font-bold rounded-xl transition-colors"
-        style="background: var(--card-bg); border: 1px solid var(--tabla-borde); color: var(--text-general);"
-        @mouseover="$event.currentTarget.style.background='var(--tabla-hover)'"
-        @mouseleave="$event.currentTarget.style.background='var(--card-bg)'"
-      >Cancelar</button>
-      <button @click="guardarcambios"
-        class="px-6 py-2.5 text-xs font-bold rounded-xl transition-all"
-        style="background: var(--sidebar-active-bg); color: var(--sidebar-active-text);"
-        @mouseover="$event.currentTarget.style.opacity='0.85'"
-        @mouseleave="$event.currentTarget.style.opacity='1'"
-      >Guardar Cambios</button>
+      <AppButton variant="secondary">Cancelar</AppButton>
+      <AppButton variant="primary" @click="guardarcambios">Guardar Cambios</AppButton>
     </div>
 
   </div>

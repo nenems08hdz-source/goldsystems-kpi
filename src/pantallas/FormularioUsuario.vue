@@ -63,12 +63,12 @@ function guardarUsuario() {
 <template>
   <div class="p-6 min-h-screen">
 
-    <div class="mb-6 flex justify-between items-center">
+    <div class="mb-6 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
       <EncabezadoPantalla
         titulo="Registrar Nuevo Colaborador"
         descripcion="Añade un miembro a la estructura organizativa y asigna su rol."
       />
-      <AppButton variant="secondary" @click="router.push('/ControlOrganizacional')">
+      <AppButton variant="secondary" class="flex-shrink-0" @click="router.push('/ControlOrganizacional')">
         ← Volver
       </AppButton>
     </div>

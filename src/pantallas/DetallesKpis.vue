@@ -3,7 +3,9 @@ import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useKpiStore } from '../stores/kpiStore'
 import GraficaKpiEspecifica from '../components/GraficaKpiEspecifica.vue'
-import StatusBadge from '../components/StatusBadge.vue'
+import StatusBadge   from '../components/StatusBadge.vue'
+import EtiquetaBadge from '../components/ui/EtiquetaBadge.vue'
+import AppButton     from '../components/ui/AppButton.vue'
 
 const route  = useRoute()
 const router = useRouter()
@@ -93,15 +95,9 @@ const registrosFiltrados = computed(() => {
 <template>
   <div class="flex flex-col gap-6 w-full px-6 py-4">
 
-    <BotonesRegreso
-      @click="router.push('/kpis')"
-      class="px-4 py-2 rounded-lg text-xs font-semibold shadow-sm transition-colors flex items-center gap-2 w-fit"
-      style="background: var(--card-bg); border: 1px solid var(--tabla-borde); color: var(--text-general);"
-      @mouseover="$event.currentTarget.style.background='var(--tabla-hover)'"
-      @mouseleave="$event.currentTarget.style.background='var(--card-bg)'"
-    >
+    <AppButton variant="secondary" class="flex items-center gap-2 w-fit" @click="router.push('/kpis')">
       ← Volver al Listado
-    </BotonesRegreso>
+    </AppButton>
 
     <div v-if="!kpi" class="rounded-xl p-8 text-center"
       style="background: var(--card-bg); border: 1px solid var(--tabla-borde);">
@@ -118,13 +114,13 @@ const registrosFiltrados = computed(() => {
         style="background: var(--card-bg); border: 1px solid var(--tabla-borde);">
         <div class="flex justify-between items-start flex-wrap gap-4">
           <div>
-            <span class="table-badge">{{ kpi.departamento }}</span>
+            <EtiquetaBadge :texto="kpi.departamento" />
             <h1 class="text-xl font-bold mt-2" style="color: var(--text-general);">{{ kpi.nombre }}</h1>
             <p class="text-xs mt-0.5" style="color: var(--subtext-general);">{{ kpi.formula }}</p>
             <div class="flex items-center gap-2 mt-3 flex-wrap">
-              <span class="table-badge">{{ kpi.tipoMetrica }}</span>
-              <span class="table-badge">{{ kpi.periodicidad }}</span>
-              <span class="table-badge">Resp: {{ kpi.responsable }}</span>
+              <EtiquetaBadge :texto="kpi.tipoMetrica" />
+              <EtiquetaBadge :texto="kpi.periodicidad" />
+              <EtiquetaBadge :texto="`Resp: ${kpi.responsable}`" />
             </div>
           </div>
           <div class="flex flex-col items-end gap-2">
