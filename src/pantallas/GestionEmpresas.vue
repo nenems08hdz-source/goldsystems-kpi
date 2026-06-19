@@ -4,11 +4,11 @@ import { useRouter } from 'vue-router'
 import { getCurrentInstance } from 'vue'
 import { useOrgStore } from "../stores/orgStore"
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
-import ModalConfirmacion from '../components/ModalConfirmacion.vue'
-import FormField     from '../components/ui/FormField.vue'
-import StatusBadge   from '../components/StatusBadge.vue'
-import BotonAccion   from '../components/ui/BotonAccion.vue'
-import AppButton     from '../components/ui/AppButton.vue'
+import ModalConfirmacion  from '../components/ModalConfirmacion.vue'
+import FormField          from '../components/ui/FormField.vue'
+import StatusBadge        from '../components/StatusBadge.vue'
+import BotonAccion        from '../components/ui/BotonAccion.vue'
+import AppButton          from '../components/ui/AppButton.vue'
 
 const router = useRouter()
 const store  = useOrgStore()

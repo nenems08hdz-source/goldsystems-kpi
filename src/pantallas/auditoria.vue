@@ -1,12 +1,12 @@
 <script setup>
 import { ref } from 'vue'
-import plantillatabla from '../components/PlantillaTabla.vue'
-import tarjetasresumen from '../components/TarjetasResumen.vue'
+import plantillatabla     from '../components/PlantillaTabla.vue'
+import tarjetasresumen    from '../components/TarjetasResumen.vue'
 import EncabezadoPantalla from '@/components/EncabezadoPantalla.vue'
-import EtiquetaBadge from '../components/ui/EtiquetaBadge.vue'
-import StatusBadge  from '../components/StatusBadge.vue'
-import AppButton    from '../components/ui/AppButton.vue'
-import BotonAccion  from '../components/ui/BotonAccion.vue'
+import EtiquetaBadge      from '../components/ui/EtiquetaBadge.vue'
+import StatusBadge        from '../components/StatusBadge.vue'
+import AppButton          from '../components/ui/AppButton.vue'
+import BotonAccion        from '../components/ui/BotonAccion.vue'
 const misEventos = ref([
   {
     id: 1,

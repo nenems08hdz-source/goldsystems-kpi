@@ -3,9 +3,9 @@ import { ref, computed } from 'vue'
 import { getCurrentInstance } from 'vue'
 import { useKpiStore }  from '../stores/kpiStore'
 import { useOrgStore }  from '../stores/orgStore'
-import EtiquetaBadge   from '../components/ui/EtiquetaBadge.vue'
-import AppButton       from '../components/ui/AppButton.vue'
-import BotonAccion     from '../components/ui/BotonAccion.vue'
+import EtiquetaBadge from '../components/ui/EtiquetaBadge.vue'
+import AppButton     from '../components/ui/AppButton.vue'
+import BotonAccion   from '../components/ui/BotonAccion.vue'
 
 const props = defineProps({
   kpi: { type: Object, required: true },
@@ -17,9 +17,9 @@ const orgStore = useOrgStore()
 const { proxy } = getCurrentInstance()
 
 const form = ref({
-  fechaCorte:    '',
-  valor:         '',
-  observaciones: '',
+  period_start: '',
+  value:        '',
+  notes:        '',
 })
 
 const errorMensaje = ref('')
@@ -45,27 +45,27 @@ const textoAyudaFecha = computed(() => {
 })
 
 function guardarMetrica() {
-  if (!form.value.fechaCorte) {
+  if (!form.value.period_start) {
     errorMensaje.value = 'La fecha de corte es obligatoria.'
     return
   }
-  if (form.value.valor === '' || isNaN(Number(form.value.valor))) {
+  if (form.value.value === '' || isNaN(Number(form.value.value))) {
     errorMensaje.value = 'El valor registrado debe ser un número.'
     return
   }
 
   store.registrarCaptura({
-    kpi_id:        props.kpi.id,
-    usuario_id:    orgStore.usuarioActual.id,
-    nombre:        props.kpi.nombre,
-    periodicidad:  props.kpi.periodicidad,
-    fechaCorte:    form.value.fechaCorte,
-    valor:         Number(form.value.valor),
-    observaciones: form.value.observaciones,
+    kpi_id:           props.kpi.id,
+    captured_by:      orgStore.usuarioActual.id,
+    value:            Number(form.value.value),
+    period_start:     form.value.period_start,
+    period_end:       null,
+    notes:            form.value.notes,
+    kpi_assignment_id: null,
   })
 
   proxy.$notify.success(`Métrica registrada para "${props.kpi.nombre}"`, 'Guardado')
-  form.value = { fechaCorte: '', valor: '', observaciones: '' }
+  form.value = { period_start: '', value: '', notes: '' }
   errorMensaje.value = ''
   emit('guardado')
 }
@@ -124,7 +124,7 @@ function guardarMetrica() {
               </label>
               <p class="text-[10px] leading-relaxed" style="color: var(--card-text-hint);">{{ textoAyudaFecha }}</p>
               <input
-                v-model="form.fechaCorte"
+                v-model="form.period_start"
                 type="date"
                 class="app-input"
                 required
@@ -139,7 +139,7 @@ function guardarMetrica() {
                 Valor actual del KPI: <strong style="color: var(--text-general);">{{ kpi.progreso }}</strong>
               </p>
               <input
-                v-model="form.valor"
+                v-model="form.value"
                 type="number"
                 step="0.01"
                 class="app-input"
@@ -155,7 +155,7 @@ function guardarMetrica() {
               <span class="normal-case font-normal ml-1" style="color: var(--card-text-hint);">(opcional)</span>
             </label>
             <textarea
-              v-model="form.observaciones"
+              v-model="form.notes"
               rows="2"
               placeholder="Notas adicionales sobre este registro..."
               class="app-input resize-none"
@@ -195,12 +195,12 @@ function guardarMetrica() {
           @mouseleave="$event.currentTarget.style.background='transparent'"
         >
           <div>
-            <p class="text-xs font-bold" style="color: var(--text-general);">{{ captura.fechaCorte }}</p>
-            <p class="text-[10px]" style="color: var(--subtext-general);">{{ captura.observaciones || 'Sin observaciones' }}</p>
+            <p class="text-xs font-bold" style="color: var(--text-general);">{{ captura.period_start }}</p>
+            <p class="text-[10px]" style="color: var(--subtext-general);">{{ captura.notes || 'Sin observaciones' }}</p>
           </div>
           <div class="text-right">
-            <p class="text-sm font-black" style="color: var(--sidebar-bg);">{{ captura.valor }}</p>
-            <p class="text-[10px]" style="color: var(--subtext-general);">{{ captura.periodicidad }}</p>
+            <p class="text-sm font-black" style="color: var(--sidebar-bg);">{{ captura.value }}</p>
+            <p class="text-[10px]" style="color: var(--subtext-general);">{{ kpi.periodicidad }}</p>
           </div>
         </div>
       </div>

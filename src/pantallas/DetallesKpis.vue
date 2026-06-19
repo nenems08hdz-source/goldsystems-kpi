@@ -3,9 +3,9 @@ import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useKpiStore } from '../stores/kpiStore'
 import GraficaKpiEspecifica from '../components/GraficaKpiEspecifica.vue'
-import StatusBadge   from '../components/StatusBadge.vue'
-import EtiquetaBadge from '../components/ui/EtiquetaBadge.vue'
-import AppButton     from '../components/ui/AppButton.vue'
+import StatusBadge          from '../components/StatusBadge.vue'
+import EtiquetaBadge        from '../components/ui/EtiquetaBadge.vue'
+import AppButton            from '../components/ui/AppButton.vue'
 
 const route  = useRoute()
 const router = useRouter()
@@ -27,10 +27,10 @@ const capturasReales = computed(() =>
     id:     `cap-${c.id}`,
     tipo:   'captura',
     titulo: 'Medición registrada',
-    desc:   `Valor: ${c.valor} — ${c.observaciones || 'Sin observaciones'}`,
-    fecha:  c.fechaCorte,
-    autor:  `Usuario #${c.usuario_id}`,
-    valor:  c.valor,
+    desc:   `Valor: ${c.value} — ${c.notes || 'Sin observaciones'}`,
+    fecha:  c.period_start,
+    autor:  `Usuario #${c.captured_by}`,
+    valor:  c.value,
   }))
 )
 

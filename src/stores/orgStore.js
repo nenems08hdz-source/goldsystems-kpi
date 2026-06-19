@@ -53,6 +53,7 @@ export const useOrgStore = defineStore('orgStore', () => {
     { id: 8, nombre: 'Jorge',   apellidoPaterno: 'Hernández', apellidoMaterno: 'Balam',    email: 'jorge.hernandez@kpi360.com', telefono: '+52 999 888 9900', rol: 'auditor',  departamento_id: null, equipo_id: null, kpis: 0, estado: 'activo',  ultimoLogin: '2025-08-03' },
   ])
 
+  // plan → BD: companies.plan ('basic'|'professional'|'enterprise')
   const empresas = ref([
     {
       id: 1,
@@ -61,6 +62,7 @@ export const useOrgStore = defineStore('orgStore', () => {
       rfc: 'KPI2024010101',
       email: 'contacto@kpi360.com',
       telefono: '+52 999 000 0001',
+      plan: 'enterprise',
       estado: 'activo',
       usuarios: 8,
       kpis: 8,
@@ -73,6 +75,7 @@ export const useOrgStore = defineStore('orgStore', () => {
       rfc: 'TSO2023050202',
       email: 'admin@techsol.com',
       telefono: '+52 55 000 0002',
+      plan: 'professional',
       estado: 'activo',
       usuarios: 15,
       kpis: 22,
@@ -85,6 +88,7 @@ export const useOrgStore = defineStore('orgStore', () => {
       rfc: 'INF2022080303',
       email: 'sistemas@infranet.mx',
       telefono: '+52 81 000 0003',
+      plan: 'basic',
       estado: 'inactivo',
       usuarios: 3,
       kpis: 5,

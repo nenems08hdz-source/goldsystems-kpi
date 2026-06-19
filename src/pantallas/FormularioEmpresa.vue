@@ -4,10 +4,9 @@ import { useRouter } from 'vue-router'
 import { getCurrentInstance } from 'vue'
 import { useOrgStore } from "../stores/orgStore"
 import EncabezadoPantalla from '@/components/EncabezadoPantalla.vue'
-import AppButton from '@/components/ui/AppButton.vue'
-import AppInput  from '@/components/ui/AppInput.vue'
-
-import FormField from '@/components/ui/FormField.vue'
+import AppButton          from '@/components/ui/AppButton.vue'
+import AppInput           from '@/components/ui/AppInput.vue'
+import FormField          from '@/components/ui/FormField.vue'
 
 const router = useRouter()
 const store  = useOrgStore()
