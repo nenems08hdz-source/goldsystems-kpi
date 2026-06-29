@@ -1,4 +1,5 @@
 import toastr from 'toastr';
+import { estaEnSilencio } from './silencio'
 
 class Notify {
   constructor() {}

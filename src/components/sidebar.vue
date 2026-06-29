@@ -3,9 +3,19 @@
 import { RouterLink } from 'vue-router'
 import { useLayoutStore } from '@/stores/layout'
 import { useOrgStore } from '@/stores/orgStore' 
+import { useAuthStore } from '../stores/authStore'
+import { useRouter } from 'vue-router'
 
 const layout = useLayoutStore()
 const store = useOrgStore()  
+
+const auth   = useAuthStore()
+const router = useRouter()
+
+function cerrarSesion() {
+  auth.logout()
+  router.push('/login')
+}
 </script>
 
 <template>
@@ -96,12 +106,12 @@ const store = useOrgStore()
         <span v-if="layout.isSidebarOpen">Ajustes</span>
       </RouterLink>
       
-      <RouterLink to="/login" 
-        class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-red-400 hover:bg-red-900/30 transition-colors font-medium"
-        :class="{'justify-center': !layout.isSidebarOpen}">
-        <i class="fi fi-sr-exit w-5 text-center"></i> 
-        <span v-if="layout.isSidebarOpen">Cerrar Sesión</span>
-      </RouterLink>
+      <button @click="cerrarSesion"
+         class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-red-400 hover:bg-red-900/30 transition-colors font-medium w-full"
+         :class="{'justify-center': !layout.isSidebarOpen}">
+         <i class="fi fi-sr-exit w-5 text-center"></i>
+         <span v-if="layout.isSidebarOpen">Cerrar Sesión</span>
+      </button>
     </div>
   </aside>
 </template>

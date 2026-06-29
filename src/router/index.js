@@ -17,6 +17,7 @@ import PanelPrincipal from '../pantallas/PanelPrincipal.vue'
 import PersonalizarPanel from '../pantallas/PersonalizarPantalla.vue'
 import RegistroMetricas from '../pantallas/RegistroMetricas.vue'
 import Login from '../pantallas/Login.vue'
+import { useAuthStore } from '../stores/authStore'
 
 
 const router = createRouter({
@@ -115,6 +116,20 @@ const router = createRouter({
   meta: { hideNavbar: true } // Bandera para ocultar
 }
   ],
+})
+
+router.beforeEach((to) => {
+  const auth = useAuthStore()
+
+  // Si no hay token y no es la pantalla de login, redirige al login
+  if (to.name !== 'Login' && !auth.token) {
+    return { name: 'Login' }
+  }
+
+  // Si ya está logueado e intenta ir al login, redirige al panel principal
+  if (to.name === 'Login' && auth.token) {
+    return { name: 'principal' }
+  }
 })
 
 export default router

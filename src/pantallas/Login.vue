@@ -1,7 +1,60 @@
 <script setup>
-const handleLogin = () => {
-  alert("Iniciando sesión...");
-};
+/**
+ * Login.vue
+ *
+ * Pantalla de inicio de sesión.
+ * Llama a la API con las credenciales del usuario, guarda el token
+ * y rol en el store global (authStore) y redirige al panel principal.
+ *
+ * @author Mariel Medina <nenem08hdz@gmail.com>
+ */
+
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/authStore'
+
+const router = useRouter()
+const auth   = useAuthStore()
+
+// Campos del formulario vinculados con v-model
+const email    = ref('')
+const password = ref('')
+
+// Mensaje de error que se muestra si las credenciales son incorrectas
+const error = ref('')
+
+// Controla si la contraseña es visible o no
+const verPassword = ref(false)
+
+/**
+ * Envía las credenciales a la API.
+ * Si son correctas guarda token, usuario y rol en el store
+ * y redirige al panel principal.
+ * Endpoint: POST /api/login
+ */
+const handleLogin = async () => {
+  error.value = ''
+
+  const res = await fetch('http://127.0.0.1:8000/api/login', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ email: email.value, password: password.value })
+  })
+
+  const data = await res.json()
+
+  // Si la API responde con error muestra el mensaje
+  if (!res.ok) {
+    error.value = 'Credenciales incorrectas'
+    return
+  }
+
+  // Guarda token, usuario y rol en el store y localStorage
+  auth.setAuth(data.token, data.user, data.role)
+
+  // Redirige al panel principal
+  router.push('/')
+}
 </script>
 
 <template>
@@ -31,20 +84,17 @@ const handleLogin = () => {
           <form @submit.prevent="handleLogin">
             <div class="input-group">
               <i class="fi fi-sr-envelope"></i>
-              <input type="email" placeholder="Email" required />
+              <input v-model="email"    type="email"    placeholder="Email"    required />
             </div>
             
             <div class="input-group">
               <i class="fi fi-sr-lock"></i>
-              <input type="password" placeholder="Password" required />
+              <input v-model="password" :type="verPassword ? 'text' : 'password'" placeholder="Password" required />
+              <i @click="verPassword = !verPassword" :class="verPassword ? 'fi fi-sr-eye-crossed' : 'fi fi-sr-eye'" style="cursor:pointer; opacity:0.6;"></i>
             </div>
 
-            <button 
-              @click="$router.push('/')"
-              type="submit" class="glow-btn"
-            >
-              Entrar
-            </button>
+            <p v-if="error" style="color: #ff6b6b; font-size: 0.85rem; margin-bottom: 10px;">{{ error }}</p>
+            <button type="submit" class="glow-btn">Entrar</button>
           </form>
         </div>
       </div>

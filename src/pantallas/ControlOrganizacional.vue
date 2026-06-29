@@ -1,16 +1,17 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { getCurrentInstance } from 'vue'
-import plantillatabla from '../components/PlantillaTabla.vue'
-import ModalConfirmacion from '../components/ModalConfirmacion.vue'
-import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
-import AppButton     from '../components/ui/AppButton.vue'
-import FormField     from '../components/ui/FormField.vue'
-import BotonAccion   from '../components/ui/BotonAccion.vue'
-import EtiquetaBadge from '../components/ui/EtiquetaBadge.vue'
-import StatusBadge   from '../components/StatusBadge.vue'
 import { useOrgStore } from "../stores/orgStore"
 import { useKpiStore } from "../stores/kpiStore"
+import plantillatabla     from '../components/PlantillaTabla.vue'
+import ModalConfirmacion  from '../components/ModalConfirmacion.vue'
+import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
+import AppButton          from '../components/ui/AppButton.vue'
+import FormField          from '../components/ui/FormField.vue'
+import BotonAccion        from '../components/ui/BotonAccion.vue'
+import EtiquetaBadge      from '../components/ui/EtiquetaBadge.vue'
+import StatusBadge        from '../components/StatusBadge.vue'
+
 
 const store    = useOrgStore()
 const kpiStore = useKpiStore()
@@ -272,7 +273,7 @@ function eliminarNodo(nodo) {
                     {{ store.nombreCompleto(fila) }}
                   </div>
                   <div class="text-[11px] mt-0.5" style="color: var(--subtext-general);">{{ fila.email }}</div>
-                  <div v-if="fila.telefono" class="text-[10px] mt-0.5" style="color: var(--subtext-general);">
+                  <div v-if="fila.telefono" class="text-[10px] mt-0.5" style="color: var(--subtext-general);"> 
                     {{ fila.telefono }}
                   </div>
                 </div>

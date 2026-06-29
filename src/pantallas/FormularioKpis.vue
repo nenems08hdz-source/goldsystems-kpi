@@ -5,10 +5,10 @@ import { getCurrentInstance } from 'vue'
 import { useKpiStore } from '../stores/kpiStore'
 import { useOrgStore } from '../stores/orgStore'
 import AppButton          from '@/components/ui/AppButton.vue'
-import AppInput            from '@/components/ui/AppInput.vue'
-import AppSelect           from '@/components/ui/AppSelect.vue'
-import FormField           from '@/components/ui/FormField.vue'
-import EncabezadoPantalla  from '@/components/EncabezadoPantalla.vue'
+import AppInput           from '@/components/ui/AppInput.vue'
+import AppSelect          from '@/components/ui/AppSelect.vue'
+import FormField          from '@/components/ui/FormField.vue'
+import EncabezadoPantalla from '@/components/EncabezadoPantalla.vue'
 
 const router   = useRouter()
 const store    = useKpiStore()
@@ -17,15 +17,22 @@ const { proxy } = getCurrentInstance()
 
 const nuevoKpi = ref({
   nombre:          '',
+  subtitulo:       '',
   formula:         '',
   departamento_id: null,
   equipo_id:       null,
   usuario_id:      null,
   progreso:        0,
   periodicidad:    'Mensual',
-  meta:            '',
-  subtitulo:       '',
+  meta:            '',       // texto display: ej. '> 95%'
+  goal:            null,     // BD: valor numérico de la meta
+  unit:            '%',      // BD: unidad de medida
+  minimum:         null,
+  maximum:         null,
+  weight:          1.00,
   tipoMetrica:     'Porcentaje',
+  status:          'active',
+  company_id:      1,
 })
 
 const opcionesDepartamentos = orgStore.estructuraOrganizacional
@@ -61,38 +68,53 @@ function onEquipoChange() {
   nuevoKpi.value.usuario_id = null
 }
 
+// Unidad por tipo de métrica (para el campo unit de la BD)
+const unidadPorTipo = {
+  'Porcentaje': '%',
+  'Monetario':  '$',
+  'Tiempo':     'ms',
+  'Puntaje':    'pts',
+}
+
 function guardarKpi() {
-  const obtenerEstado = (progreso) => {
-    if (progreso >= 80) return { estado: 'saludable', estadoTipo: 'success' }
-    if (progreso >= 50) return { estado: 'en riesgo', estadoTipo: 'warning' }
-    return { estado: 'critico', estadoTipo: 'danger' }
-  }
+  const deptId   = Number(nuevoKpi.value.departamento_id)
+  const uidNum   = Number(nuevoKpi.value.usuario_id)
+  const progreso = Number(nuevoKpi.value.progreso)
 
-  const { estado, estadoTipo } = obtenerEstado(nuevoKpi.value.progreso)
-
-  const deptNombre = orgStore.estructuraOrganizacional
-    .find(n => n.id === Number(nuevoKpi.value.departamento_id))?.nombre ?? ''
-
-  const uidNum         = Number(nuevoKpi.value.usuario_id)
+  const deptNombre     = orgStore.estructuraOrganizacional.find(n => n.id === deptId)?.nombre ?? ''
   const usuarioElegido = orgStore.usuarios.find(u => u.id === uidNum)
+  const { traffic_light, estado, estadoTipo } = store.calcularEstado(progreso)
 
   const kpiNuevo = {
-    id:                  store.indicadores.length + 1,
-    nombre:              nuevoKpi.value.nombre,
-    formula:             nuevoKpi.value.formula,
-    departamento:        deptNombre,
-    subtitulo:           nuevoKpi.value.subtitulo || nuevoKpi.value.nombre,
-    responsable:         usuarioElegido ? orgStore.nombreCompleto(usuarioElegido) : '',
-    progreso:            Number(nuevoKpi.value.progreso),
-    periodicidad:        nuevoKpi.value.periodicidad,
+    // ── BD fields ──
+    id:            store.indicadores.length + 1,
+    nombre:        nuevoKpi.value.nombre,
+    subtitulo:     nuevoKpi.value.subtitulo || nuevoKpi.value.nombre,
+    formula:       nuevoKpi.value.formula,
+    tipoMetrica:   nuevoKpi.value.tipoMetrica,
+    periodicidad:  nuevoKpi.value.periodicidad,
+    goal:          nuevoKpi.value.goal !== null ? Number(nuevoKpi.value.goal) : progreso,
+    unit:          unidadPorTipo[nuevoKpi.value.tipoMetrica] ?? '%',
+    minimum:       nuevoKpi.value.minimum !== null ? Number(nuevoKpi.value.minimum) : 0,
+    maximum:       nuevoKpi.value.maximum !== null ? Number(nuevoKpi.value.maximum) : 100,
+    weight:        Number(nuevoKpi.value.weight),
+    status:        'active',
+    department_id: deptId || null,
+    company_id:    nuevoKpi.value.company_id,
+    created_by:    orgStore.usuarioActual.id,
+    user_id:       uidNum || null,
+    // ── Display / calculados ──
     meta:                nuevoKpi.value.meta,
     objetivo:            nuevoKpi.value.meta,
-    tipoMetrica:         nuevoKpi.value.tipoMetrica,
+    departamento:        deptNombre,
+    responsable:         usuarioElegido ? orgStore.nombreCompleto(usuarioElegido) : '',
+    progreso,
+    traffic_light,
     estado,
     estadoTipo,
     tendencia:           'estable',
     ultimaActualizacion: new Date().toISOString().split('T')[0],
-    historial:           [Number(nuevoKpi.value.progreso)],
+    historial:           [progreso],
     etiquetasHistorial:  ['Inicio'],
     graficasCompatibles: ['linea', 'barras'],
   }
@@ -101,9 +123,14 @@ function guardarKpi() {
 
   if (uidNum) {
     store.kpisAsignados.push({
-      usuario_id:      uidNum,
-      kpi_id:          kpiNuevo.id,
-      fechaAsignacion: new Date().toISOString().split('T')[0],
+      id:            store.kpisAsignados.length + 1,
+      kpi_id:        kpiNuevo.id,
+      user_id:       uidNum,
+      department_id: deptId || null,
+      team_id:       nuevoKpi.value.equipo_id ? Number(nuevoKpi.value.equipo_id) : null,
+      start_date:    new Date().toISOString().split('T')[0],
+      end_date:      null,
+      status:        'active',
     })
   }
 

@@ -1,14 +1,19 @@
 <script setup>
 import { ref, getCurrentInstance } from 'vue'
-import plantillatabla from '../components/PlantillaTabla.vue'
-import ModalConfirmacion from '../components/ModalConfirmacion.vue'
+import plantillatabla     from '../components/PlantillaTabla.vue'
+import ModalConfirmacion  from '../components/ModalConfirmacion.vue'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
 import AppButton          from '../components/ui/AppButton.vue'
+import { useAuthStore } from '../stores/authStore'
 
+const auth = useAuthStore()
 const { proxy } = getCurrentInstance()
-
 const editandoPassword = ref(false)
 const passwordForm = ref({ actual: '', nueva: '', confirmar: '' })
+
+const verActual    = ref(false)
+const verNueva     = ref(false)
+const verConfirmar = ref(false)
 
 const sesiones = ref([
   { id: 1, dispositivo: 'MacBook Pro 16', ubicacion: 'CDMX, MX',   tiempo: 'Ahora'      },
@@ -27,7 +32,7 @@ const encabezadosActividad = ['Acción', 'Detalle', 'Hora', 'Acción']
 const cerrarSesion      = (id) => { sesiones.value = sesiones.value.filter(s => s.id !== id) }
 const eliminarRegistro  = (id) => { registrosActividad.value = registrosActividad.value.filter(r => r.id !== id) }
 
-const guardarPassword = () => {
+const guardarPassword = async () => {
   if (!passwordForm.value.actual || !passwordForm.value.nueva) {
     proxy.$notify.error('Todos los campos son obligatorios', 'Error')
     return
@@ -36,6 +41,32 @@ const guardarPassword = () => {
     proxy.$notify.error('Las nuevas contraseñas no coinciden', 'Error')
     return
   }
+
+  if (passwordForm.value.nueva === passwordForm.value.actual) {
+  proxy.$notify.error('La nueva contraseña debe ser diferente a la actual', 'Error')
+  return
+}
+
+  const res = await fetch('http://127.0.0.1:8000/api/me/password', {
+    method:  'PUT',
+    headers: {
+      'Content-Type':  'application/json',
+      'Authorization': `Bearer ${auth.token}`
+    },
+    body: JSON.stringify({
+      actual:    passwordForm.value.actual,
+      nueva:     passwordForm.value.nueva,
+      confirmar: passwordForm.value.confirmar,
+    })
+  })
+
+  const data = await res.json()
+
+  if (!res.ok) {
+    proxy.$notify.error(data.message || 'Error al actualizar', 'Error')
+    return
+  }
+
   proxy.$notify.success('Contraseña actualizada correctamente', 'Éxito')
   passwordForm.value = { actual: '', nueva: '', confirmar: '' }
   editandoPassword.value = false
@@ -110,15 +141,32 @@ function ejecutarEliminacion() {
 
         <div class="flex flex-col gap-1.5">
           <label class="text-[10px] font-bold uppercase tracking-wider" style="color: var(--subtext-general);">Contraseña Actual</label>
-          <input type="password" v-model="passwordForm.actual" class="app-input" />
+          <div class="relative">
+            <input :type="verActual ? 'text' : 'password'" v-model="passwordForm.actual" class="app-input pr-10" />
+            <span @click="verActual = !verActual" class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer" style="color: var(--subtext-general);">
+              <i :class="verActual ? 'fi fi-sr-eye-crossed' : 'fi fi-sr-eye'"></i>
+            </span>
+          </div>
         </div>
+
         <div class="flex flex-col gap-1.5">
           <label class="text-[10px] font-bold uppercase tracking-wider" style="color: var(--subtext-general);">Nueva Contraseña</label>
-          <input type="password" v-model="passwordForm.nueva" class="app-input" />
+          <div class="relative">
+            <input :type="verNueva ? 'text' : 'password'" v-model="passwordForm.nueva" class="app-input pr-10" />
+            <span @click="verNueva = !verNueva" class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer" style="color: var(--subtext-general);">
+              <i :class="verNueva ? 'fi fi-sr-eye-crossed' : 'fi fi-sr-eye'"></i>
+            </span>
+          </div>
         </div>
+
         <div class="flex flex-col gap-1.5">
           <label class="text-[10px] font-bold uppercase tracking-wider" style="color: var(--subtext-general);">Confirmar Nueva Contraseña</label>
-          <input type="password" v-model="passwordForm.confirmar" class="app-input" />
+          <div class="relative">
+            <input :type="verConfirmar ? 'text' : 'password'" v-model="passwordForm.confirmar" class="app-input pr-10" />
+            <span @click="verConfirmar = !verConfirmar" class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer" style="color: var(--subtext-general);">
+              <i :class="verConfirmar ? 'fi fi-sr-eye-crossed' : 'fi fi-sr-eye'"></i>
+            </span>
+          </div>
         </div>
 
         <AppButton variant="primary" @click="guardarPassword">Actualizar Contraseña</AppButton>

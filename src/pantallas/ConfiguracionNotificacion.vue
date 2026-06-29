@@ -1,9 +1,9 @@
 <script setup>
 import { ref } from 'vue'
 import { getCurrentInstance } from 'vue'
-import plantillatabla from '../components/PlantillaTabla.vue'
+import plantillatabla     from '../components/PlantillaTabla.vue'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
-import AppButton from '../components/ui/AppButton.vue'
+import AppButton          from '../components/ui/AppButton.vue'
 
 const canales = ref([
   { nombre: 'Correo Electrónico',    descripcion: 'Reportes detallados y alertas críticas.',    activo: true  },
@@ -40,7 +40,13 @@ const descartarCambios = () => {
 const horarioSilencio = ref({ inicio: '22:00', fin: '08:00' })
 
 const guardarcambios = () => {
+  localStorage.setItem('silencio', JSON.stringify(horarioSilencio.value))
   proxy.$notify.success('Horario de silencio actualizado', 'Éxito')
+}
+
+const silencioGuardado = localStorage.getItem('silencio')
+if (silencioGuardado) {
+  horarioSilencio.value = JSON.parse(silencioGuardado)
 }
 </script>
 
