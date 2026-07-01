@@ -3,12 +3,13 @@ import { useRoute } from 'vue-router'
 import { useLayoutStore } from '@/stores/layout'
 import FiltrosPrincipal from './FiltrosPrincipal.vue'
 import { useAuthStore } from '@/stores/authStore' //para acceder a los datos del usuario logueado (foto, nombre, apellido)
-import { useRouter }    from 'vue-router' //nos permite navegar a otra pantalla al hacer click sobre ello 
+import { useRouter }    from 'vue-router' //nos permite navegar a otra pantalla al hacer click sobre ello
 
-const route = useRoute()
-const layout = useLayoutStore()
-const auth   = useAuthStore()
-const router = useRouter()  //instancias de cada uno para usarlos en el template
+const route       = useRoute()
+const layout      = useLayoutStore()
+const auth        = useAuthStore()
+const router      = useRouter()  //instancias de cada uno para usarlos en el template
+const STORAGE_URL = (import.meta.env.VITE_API_URL ?? '').replace('/api', '/storage')
 </script>
 
 <template>
@@ -54,7 +55,7 @@ const router = useRouter()  //instancias de cada uno para usarlos en el template
 
         <img
              v-if="auth.user?.profile_photo"
-             :src="`http://127.0.0.1:8000/storage/${auth.user.profile_photo}`"
+             :src="`${STORAGE_URL}/${auth.user.profile_photo}`"
              class="w-full h-full object-cover"
             />
                    

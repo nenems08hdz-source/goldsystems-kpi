@@ -2,13 +2,10 @@
 /*sidebar*/
 import { RouterLink } from 'vue-router'
 import { useLayoutStore } from '@/stores/layout'
-import { useOrgStore } from '@/stores/orgStore' 
 import { useAuthStore } from '../stores/authStore'
 import { useRouter } from 'vue-router'
 
 const layout = useLayoutStore()
-const store = useOrgStore()  
-
 const auth   = useAuthStore()
 const router = useRouter()
 
@@ -77,7 +74,7 @@ function cerrarSesion() {
             </RouterLink>
           </li>
 
-          <li v-if="store.usuarioActual.rol === 'developer'">
+          <li v-if="auth.role === 'developer'">
             <RouterLink to="/GestionEmpresas" 
               class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors font-medium sidebar-link"
               :class="{'justify-center': !layout.isSidebarOpen}">

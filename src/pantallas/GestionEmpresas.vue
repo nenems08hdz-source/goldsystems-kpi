@@ -11,9 +11,12 @@ import AppButton          from '../components/ui/AppButton.vue'
 import { useAuthStore } from '../stores/authStore'
 import { ref, computed, onMounted } from 'vue'
 
-const router = useRouter()
-const store  = useOrgStore()
-const { proxy } = getCurrentInstance()
+const router      = useRouter()
+const store       = useOrgStore()
+const { proxy }   = getCurrentInstance()
+
+const API_URL     = import.meta.env.VITE_API_URL                  // http://localhost:8000/api
+const STORAGE_URL = API_URL?.replace('/api', '/storage') ?? ''    // http://localhost:8000/storage
 
 const filtroBusqueda = ref('')
 const filtroEstado   = ref('')
@@ -60,7 +63,7 @@ const subirLogo = async (event, empresaId) => {
   const formData = new FormData()
   formData.append('logo', archivo)
 
-  const res = await fetch(`http://127.0.0.1:8000/api/companies/${empresaId}/logo`, {
+  const res = await fetch(`${API_URL}/companies/${empresaId}/logo`, {
     method:  'POST',
     headers: { 'Authorization': `Bearer ${auth.token}` },
     body:    formData
@@ -131,7 +134,7 @@ onMounted(() => {
                 <div class="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold overflow-hidden"
                      style="background: var(--sidebar-active-bg); color: var(--sidebar-active-text); border: 2px solid var(--tabla-borde);">
                       <img v-if="empresa.logo"
-                           :src="`http://127.0.0.1:8000/storage/${empresa.logo}`"
+                           :src="`${STORAGE_URL}/${empresa.logo}`"
                             class="w-full h-full object-cover" />
                        <span v-else>{{ empresa.nombre?.charAt(0) }}</span>
                   </div>
