@@ -2,9 +2,13 @@
 import { useRoute } from 'vue-router'
 import { useLayoutStore } from '@/stores/layout'
 import FiltrosPrincipal from './FiltrosPrincipal.vue'
+import { useAuthStore } from '@/stores/authStore' //para acceder a los datos del usuario logueado (foto, nombre, apellido)
+import { useRouter }    from 'vue-router' //nos permite navegar a otra pantalla al hacer click sobre ello 
 
 const route = useRoute()
 const layout = useLayoutStore()
+const auth   = useAuthStore()
+const router = useRouter()  //instancias de cada uno para usarlos en el template
 </script>
 
 <template>
@@ -40,12 +44,25 @@ const layout = useLayoutStore()
         ></i>
       </button>
 
-      <span
-        class="text-[11px] font-bold border-l pl-4 uppercase tracking-wider"
-        style="color: var(--card-text-hint); border-color: var(--navbar-border)"
-      >
-        Perfil
-      </span>
+      <div
+        class="border-l pl-4 cursor-pointer"
+        style="border-color: var(--navbar-border)" 
+        @click="router.push('/Ajustes')"                 
+          >
+      <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold overflow-hidden"
+        style="background: var(--sidebar-active-bg); color: var(--sidebar-active-text);">
+
+        <img
+             v-if="auth.user?.profile_photo"
+             :src="`http://127.0.0.1:8000/storage/${auth.user.profile_photo}`"
+             class="w-full h-full object-cover"
+            />
+                   
+        <span v-else>
+          {{ (auth.user?.name?.charAt(0) || '') + (auth.user?.paternal?.charAt(0) || '') }}
+        </span>
+       </div>
+     </div>
     </div>
   </header>
 </template>

@@ -1,5 +1,4 @@
 <script setup>
-import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { getCurrentInstance } from 'vue'
 import { useOrgStore } from "../stores/orgStore"
@@ -9,6 +8,8 @@ import FormField          from '../components/ui/FormField.vue'
 import StatusBadge        from '../components/StatusBadge.vue'
 import BotonAccion        from '../components/ui/BotonAccion.vue'
 import AppButton          from '../components/ui/AppButton.vue'
+import { useAuthStore } from '../stores/authStore'
+import { ref, computed, onMounted } from 'vue'
 
 const router = useRouter()
 const store  = useOrgStore()
@@ -30,6 +31,7 @@ const empresasFiltradas = computed(() =>
 
 const showModal        = ref(false)
 const empresaAEliminar = ref(null)
+const auth = useAuthStore()
 
 function confirmarEliminacion(empresa) {
   empresaAEliminar.value = empresa
@@ -48,6 +50,40 @@ function colorPlan(plan) {
   if (plan === 'Pro')        return 'bg-blue-100 text-blue-700 border-blue-200'
   return 'bg-gray-100 text-gray-600 border-gray-200'
 }
+
+// subir logo//
+
+const subirLogo = async (event, empresaId) => {
+  const archivo = event.target.files[0]
+  if (!archivo) return
+
+  const formData = new FormData()
+  formData.append('logo', archivo)
+
+  const res = await fetch(`http://127.0.0.1:8000/api/companies/${empresaId}/logo`, {
+    method:  'POST',
+    headers: { 'Authorization': `Bearer ${auth.token}` },
+    body:    formData
+  })
+
+  const data = await res.json()
+
+  if (!res.ok) {
+    proxy.$notify.error('Error al subir logo', 'Error')
+    return
+  }
+
+  const empresa = store.empresas.find(e => e.id === empresaId)
+  if (empresa) empresa.logo = data.logo
+
+  proxy.$notify.success('Logo actualizado correctamente', 'Éxito')
+}
+onMounted(() => {
+  const logos = JSON.parse(localStorage.getItem('company_logos') || '{}')
+  store.empresas.forEach(e => {
+    if (logos[e.id]) e.logo = logos[e.id]
+  })
+})
 </script>
 
 <template>
@@ -87,14 +123,32 @@ function colorPlan(plan) {
         class="rounded-xl shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col"
         style="background: var(--card-bg); border: 1px solid var(--tabla-borde);"
       >
-        <div class="p-4 flex justify-between items-start"
-          style="border-bottom: 1px solid var(--tabla-borde);">
-          <div>
-            <h3 class="text-sm font-bold" style="color: var(--text-general);">{{ empresa.nombre }}</h3>
+
+       <div class="p-4 flex justify-between items-start"
+           style="border-bottom: 1px solid var(--tabla-borde);">
+          <div class="flex items-center gap-3">
+            <div class="relative shrink-0">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold overflow-hidden"
+                     style="background: var(--sidebar-active-bg); color: var(--sidebar-active-text); border: 2px solid var(--tabla-borde);">
+                      <img v-if="empresa.logo"
+                           :src="`http://127.0.0.1:8000/storage/${empresa.logo}`"
+                            class="w-full h-full object-cover" />
+                       <span v-else>{{ empresa.nombre?.charAt(0) }}</span>
+                  </div>
+
+        <label class="absolute -bottom-1 -right-1 p-0.5 px-1 rounded-md text-[9px] font-bold cursor-pointer"
+            style="background: var(--sidebar-bg); color: #fff; border: 2px solid var(--card-bg);">
+             +
+             <input type="file" accept="image/*" class="hidden" @change="subirLogo($event, empresa.id)" />
+         </label>
+   </div>
+      <div>
+           <h3 class="text-sm font-bold" style="color: var(--text-general);">{{ empresa.nombre }}</h3>
             <p class="text-[10px] mt-0.5" style="color: var(--subtext-general);">{{ empresa.razonSocial }}</p>
-          </div>
-          <StatusBadge :tipo="empresa.estado === 'activo' ? 'activo' : 'bloqueado'" />
-        </div>
+       </div>
+    </div>
+ <StatusBadge :tipo="empresa.estado === 'activo' ? 'activo' : 'bloqueado'" />
+</div>
 
         <div class="p-4 space-y-1.5 flex-grow">
           <p class="text-[11px] flex items-center gap-2" style="color: var(--subtext-general);">
@@ -117,14 +171,17 @@ function colorPlan(plan) {
             <p class="text-base font-black" style="color: var(--text-encabezado);">{{ empresa.usuarios }}</p>
             <p class="text-[9px] uppercase tracking-wide" style="color: var(--subtext-general);">Usuarios</p>
           </div>
+
           <div class="text-center">
             <p class="text-base font-black" style="color: var(--text-encabezado);">{{ empresa.kpis }}</p>
             <p class="text-[9px] uppercase tracking-wide" style="color: var(--subtext-general);">KPIs</p>
           </div>
+
           <div class="text-center">
             <p class="text-[10px] font-bold" style="color: var(--text-general);">{{ empresa.fechaRegistro }}</p>
             <p class="text-[9px] uppercase tracking-wide" style="color: var(--subtext-general);">Registro</p>
           </div>
+
           <div class="ml-auto">
             <BotonAccion variante="trash" titulo="Eliminar empresa" @click="confirmarEliminacion(empresa)" />
           </div>
