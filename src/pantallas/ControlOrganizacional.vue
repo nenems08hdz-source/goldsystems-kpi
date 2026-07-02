@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { getCurrentInstance } from 'vue'
 import { useOrgStore } from "../stores/orgStore"
 import { useKpiStore } from "../stores/kpiStore"
@@ -11,11 +11,81 @@ import FormField          from '../components/ui/FormField.vue'
 import BotonAccion        from '../components/ui/BotonAccion.vue'
 import EtiquetaBadge      from '../components/ui/EtiquetaBadge.vue'
 import StatusBadge        from '../components/StatusBadge.vue'
+import { useAuthStore } from '../stores/authStore'
 
 
 const store    = useOrgStore()
 const kpiStore = useKpiStore()
 const { proxy } = getCurrentInstance()
+
+const auth = useAuthStore()   //Se agrega useAuthStore para tener acceso al token y al usuario que se esta logueado. Los ref([]) son reactivas ya que se actualiza cada que se cambia de pantalla automáticamente
+const usuarios      = ref([])
+const departamentos = ref([])
+const equipos       = ref([])
+const roles         = ref([])
+
+const empresaActiva = ref({ nombre: '' })
+onMounted(async () => {
+  const headers = { 'Authorization': `Bearer ${auth.token}` }
+
+  const [resUsuarios, resDepts, resEquipos, resRoles] = await Promise.all([  //se ejecuta automáticamente cuando la pantalla se abre.
+    fetch('http://127.0.0.1:8000/api/users',       { headers }),
+    fetch('http://127.0.0.1:8000/api/departments', { headers }),
+    fetch('http://127.0.0.1:8000/api/teams',       { headers }),
+    fetch('http://127.0.0.1:8000/api/roles',       { headers }),
+  ])
+
+  const dataUsuarios = await resUsuarios.json()
+  const dataDepts    = await resDepts.json()
+  const dataEquipos  = await resEquipos.json()
+  const dataRoles    = await resRoles.json()
+
+  usuarios.value      = dataUsuarios
+  departamentos.value = dataDepts
+  equipos.value       = dataEquipos
+  roles.value         = dataRoles
+
+  // Construye el árbol con datos reales de la API
+  const arbol = []
+  // Nodo empresa (nivel 0)
+  arbol.push({
+    id:     `empresa-${auth.user.company_id}`,
+    nombre: auth.user.name + ' Corp',
+    tipo:   'empresa',
+    nivel:  0,  //se toma el nombre del usuario logueado
+    abierto: true
+  })
+
+  // Departamentos (nivel 1), nos muestra cada departamento que devuelve la API
+  dataDepts.forEach(d => {
+    arbol.push({
+      id:          `dept-${d.id}`,
+      nombre:      d.name,
+      tipo:        'departamento',
+      nivel:       1,
+      padre_id:    `empresa-${d.company_id}`,
+      abierto:     true,
+      responsable: d.manager ?? null
+    })
+
+    // Equipos de este departamento (nivel 2), nos muestra los equipos filtrados por department_id para que queden anidados bajo su departamento
+    dataEquipos
+      .filter(e => e.department_id === d.id)
+      .forEach(e => {
+        arbol.push({
+          id:       `equipo-${e.id}`,
+          nombre:   e.name,
+          tipo:     'equipo',
+          nivel:    2,
+          padre_id: `dept-${e.department_id}`,
+          abierto:  false,
+          lider:    e.leader ?? null
+        })
+      })
+  })
+
+  store.estructuraOrganizacional = arbol
+})
 
 // árbol organizacional
 const nodoSeleccionado = ref(null)
@@ -30,14 +100,14 @@ const filtroEstado   = ref('')
 const filtroBusqueda = ref('')
 
 const usuariosFiltrados = computed(() =>
-  store.usuarios.filter(u => {
+  usuarios.value.filter(u => {
     const pasaNodo = !nodoSeleccionado.value ||
-      (nodoSeleccionado.value.tipo === 'departamento' && u.departamento_id === nodoSeleccionado.value.id) ||
-      (nodoSeleccionado.value.tipo === 'equipo'       && u.equipo_id       === nodoSeleccionado.value.id)
-    const pasaRol      = filtroRol.value      === '' || u.rol    === filtroRol.value
-    const pasaEstado   = filtroEstado.value   === '' || u.estado === filtroEstado.value
+      (nodoSeleccionado.value.tipo === 'departamento' && u.department_id === Number(nodoSeleccionado.value.id.split('-')[1])) ||
+      (nodoSeleccionado.value.tipo === 'equipo'       && u.team_id       === Number(nodoSeleccionado.value.id.split('-')[1]))
+    const pasaRol      = filtroRol.value    === '' || u.roles?.[0]?.name === filtroRol.value   //el rol viene como un array de objetos, tomamos el primero
+    const pasaEstado   = filtroEstado.value === '' || u.status           === filtroEstado.value
     const pasaBusqueda = filtroBusqueda.value === '' ||
-      store.nombreCompleto(u).toLowerCase().includes(filtroBusqueda.value.toLowerCase()) ||
+      `${u.name} ${u.paternal} ${u.maternal}`.toLowerCase().includes(filtroBusqueda.value.toLowerCase()) || // sirve para la búsqueda por nombre
       u.email.toLowerCase().includes(filtroBusqueda.value.toLowerCase())
     return pasaNodo && pasaRol && pasaEstado && pasaBusqueda
   })
@@ -46,7 +116,7 @@ const usuariosFiltrados = computed(() =>
 const tituloTabla = computed(() =>
   nodoSeleccionado.value
     ? `Usuarios: ${nodoSeleccionado.value.nombre}`
-    : `Todos los usuarios — ${store.empresaActiva.nombre}`
+    : `Todos los usuarios — ${empresaActiva.value.nombre}`
 )
 
 function limpiarFiltros() {
@@ -82,10 +152,18 @@ function abrirModificarRol(usuario) {
 }
 
 function guardarRol() {
-  const index = store.usuarios.findIndex(u => u.id === usuarioSeleccionado.value.id)
-  if (index !== -1) store.usuarios[index].rol = rolSeleccionado.value
+  async function guardarRol() {
+  await fetch(`http://127.0.0.1:8000/api/users/${usuarioSeleccionado.value.id}`, {
+    method: 'PUT',                                                                  //Llama "PUT /api/users/{id}"" enviando el nuevo rol en el body
+    headers: { 'Authorization': `Bearer ${auth.token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ role: rolSeleccionado.value })
+  })
+  // Actualiza localmente
+  const u = usuarios.value.find(u => u.id === usuarioSeleccionado.value.id)  //se actualiza localmente para que la tabla refleje el cambio sin tener que recargar la página
+  if (u && u.roles?.[0]) u.roles[0].name = rolSeleccionado.value
   proxy.$notify.success('Rol actualizado correctamente', 'Éxito')
   mostrarPanelRol.value = false
+ }
 }
 
 // modal eliminar usuario
@@ -97,17 +175,21 @@ function confirmarEliminacion(usuario) {
   showModal.value = true
 }
 
-function ejecutarEliminacion() {
-  store.usuarios = store.usuarios.filter(u => u.id !== usuarioAEliminar.value.id)
+async function ejecutarEliminacion() {
+  await fetch(`http://127.0.0.1:8000/api/users/${usuarioAEliminar.value.id}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${auth.token}` },
+  })
+  usuarios.value = usuarios.value.filter(u => u.id !== usuarioAEliminar.value.id)
   proxy.$notify.success('Usuario eliminado correctamente', 'Éxito')
   showModal.value = false
 }
 
 // helpers árbol
 function contarUsuarios(nodo) {
-  if (nodo.tipo === 'departamento') return store.usuarios.filter(u => u.departamento_id === nodo.id).length
-  if (nodo.tipo === 'equipo')       return store.usuarios.filter(u => u.equipo_id       === nodo.id).length
-  return store.usuarios.length
+  if (nodo.tipo === 'departamento') return usuarios.value.filter(u => u.department_id === Number(nodo.id.split('-')[1])).length
+  if (nodo.tipo === 'equipo')       return usuarios.value.filter(u => u.team_id       === Number(nodo.id.split('-')[1])).length
+  return usuarios.value.length
 }
 
 function eliminarNodo(nodo) {
@@ -139,8 +221,8 @@ function eliminarNodo(nodo) {
       <FormField label="Rol">
         <select v-model="filtroRol" class="app-select">
           <option value="">Todos los roles</option>
-          <option v-for="rol in store.rolesDisponibles" :key="rol.id" :value="rol.codigo">
-            {{ rol.nombre }}
+          <option v-for="rol in roles" :key="rol.id" :value="rol.name">
+             {{ rol.name }}
           </option>
         </select>
       </FormField>
@@ -223,6 +305,7 @@ function eliminarNodo(nodo) {
                   ? 'background: var(--sidebar-active-bg); color: var(--sidebar-active-text);'
                   : 'background: var(--tabla-borde); color: var(--subtext-general);'"
               >{{ contarUsuarios(nodo) }}</span>
+
               <BotonAccion v-if="nodo.tipo !== 'empresa'"
                 variante="trash"
                 titulo="Eliminar"
@@ -248,7 +331,7 @@ function eliminarNodo(nodo) {
         <div class="flex items-center justify-between mb-2 px-1">
           <p class="text-xs" style="color: var(--card-text-hint);">
             Mostrando <strong style="color: var(--card-text);">{{ usuariosFiltrados.length }}</strong>
-            de <strong style="color: var(--card-text);">{{ store.usuarios.length }}</strong> usuarios
+            de <strong style="color: var(--card-text);">{{ usuarios.length }}</strong> usuarios
             <span v-if="nodoSeleccionado" class="font-semibold" style="color: var(--text-encabezado);">
               — {{ nodoSeleccionado.nombre }}
             </span>
@@ -261,31 +344,33 @@ function eliminarNodo(nodo) {
           :datos="usuariosFiltrados"
           :mostrarAcciones="true"
         >
-          <template #default="{ fila }">
+          <!-- apartado donde todos los registros seran datos reales  -->
+          <template #default="{ fila }"> 
 
-            <td class="p-4 align-middle text-left">
-              <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-[#3f2a52] text-white flex items-center justify-center text-[10px] font-bold shadow-sm flex-shrink-0">
-                  {{ fila.nombre.charAt(0) }}{{ fila.apellidoPaterno.charAt(0) }}
-                </div>
+              <td class="p-4 align-middle text-left">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-[#3f2a52] text-white flex items-center justify-center text-[10px] font-bold shadow-sm flex-shrink-0">
+                      {{ fila.name?.charAt(0) }}{{ fila.paternal?.charAt(0) }}
+                   </div>
                 <div>
-                  <div class="font-bold text-xs leading-none" style="color: var(--text-general);">
-                    {{ store.nombreCompleto(fila) }}
-                  </div>
+                    <div class="font-bold text-xs leading-none" style="color: var(--text-general);">
+                        {{ fila.name }} {{ fila.paternal }} {{ fila.maternal }}
+                     </div>
                   <div class="text-[11px] mt-0.5" style="color: var(--subtext-general);">{{ fila.email }}</div>
-                  <div v-if="fila.telefono" class="text-[10px] mt-0.5" style="color: var(--subtext-general);"> 
-                    {{ fila.telefono }}
-                  </div>
-                </div>
-              </div>
-            </td>
+                      <div v-if="fila.phone" class="text-[10px] mt-0.5" style="color: var(--subtext-general);">
+                          {{ fila.phone }}
+                       </div>
+                   </div>
+                 </div>
+              </td>
 
+         <!--Apartado de roles -->
             <td class="p-4 align-middle text-center">
-              <EtiquetaBadge
-                :texto="store.rolesDisponibles.find(r => r.codigo === fila.rol)?.nombre ?? fila.rol"
-                :clase="store.colorPorRol(fila.rol)"
-              />
-            </td>
+                <EtiquetaBadge
+                    :texto="fila.roles?.[0]?.name ?? '—'"
+                    :clase="store.colorPorRol(fila.roles?.[0]?.name ?? '')"
+                   />
+              </td>
 
             <td class="p-4 align-middle text-left">
               <div class="flex items-center gap-1.5">
@@ -294,12 +379,14 @@ function eliminarNodo(nodo) {
               </div>
             </td>
 
-            <td class="p-4 align-middle text-left">
-              <span class="text-xs" style="color: var(--subtext-general);">{{ fila.ultimoLogin ?? '—' }}</span>
-            </td>
+            <!--apartado del ultimo acceso o inicio de sesion -->
+           <td class="p-4 align-middle text-left">
+              <span class="text-xs" style="color: var(--subtext-general);">{{ fila.last_login?.slice(0,10) ?? '—' }}</span>
+          </td>
 
+          <!--apartado del estado -->
             <td class="p-4 align-middle text-center">
-              <StatusBadge :tipo="fila.estado" />
+              <StatusBadge :tipo="fila.status === 'active' ? 'activo' : fila.status === 'inactive' ? 'bloqueado' : fila.status" />
             </td>
 
           </template>
@@ -326,7 +413,7 @@ function eliminarNodo(nodo) {
             <div>
               <span class="text-[10px] font-black uppercase tracking-wider" style="color: var(--sidebar-active-bg);">KPIs Asignados</span>
               <h3 class="text-lg font-bold leading-tight" style="color: var(--text-encabezado);">
-                {{ store.nombreCompleto(usuarioSeleccionado) }}
+                {{ usuarioSeleccionado?.name }} {{ usuarioSeleccionado?.paternal }}
               </h3>
               <p class="text-xs mt-0.5" style="color: var(--subtext-general);">{{ usuarioSeleccionado?.email }}</p>
             </div>
@@ -378,7 +465,7 @@ function eliminarNodo(nodo) {
           <div>
             <h3 class="text-lg font-bold" style="color: var(--text-encabezado);">Modificar Rol</h3>
             <p class="text-xs mt-0.5" style="color: var(--subtext-general);">
-              {{ store.nombreCompleto(usuarioSeleccionado) }}
+              {{ usuarioSeleccionado?.name }} {{ usuarioSeleccionado?.paternal }}
             </p>
           </div>
           <BotonAccion variante="close" titulo="Cerrar" @click="mostrarPanelRol = false" />

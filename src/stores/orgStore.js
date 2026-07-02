@@ -19,6 +19,7 @@ export const useOrgStore = defineStore('orgStore', () => {
     email: 'contacto@kpi360.com',
     telefono: '+52 999 000 0001',
     estado: 'activo',
+    logo: null, // ← agrega esta línea
   })
 
   const estructuraOrganizacional = ref([
@@ -67,6 +68,7 @@ export const useOrgStore = defineStore('orgStore', () => {
       usuarios: 8,
       kpis: 8,
       fechaRegistro: '2024-01-15',
+      logo: null, // ← agrega esta línea
     },
     {
       id: 2,
@@ -80,6 +82,7 @@ export const useOrgStore = defineStore('orgStore', () => {
       usuarios: 15,
       kpis: 22,
       fechaRegistro: '2024-03-10',
+      logo: null, // ← agrega esta línea
     },
     {
       id: 3,
@@ -93,6 +96,7 @@ export const useOrgStore = defineStore('orgStore', () => {
       usuarios: 3,
       kpis: 5,
       fechaRegistro: '2023-08-22',
+      logo: null, // ← agrega esta línea
     },
   ])
 
