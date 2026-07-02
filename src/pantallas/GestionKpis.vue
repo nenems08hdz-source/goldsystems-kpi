@@ -1,7 +1,9 @@
 <script setup>
-import { ref, computed } from 'vue'
+// ── Imports ───────────────────────────────────────────────────────────────────
+import { ref, computed, onMounted } from 'vue'
 import { getCurrentInstance } from 'vue'
-import { useKpiStore } from '../stores/kpiStore'
+import { useAuthStore } from '../stores/authStore'   // para obtener el token
+import { useKpiStore } from '../stores/kpiStore'     // para usar calcularEstado()
 import plantillatabla     from '../components/PlantillaTabla.vue'
 import tarjetasestado     from '../components/TarjetasEstado.vue'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
@@ -12,18 +14,82 @@ import FormField          from '../components/ui/FormField.vue'
 import BotonAccion        from '../components/ui/BotonAccion.vue'
 import EtiquetaBadge      from '../components/ui/EtiquetaBadge.vue'
 
-
 const { proxy } = getCurrentInstance()
 const store = useKpiStore()
+const auth  = useAuthStore()
 
+// ── Mapeos API → Display ──────────────────────────────────────────────────────
+// La API guarda los tipos en inglés (percentage, money...)
+// pero el frontend los muestra en español (Porcentaje, Monetario...)
+const tipoMap = {
+  percentage: 'Porcentaje',
+  money:      'Monetario',
+  time:       'Tiempo',
+  absolute:   'Puntaje',
+  custom:     'Puntaje',
+}
+
+// Lo mismo para la frecuencia/periodicidad
+const frecuenciaMap = {
+  daily:     'Diario',
+  weekly:    'Semanal',
+  monthly:   'Mensual',
+  quarterly: 'Trimestral',
+  annual:    'Anual',
+}
+
+// ── Variable reactiva principal ───────────────────────────────────────────────
+// Aquí se guardarán los KPIs que vengan de la API
+const kpis = ref([])
+
+// ── Carga de datos al abrir la pantalla ──────────────────────────────────────
+onMounted(async () => {
+  const headers = { 'Authorization': `Bearer ${auth.token}` }
+
+  // Petición GET a la API (con departamento, creador y último registro incluidos)
+  const res  = await fetch('http://127.0.0.1:8000/api/kpis', { headers })
+  const data = await res.json()
+
+  // Transformamos cada KPI de la API al formato que usa el template
+  kpis.value = data.map(k => {
+    // El último registro es el valor más reciente capturado para este KPI
+    const ultimoRecord = k.latest_record
+    const progreso     = ultimoRecord ? Number(ultimoRecord.value) : 0
+
+    // calcularEstado() devuelve si el KPI está saludable, en riesgo o crítico
+    const { traffic_light, estado, estadoTipo } = store.calcularEstado(progreso)
+
+    return {
+      id:                  k.id,
+      nombre:              k.name,
+      subtitulo:           k.subtitle ?? k.name,
+      formula:             k.formula ?? '—',
+      tipoMetrica:         tipoMap[k.type]             ?? k.type,
+      periodicidad:        frecuenciaMap[k.frequency]  ?? k.frequency,
+      departamento:        k.department?.name          ?? '—',
+      responsable:         k.creator
+                            ? `${k.creator.name} ${k.creator.paternal ?? ''}`.trim()
+                            : '—',
+      meta:                k.goal ? `${k.goal} ${k.unit ?? ''}`.trim() : '—',
+      progreso,
+      traffic_light,
+      estado,
+      estadoTipo,
+      ultimaActualizacion: ultimoRecord?.period_start ?? '—',
+    }
+  })
+})
+
+// ── Filtros ───────────────────────────────────────────────────────────────────
 const filtroDepartamento = ref('')
 const filtroTipoMetrica  = ref('')
 const filtroEstado       = ref('')
 const filtroPeriodicidad = ref('')
 const filtroBusqueda     = ref('')
 
+// Filtra los KPIs según lo que el usuario seleccione en los dropdowns
 const indicadoresFiltrados = computed(() =>
-  store.indicadores.filter(ind => {
+  kpis.value.filter(ind => {
     const pasaDepartamento = filtroDepartamento.value === '' || ind.departamento === filtroDepartamento.value
     const pasaTipoMetrica  = filtroTipoMetrica.value  === '' || ind.tipoMetrica  === filtroTipoMetrica.value
     const pasaEstado       = filtroEstado.value       === '' || ind.estadoTipo   === filtroEstado.value
@@ -35,12 +101,26 @@ const indicadoresFiltrados = computed(() =>
   })
 )
 
+// ── Contadores para las tarjetas de estado ────────────────────────────────────
+const contadorEstados = computed(() => ({
+  saludables: kpis.value.filter(i => i.estadoTipo === 'success').length,
+  alerta:     kpis.value.filter(i => i.estadoTipo === 'warning').length,
+  criticos:   kpis.value.filter(i => i.estadoTipo === 'danger').length,
+}))
+
+// Porcentaje de KPIs saludables sobre el total
 const eficienciaPlanta = computed(() => {
-  const total = store.indicadores.length
+  const total = kpis.value.length
   if (total === 0) return 0
-  return Math.round((store.contadorEstados.saludables / total) * 100)
+  return Math.round((contadorEstados.value.saludables / total) * 100)
 })
 
+// Opciones únicas para los dropdowns (se generan desde los datos reales de la API)
+const departamentos  = computed(() => [...new Set(kpis.value.map(i => i.departamento))])
+const tiposMetrica   = computed(() => [...new Set(kpis.value.map(i => i.tipoMetrica))])
+const periodicidades = computed(() => [...new Set(kpis.value.map(i => i.periodicidad))])
+
+// Resetea todos los filtros
 function limpiarFiltros() {
   filtroDepartamento.value = ''
   filtroTipoMetrica.value  = ''
@@ -49,22 +129,29 @@ function limpiarFiltros() {
   filtroBusqueda.value     = ''
 }
 
+// Devuelve la unidad según el tipo de métrica
 function unidadPorTipo(tipoMetrica) {
   const unidades = { 'Porcentaje': '%', 'Monetario': '$', 'Tiempo': 'ms', 'Puntaje': 'pts' }
   return unidades[tipoMetrica] ?? ''
 }
 
-// modal eliminar
+// ── Eliminar KPI ──────────────────────────────────────────────────────────────
 const showModal    = ref(false)
 const kpiAEliminar = ref(null)
 
+// Guarda el KPI a eliminar y abre el modal de confirmación
 function prepararEliminacion(kpi) {
   kpiAEliminar.value = kpi
   showModal.value = true
 }
 
-function ejecutarEliminacion() {
-  store.indicadores = store.indicadores.filter(i => i.id !== kpiAEliminar.value.id)
+// Llama a la API para eliminar y quita el KPI de la lista local
+async function ejecutarEliminacion() {
+  await fetch(`http://127.0.0.1:8000/api/kpis/${kpiAEliminar.value.id}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${auth.token}` },
+  })
+  kpis.value = kpis.value.filter(i => i.id !== kpiAEliminar.value.id)
   proxy.$notify.success('El KPI ha sido eliminado correctamente', 'Éxito')
   showModal.value = false
 }
@@ -79,9 +166,9 @@ function ejecutarEliminacion() {
     />
 
     <tarjetasestado
-      :saludables="store.contadorEstados.saludables"
-      :alerta="store.contadorEstados.alerta"
-      :criticos="store.contadorEstados.criticos"
+      :saludables="contadorEstados.saludables"
+      :alerta="contadorEstados.alerta"
+      :criticos="contadorEstados.criticos"
       :eficiencia="eficienciaPlanta"
     />
 
@@ -95,21 +182,21 @@ function ejecutarEliminacion() {
       <FormField label="Departamento">
         <select v-model="filtroDepartamento" class="app-select">
           <option value="">Todos</option>
-          <option v-for="dep in store.departamentos" :key="dep" :value="dep">{{ dep }}</option>
+          <option v-for="dep in departamentos" :key="dep" :value="dep">{{ dep }}</option>
         </select>
       </FormField>
 
       <FormField label="Tipo de Métrica">
         <select v-model="filtroTipoMetrica" class="app-select">
           <option value="">Todos</option>
-          <option v-for="tipo in store.tiposMetrica" :key="tipo" :value="tipo">{{ tipo }}</option>
+          <option v-for="tipo in tiposMetrica" :key="tipo" :value="tipo">{{ tipo }}</option>
         </select>
       </FormField>
 
       <FormField label="Periodicidad">
         <select v-model="filtroPeriodicidad" class="app-select">
           <option value="">Todas</option>
-          <option v-for="per in store.periodicidades" :key="per" :value="per">{{ per }}</option>
+          <option v-for="per in periodicidades" :key="per" :value="per">{{ per }}</option>
         </select>
       </FormField>
 
@@ -131,7 +218,7 @@ function ejecutarEliminacion() {
     <div class="flex items-center justify-between mt-4 mb-1 px-1">
       <p class="text-xs" style="color: var(--subtext-general);">
         Mostrando <strong style="color: var(--text-general);">{{ indicadoresFiltrados.length }}</strong>
-        de <strong style="color: var(--text-general);">{{ store.indicadores.length }}</strong> KPIs
+        de <strong style="color: var(--text-general);">{{ kpis.length }}</strong> KPIs
       </p>
       <p v-if="indicadoresFiltrados.length === 0" class="text-xs text-amber-500 font-semibold">
         Sin resultados para los filtros aplicados

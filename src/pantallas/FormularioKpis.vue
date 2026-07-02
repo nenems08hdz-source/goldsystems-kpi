@@ -1,9 +1,10 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getCurrentInstance } from 'vue'
 import { useKpiStore } from '../stores/kpiStore'
 import { useOrgStore } from '../stores/orgStore'
+import { useAuthStore } from '../stores/authStore'
 import AppButton          from '@/components/ui/AppButton.vue'
 import AppInput           from '@/components/ui/AppInput.vue'
 import AppSelect          from '@/components/ui/AppSelect.vue'
@@ -12,8 +13,21 @@ import EncabezadoPantalla from '@/components/EncabezadoPantalla.vue'
 
 const router   = useRouter()
 const store    = useKpiStore()
-const orgStore = useOrgStore()
 const { proxy } = getCurrentInstance()
+const orgStore = useOrgStore()
+const auth = useAuthStore()
+const departamentosApi = ref([])
+const usuariosApi      = ref([])
+
+onMounted(async () => {
+  const headers = { 'Authorization': `Bearer ${auth.token}` }
+  const [resDepts, resUsuarios] = await Promise.all([
+    fetch('http://127.0.0.1:8000/api/departments', { headers }),
+    fetch('http://127.0.0.1:8000/api/users',       { headers }),
+  ])
+  departamentosApi.value = await resDepts.json()
+  usuariosApi.value      = await resUsuarios.json()
+})
 
 const nuevoKpi = ref({
   nombre:          '',
@@ -35,29 +49,32 @@ const nuevoKpi = ref({
   company_id:      1,
 })
 
-const opcionesDepartamentos = orgStore.estructuraOrganizacional
-  .filter(n => n.tipo === 'departamento')
-  .map(d => ({ value: d.id, label: d.nombre }))
+// Departamentos desde la API
+const opcionesDepartamentos = computed(() =>
+  departamentosApi.value.map(d => ({ value: d.id, label: d.name }))
+)
 
+// Equipos filtrados por departamento seleccionado
 const opcionesEquipos = computed(() => {
   if (!nuevoKpi.value.departamento_id) return []
   const deptId = Number(nuevoKpi.value.departamento_id)
-  return orgStore.estructuraOrganizacional
-    .filter(n => n.tipo === 'equipo' && n.padre_id === deptId)
-    .map(e => ({ value: e.id, label: e.nombre }))
+  return usuariosApi.value
+    .filter(u => u.team_id && u.department_id === deptId)
+    .map(u => ({ value: u.team_id, label: `Equipo ${u.team_id}` }))
 })
 
+// Responsables filtrados por departamento/equipo seleccionado
 const opcionesResponsable = computed(() => {
   const deptId   = nuevoKpi.value.departamento_id ? Number(nuevoKpi.value.departamento_id) : null
   const equipoId = nuevoKpi.value.equipo_id       ? Number(nuevoKpi.value.equipo_id)       : null
 
-  return orgStore.usuarios
+  return usuariosApi.value
     .filter(u => {
-      if (equipoId) return u.equipo_id   === equipoId
-      if (deptId)   return u.departamento_id === deptId
+      if (equipoId) return u.team_id       === equipoId
+      if (deptId)   return u.department_id === deptId
       return true
     })
-    .map(u => ({ value: u.id, label: orgStore.nombreCompleto(u) }))
+    .map(u => ({ value: u.id, label: `${u.name} ${u.paternal ?? ''}`.trim() }))
 })
 
 function onDepartamentoChange() {
@@ -76,64 +93,73 @@ const unidadPorTipo = {
   'Puntaje':    'pts',
 }
 
-function guardarKpi() {
-  const deptId   = Number(nuevoKpi.value.departamento_id)
-  const uidNum   = Number(nuevoKpi.value.usuario_id)
-  const progreso = Number(nuevoKpi.value.progreso)
+async function guardarKpi() {
+  // Mapeo de valores display → valores que acepta la API
+  const tipoApiMap = {
+    'Porcentaje': 'percentage',
+    'Monetario':  'money',
+    'Tiempo':     'time',
+    'Puntaje':    'absolute',
+  }
 
-  const deptNombre     = orgStore.estructuraOrganizacional.find(n => n.id === deptId)?.nombre ?? ''
-  const usuarioElegido = orgStore.usuarios.find(u => u.id === uidNum)
-  const { traffic_light, estado, estadoTipo } = store.calcularEstado(progreso)
+  const frecuenciaApiMap = {
+    'Diario':     'daily',
+    'Semanal':    'weekly',
+    'Mensual':    'monthly',
+    'Trimestral': 'quarterly',
+    'Anual':      'annual',
+  }
 
-  const kpiNuevo = {
-    // ── BD fields ──
-    id:            store.indicadores.length + 1,
-    nombre:        nuevoKpi.value.nombre,
-    subtitulo:     nuevoKpi.value.subtitulo || nuevoKpi.value.nombre,
+  // Objeto con los campos que espera la API
+  const payload = {
+    name:          nuevoKpi.value.nombre,
+    subtitle:      nuevoKpi.value.subtitulo || nuevoKpi.value.nombre,
     formula:       nuevoKpi.value.formula,
-    tipoMetrica:   nuevoKpi.value.tipoMetrica,
-    periodicidad:  nuevoKpi.value.periodicidad,
-    goal:          nuevoKpi.value.goal !== null ? Number(nuevoKpi.value.goal) : progreso,
-    unit:          unidadPorTipo[nuevoKpi.value.tipoMetrica] ?? '%',
-    minimum:       nuevoKpi.value.minimum !== null ? Number(nuevoKpi.value.minimum) : 0,
-    maximum:       nuevoKpi.value.maximum !== null ? Number(nuevoKpi.value.maximum) : 100,
+    type:          tipoApiMap[nuevoKpi.value.tipoMetrica],
+    frequency:     frecuenciaApiMap[nuevoKpi.value.periodicidad],
+    goal:          nuevoKpi.value.goal    ? Number(nuevoKpi.value.goal)    : null,
+    minimum:       nuevoKpi.value.minimum ? Number(nuevoKpi.value.minimum) : null,
+    maximum:       nuevoKpi.value.maximum ? Number(nuevoKpi.value.maximum) : null,
+    unit:          nuevoKpi.value.unit,
     weight:        Number(nuevoKpi.value.weight),
     status:        'active',
-    department_id: deptId || null,
-    company_id:    nuevoKpi.value.company_id,
-    created_by:    orgStore.usuarioActual.id,
-    user_id:       uidNum || null,
-    // ── Display / calculados ──
-    meta:                nuevoKpi.value.meta,
-    objetivo:            nuevoKpi.value.meta,
-    departamento:        deptNombre,
-    responsable:         usuarioElegido ? orgStore.nombreCompleto(usuarioElegido) : '',
-    progreso,
-    traffic_light,
-    estado,
-    estadoTipo,
-    tendencia:           'estable',
-    ultimaActualizacion: new Date().toISOString().split('T')[0],
-    historial:           [progreso],
-    etiquetasHistorial:  ['Inicio'],
-    graficasCompatibles: ['linea', 'barras'],
+    company_id:    auth.user.company_id,
+    department_id: nuevoKpi.value.departamento_id ? Number(nuevoKpi.value.departamento_id) : null,
+    created_by:    auth.user.id,
   }
 
-  store.indicadores.push(kpiNuevo)
+  const res = await fetch('http://127.0.0.1:8000/api/kpis', {
+    method:  'POST',
+    headers: {
+      'Authorization': `Bearer ${auth.token}`,
+      'Content-Type':  'application/json',
+    },
+    body: JSON.stringify(payload),
+  })
 
-  if (uidNum) {
-    store.kpisAsignados.push({
-      id:            store.kpisAsignados.length + 1,
-      kpi_id:        kpiNuevo.id,
-      user_id:       uidNum,
-      department_id: deptId || null,
-      team_id:       nuevoKpi.value.equipo_id ? Number(nuevoKpi.value.equipo_id) : null,
-      start_date:    new Date().toISOString().split('T')[0],
-      end_date:      null,
-      status:        'active',
+  const kpiCreado = await res.json()
+
+  if (!res.ok) {
+    proxy.$notify.error('Error al guardar el KPI', 'Error')
+    return
+  }
+
+  // Si hay valor inicial, guardarlo como primer registro
+  if (nuevoKpi.value.progreso > 0) {
+    await fetch('http://127.0.0.1:8000/api/kpi-records', {
+    method:  'POST',
+    headers: {
+      'Authorization': `Bearer ${auth.token}`,
+      'Content-Type':  'application/json',
+    },
+      body: JSON.stringify({
+        kpi_id:       kpiCreado.id,
+        value:        Number(nuevoKpi.value.progreso),
+        period_start: new Date().toISOString().split('T')[0],
+        captured_by:  auth.user.id,
+      }),
     })
   }
-
   proxy.$notify.success('KPI registrado correctamente', 'Éxito')
   router.push('/kpis')
 }
