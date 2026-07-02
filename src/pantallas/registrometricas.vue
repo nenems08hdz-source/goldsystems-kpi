@@ -1,5 +1,6 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useAuthStore } from '../stores/authStore'
 import { getCurrentInstance } from 'vue'
 import { useKpiStore }  from '../stores/kpiStore'
 import { useOrgStore }  from '../stores/orgStore'
@@ -14,7 +15,15 @@ const emit = defineEmits(['guardado', 'cancelar'])
 
 const store    = useKpiStore()
 const orgStore = useOrgStore()
-const { proxy } = getCurrentInstance()
+const auth     = useAuthStore()
+const capturas = ref([])
+
+onMounted(async () => {
+  const res = await fetch(`http://127.0.0.1:8000/api/kpi-records?kpi_id=${props.kpi.id}`, {
+    headers: { 'Authorization': `Bearer ${auth.token}` }
+  })
+  capturas.value = await res.json()
+})
 
 const form = ref({
   period_start: '',
@@ -43,8 +52,9 @@ const textoAyudaFecha = computed(() => {
   }
   return textos[props.kpi.periodicidad] ?? 'Selecciona la fecha de corte del registro.'
 })
-
-function guardarMetrica() {
+ //funcion para guardar los datos en la base real 
+ 
+async function guardarMetrica() {
   if (!form.value.period_start) {
     errorMensaje.value = 'La fecha de corte es obligatoria.'
     return
@@ -53,6 +63,35 @@ function guardarMetrica() {
     errorMensaje.value = 'El valor registrado debe ser un número.'
     return
   }
+
+  const res = await fetch('http://127.0.0.1:8000/api/kpi-records', {
+    method:  'POST',
+    headers: {
+      'Authorization': `Bearer ${auth.token}`,
+      'Content-Type':  'application/json',
+    },
+    body: JSON.stringify({
+      kpi_id:       props.kpi.id,
+      captured_by:  auth.user.id,
+      value:        Number(form.value.value),
+      period_start: form.value.period_start,
+      notes:        form.value.notes || null,
+    }),
+  })
+
+  if (!res.ok) {
+    errorMensaje.value = 'Error al guardar. Intenta de nuevo.'
+    return
+  }
+
+  const nueva = await res.json()
+  capturas.value.unshift(nueva)
+
+  proxy.$notify.success(`Métrica registrada para "${props.kpi.nombre}"`, 'Guardado')
+  form.value = { period_start: '', value: '', notes: '' }
+  errorMensaje.value = ''
+  emit('guardado')
+}
 
   store.registrarCaptura({
     kpi_id:           props.kpi.id,
@@ -68,7 +107,7 @@ function guardarMetrica() {
   form.value = { period_start: '', value: '', notes: '' }
   errorMensaje.value = ''
   emit('guardado')
-}
+
 </script>
 
 <template>
@@ -177,7 +216,7 @@ function guardarMetrica() {
       </div>
     </div>
 
-    <div v-if="store.capturasPorKpi(kpi.id).length > 0"
+    <div v-if="capturas.length > 0"
       class="rounded-xl shadow-md mt-4 overflow-hidden"
       style="background: var(--card-bg); border: 1px solid var(--tabla-borde);">
       <div class="p-4" style="background: var(--tabla-header-bg); border-bottom: 1px solid var(--tabla-borde);">
@@ -187,7 +226,7 @@ function guardarMetrica() {
       </div>
       <div>
         <div
-          v-for="captura in store.capturasPorKpi(kpi.id).slice().reverse()"
+          v-for="captura in capturas"
           :key="captura.id"
           class="flex items-center justify-between px-4 py-3 transition-colors"
           style="border-bottom: 1px solid var(--tabla-borde);"

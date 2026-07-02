@@ -1,7 +1,8 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { useUiStore }  from '../stores/uiStore'
-import { useKpiStore } from '../stores/kpiStore'
+import { useUiStore }    from '../stores/uiStore'
+import { useKpiStore }   from '../stores/kpiStore'
+import { useAuthStore }  from '../stores/authStore'
 import EncabezadoPantalla     from '../components/EncabezadoPantalla.vue'
 import GraficaKpiEspecifica   from '../components/GraficaKpiEspecifica.vue'
 import MedidorKpi             from '../components/MedidorKpi.vue'
@@ -14,11 +15,13 @@ import AppButton              from '../components/ui/AppButton.vue'
 
 const store    = useUiStore()
 const kpiStore = useKpiStore()
+const auth = useAuthStore()
+const kpis = ref([])
 
 const listoPararenderizar = ref(false)
 const IDS_ESPERADOS = ['tarjetas', 'graficas', 'criticos', 'detalle']
 
-onMounted(() => {
+onMounted(async () => {
   store.cargarOrden()
   const idsGuardados = store.widgets.map(w => w.id)
   const ordenValido  = IDS_ESPERADOS.every(id => idsGuardados.includes(id))
@@ -28,13 +31,37 @@ onMounted(() => {
   }
   store.cargarPreferencias()
   setTimeout(() => { listoPararenderizar.value = true }, 50)
+  const tipoMap      = { percentage: 'Porcentaje', money: 'Monetario', time: 'Tiempo', absolute: 'Puntaje', custom: 'Puntaje' }
+  const frecuenciaMap = { daily: 'Diario', weekly: 'Semanal', monthly: 'Mensual', quarterly: 'Trimestral', annual: 'Anual' }
+
+  const res  = await fetch('http://127.0.0.1:8000/api/kpis', {
+    headers: { 'Authorization': `Bearer ${auth.token}` }
+  })
+  const data = await res.json()
+
+  kpis.value = data.map(k => {
+    const progreso = k.latest_record ? Number(k.latest_record.value) : 0
+    const { estado, estadoTipo } = kpiStore.calcularEstado(progreso)
+    return {
+      id:           k.id,
+      nombre:       k.name,
+      subtitulo:    k.subtitle ?? k.name,
+      departamento: k.department?.name ?? '—',
+      responsable:  k.creator ? `${k.creator.name} ${k.creator.paternal ?? ''}`.trim() : '—',
+      objetivo:     k.goal ? `${k.goal} ${k.unit ?? ''}`.trim() : '—',
+      periodicidad: frecuenciaMap[k.frequency] ?? k.frequency,
+      progreso,
+      estado,
+      estadoTipo,
+    }
+  })
 })
 
 const ordenWidgets  = computed(() => store.widgets.map(w => w.id))
-const kpisResumen   = computed(() => store.indicadoresActivos)
-const kpisDetalle   = computed(() => kpiStore.indicadores)
-const kpisCriticas  = computed(() =>
-  kpiStore.indicadores.filter(i => i.estadoTipo === 'danger' || i.estadoTipo === 'warning')
+const kpisResumen  = computed(() => kpis.value)
+const kpisDetalle  = computed(() => kpis.value)
+const kpisCriticas = computed(() =>
+  kpis.value.filter(i => i.estadoTipo === 'danger' || i.estadoTipo === 'warning')
 )
 
 const cabecerasDetalle  = ['Departamento', 'Periodicidad', 'Objetivo', 'Progreso', 'Estado']

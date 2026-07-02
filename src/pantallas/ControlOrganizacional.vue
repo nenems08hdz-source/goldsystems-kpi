@@ -17,16 +17,29 @@ import { useAuthStore } from '../stores/authStore'
 const store    = useOrgStore()
 const kpiStore = useKpiStore()
 const { proxy } = getCurrentInstance()
+const auth     = useAuthStore()
 
-onMounted(() => {
+// ── Datos de la API ───────────────────────────────────────────────────────────
+const usuarios = ref([])
+const roles    = ref([])
+
+onMounted(async () => {
   store.cargarTodo()
+  const headers = { 'Authorization': `Bearer ${auth.token}` }
+  const [resUsers, resRoles] = await Promise.all([
+    fetch('http://127.0.0.1:8000/api/users', { headers }),
+    fetch('http://127.0.0.1:8000/api/roles', { headers }),
+  ])
+  usuarios.value = await resUsers.json()
+  roles.value    = await resRoles.json()
 })
 
 // árbol organizacional
 const nodoSeleccionado = ref(null)
 
 function seleccionarNodo(nodo) {
-  nodoSeleccionado.value = nodoSeleccionado.value?.id === nodo.id ? null : nodo
+  // comparamos por uid para evitar colisión entre dept y equipo con mismo id numérico
+  nodoSeleccionado.value = nodoSeleccionado.value?.uid === nodo.uid ? null : nodo
 }
 
 // filtros
@@ -36,6 +49,8 @@ const filtroBusqueda = ref('')
 
 const usuariosFiltrados = computed(() =>
   usuarios.value.filter(u => {
+    // nodo.id tiene prefijo ("dept-1", "equipo-2") → extraemos solo el número
+    // nodo.id ya es número en el orgStore actual
     const pasaNodo = !nodoSeleccionado.value ||
       (nodoSeleccionado.value.tipo === 'departamento' && u.department_id === nodoSeleccionado.value.id) ||
       (nodoSeleccionado.value.tipo === 'equipo'       && u.team_id       === nodoSeleccionado.value.id)
@@ -81,24 +96,25 @@ const rolSeleccionado = ref('')
 
 function abrirModificarRol(usuario) {
   usuarioSeleccionado.value = usuario
-  rolSeleccionado.value     = usuario.rol
+  rolSeleccionado.value     = usuario.roles?.[0]?.name ?? ''  // usa el rol real de la API
   mostrarPanelKpis.value = false
   mostrarPanelRol.value  = true
 }
 
-function guardarRol() {
-  async function guardarRol() {
+async function guardarRol() {
   await fetch(`http://127.0.0.1:8000/api/users/${usuarioSeleccionado.value.id}`, {
-    method: 'PUT',                                                                  //Llama "PUT /api/users/{id}"" enviando el nuevo rol en el body
+    method:  'PUT',
     headers: { 'Authorization': `Bearer ${auth.token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ role: rolSeleccionado.value })
+    body:    JSON.stringify({ role: rolSeleccionado.value })
   })
-  // Actualiza localmente
-  const u = usuarios.value.find(u => u.id === usuarioSeleccionado.value.id)  //se actualiza localmente para que la tabla refleje el cambio sin tener que recargar la página
-  if (u && u.roles?.[0]) u.roles[0].name = rolSeleccionado.value
+  // Actualiza localmente para que la tabla refleje el cambio sin recargar
+  const u = usuarios.value.find(u => u.id === usuarioSeleccionado.value.id)
+  if (u) {
+    if (!u.roles) u.roles = [{}]
+    u.roles[0] = { ...u.roles[0], name: rolSeleccionado.value }
+  }
   proxy.$notify.success('Rol actualizado correctamente', 'Éxito')
   mostrarPanelRol.value = false
- }
 }
 
 // modal eliminar usuario
@@ -122,8 +138,9 @@ async function ejecutarEliminacion() {
 
 // helpers árbol
 function contarUsuarios(nodo) {
-  if (nodo.tipo === 'departamento') return usuarios.value.filter(u => u.department_id === Number(nodo.id.split('-')[1])).length
-  if (nodo.tipo === 'equipo')       return usuarios.value.filter(u => u.team_id       === Number(nodo.id.split('-')[1])).length
+  // nodo.id es número directo desde el orgStore
+  if (nodo.tipo === 'departamento') return usuarios.value.filter(u => u.department_id === nodo.id).length
+  if (nodo.tipo === 'equipo')       return usuarios.value.filter(u => u.team_id       === nodo.id).length
   return usuarios.value.length
 }
 
@@ -165,9 +182,8 @@ function eliminarNodo(nodo) {
       <FormField label="Estado">
         <select v-model="filtroEstado" class="app-select">
           <option value="">Todos</option>
-          <option value="activo">Activo</option>
-          <option value="ausente">Ausente</option>
-          <option value="bloqueado">Bloqueado</option>
+          <option value="active">Activo</option>
+          <option value="inactive">Inactivo</option>
         </select>
       </FormField>
 
@@ -200,13 +216,13 @@ function eliminarNodo(nodo) {
             class="group flex items-center justify-between p-2.5 rounded-xl transition-all duration-200 relative"
             :class="[
               nodo.tipo !== 'empresa' ? 'cursor-pointer' : 'cursor-default',
-              nodoSeleccionado?.id === nodo.id ? 'ring-1 ring-[#3f2a52]/20' : ''
+              nodoSeleccionado?.uid === nodo.uid ? 'ring-1 ring-[#3f2a52]/20' : ''
             ]"
             @click="nodo.tipo !== 'empresa' && seleccionarNodo(nodo)"
             @mouseover="nodo.tipo !== 'empresa' && $event.currentTarget.style.setProperty('background', 'var(--tabla-hover)')"
-            @mouseleave="$event.currentTarget.style.setProperty('background', nodoSeleccionado?.id === nodo.id ? 'var(--tabla-hover)' : 'transparent')"
+            @mouseleave="$event.currentTarget.style.setProperty('background', nodoSeleccionado?.uid === nodo.uid ? 'var(--tabla-hover)' : 'transparent')"
           >
-            <div v-if="nodoSeleccionado?.id === nodo.id"
+            <div v-if="nodoSeleccionado?.uid === nodo.uid"
               class="absolute left-0 top-2 bottom-2 w-1 bg-[#3f2a52] rounded-r-md"></div>
 
             <div class="flex items-center gap-2.5 text-xs">
@@ -236,7 +252,7 @@ function eliminarNodo(nodo) {
             <div class="flex items-center gap-1.5 flex-shrink-0">
               <span v-if="nodo.tipo !== 'empresa'"
                 class="text-[9px] px-2 py-0.5 rounded-md font-black tracking-wider"
-                :style="nodoSeleccionado?.id === nodo.id
+                :style="nodoSeleccionado?.uid === nodo.uid
                   ? 'background: var(--sidebar-active-bg); color: var(--sidebar-active-text);'
                   : 'background: var(--tabla-borde); color: var(--subtext-general);'"
               >{{ contarUsuarios(nodo) }}</span>
@@ -409,24 +425,20 @@ function eliminarNodo(nodo) {
             Selecciona el nuevo rol
           </label>
           <div class="flex flex-col gap-2">
-            <div v-for="rol in store.rolesDisponibles" :key="rol.id"
-              @click="rol.eliminable && (rolSeleccionado = rol.codigo)"
-              class="flex items-start gap-3 p-3 rounded-lg transition-all"
-              :style="rol.codigo === rolSeleccionado
+            <div v-for="rol in roles" :key="rol.id"
+              @click="rolSeleccionado = rol.name"
+              class="flex items-start gap-3 p-3 rounded-lg transition-all cursor-pointer"
+              :style="rol.name === rolSeleccionado
                 ? 'border: 1px solid var(--sidebar-active-bg); background: var(--tabla-hover);'
                 : 'border: 1px solid var(--tabla-borde);'"
-              :class="!rol.eliminable ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'"
             >
               <div class="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5"
-                :style="rol.codigo === rolSeleccionado ? 'border-color: var(--sidebar-active-bg)' : 'border-color: var(--subtext-general)'">
-                <div v-if="rol.codigo === rolSeleccionado" class="w-2 h-2 rounded-full" style="background: var(--sidebar-active-bg);"></div>
+                :style="rol.name === rolSeleccionado ? 'border-color: var(--sidebar-active-bg)' : 'border-color: var(--subtext-general)'">
+                <div v-if="rol.name === rolSeleccionado" class="w-2 h-2 rounded-full" style="background: var(--sidebar-active-bg);"></div>
               </div>
               <div>
-                <p class="text-xs font-semibold" style="color: var(--text-general);">
-                  {{ rol.nombre }}
-                  <span v-if="!rol.eliminable" class="text-[9px] ml-1" style="color: var(--subtext-general);">(no asignable)</span>
-                </p>
-                <p class="text-[10px] mt-0.5" style="color: var(--subtext-general);">{{ rol.descripcion }}</p>
+                <p class="text-xs font-semibold" style="color: var(--text-general);">{{ rol.name }}</p>
+                <p class="text-[10px] mt-0.5" style="color: var(--subtext-general);">{{ rol.description ?? '' }}</p>
               </div>
             </div>
           </div>

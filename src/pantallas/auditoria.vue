@@ -1,5 +1,6 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useAuthStore } from '../stores/authStore'
 import plantillatabla     from '../components/PlantillaTabla.vue'
 import tarjetasresumen    from '../components/TarjetasResumen.vue'
 import EncabezadoPantalla from '@/components/EncabezadoPantalla.vue'
@@ -7,48 +8,30 @@ import EtiquetaBadge      from '../components/ui/EtiquetaBadge.vue'
 import StatusBadge        from '../components/StatusBadge.vue'
 import AppButton          from '../components/ui/AppButton.vue'
 import BotonAccion        from '../components/ui/BotonAccion.vue'
-const misEventos = ref([
-  {
-    id: 1,
-    usuario: "Alejandro Ruiz",
-    correo: "a.ruiz@kpi360.com",
-    accion: "Modificar Umbral KPI",
-    modulo: "FINANZAS",
-    detalle: "Cambio de 12.5% a 15.0% en margen o...",
-    fecha: "24 May 2026, 14:32:10",
-    estado: "Exitosa"
-  },
-  {
-    id: 2,
-    usuario: "Maria Castro",
-    correo: "m.castro@kpi360.com",
-    accion: "Acceso al Sistema",
-    modulo: "SEGURIDAD",
-    detalle: "Inicio de sesión desde entorno web institucional",
-    fecha: "24 May 2026, 14:15:04",
-    estado: "Exitosa"
-  },
-  {
-    id: 3,
-    usuario: "Santi Moreno",
-    correo: "s.moreno@kpi360.com",
-    accion: "Exportación Masiva",
-    modulo: "INFORMES",
-    detalle: "Descarga de 5,000 registros de ventas trimestrales",
-    fecha: "24 May 2026, 13:58:22",
-    estado: "Revisión"
-  },
-  {
-    id: 4,
-    usuario: "Jordi Valls",
-    correo: "j.valls@kpi360.com",
-    accion: "Crear Nuevo Usuario",
-    modulo: "GESTIÓN",
-    detalle: "Asignación de rol 'Analista Junior' a cuenta nueva",
-    fecha: "24 May 2026, 13:22:45",
-    estado: "Exitosa"
-  },
-])
+
+const auth      = useAuthStore()
+const misEventos = ref([])
+
+onMounted(async () => {
+  const res  = await fetch('http://127.0.0.1:8000/api/audit-logs', {
+    headers: { 'Authorization': `Bearer ${auth.token}` }
+  })
+  const data = await res.json()
+  const raw  = Array.isArray(data) ? data : (data.data ?? [])
+
+  // Transformar campos de la API al formato que espera el template
+  misEventos.value = raw.map(log => ({
+    id:      log.id,
+    usuario: log.user ? `${log.user.name} ${log.user.paternal ?? ''}`.trim() : `Usuario #${log.user_id}`,
+    correo:  log.user?.email ?? '—',
+    accion:  log.action,
+    modulo:  log.module,
+    detalle: log.entity_type ? `${log.entity_type} #${log.entity_id}` : '—',
+    fecha:   log.created_at ? new Date(log.created_at).toLocaleString('es-MX') : '—',
+    estado:  'Exitosa',
+  }))
+})
+
 </script>
 
 <template>
@@ -199,4 +182,4 @@ const misEventos = ref([
 
     </div>
   </div>
-</template>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+</template>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               

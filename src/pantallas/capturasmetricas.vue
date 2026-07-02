@@ -1,5 +1,6 @@
 <script setup>
-import { ref, computed, getCurrentInstance } from 'vue'
+import { ref, computed, onMounted, getCurrentInstance } from 'vue'
+import { useAuthStore } from '../stores/authStore'
 import { useKpiStore }    from '../stores/kpiStore'
 import { useOrgStore }    from '../stores/orgStore'
 import PlantillaTabla     from '../components/PlantillaTabla.vue'
@@ -13,7 +14,30 @@ import AppButton          from '../components/ui/AppButton.vue'
 
 const store    = useKpiStore()
 const orgStore = useOrgStore()
-const { proxy } = getCurrentInstance()
+const auth  = useAuthStore()
+const kpis  = ref([])
+
+onMounted(async () => {
+  const res = await fetch('http://127.0.0.1:8000/api/kpis', {
+    headers: { 'Authorization': `Bearer ${auth.token}` }
+  })
+  const data = await res.json()
+
+  const tipoMap = { percentage: 'Porcentaje', money: 'Monetario', time: 'Tiempo', absolute: 'Puntaje', custom: 'Puntaje' }
+  const frecuenciaMap = { daily: 'Diario', weekly: 'Semanal', monthly: 'Mensual', quarterly: 'Trimestral', annual: 'Anual' }
+
+  kpis.value = data.map(k => ({
+    id:           k.id,
+    nombre:       k.name,
+    formula:      k.formula ?? '—',
+    tipoMetrica:  tipoMap[k.type]            ?? k.type,
+    periodicidad: frecuenciaMap[k.frequency] ?? k.frequency,
+    departamento: k.department?.name         ?? '—',
+    meta:         k.goal ? `${k.goal} ${k.unit ?? ''}`.trim() : '—',
+    progreso:     k.latest_record ? Number(k.latest_record.value) : 0,
+  }))
+})
+
 const vistaActual        = ref('tabla')     
 const kpiPreseleccionado = ref(null)       
 
@@ -27,9 +51,7 @@ function regresarATabla() {
   kpiPreseleccionado.value = null
 }
 
-const misKpis = computed(() =>
-  store.kpisDeUsuario(orgStore.usuarioActual.id)
-)
+const misKpis = computed(() => kpis.value)
 
 // Devuelve el tipo que entiende StatusBadge
 function tipoEstadoCaptura(kpi) {
