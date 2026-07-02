@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import api from '../services/api'
 import { useRouter } from 'vue-router'
 import { getCurrentInstance } from 'vue'
 import { useOrgStore } from "../stores/orgStore"
@@ -13,25 +14,25 @@ const store  = useOrgStore()
 const { proxy } = getCurrentInstance()
 
 const nuevoDepartamento = ref({
-  nombre:      '',
-  responsable: '',
-  descripcion: '',
+  name:      '',
+  description: '',
+  manager_id: '',
 })
 
-function guardarDepartamento() {
-  const nodoNuevo = {
-    id:          store.estructuraOrganizacional.length + 10,
-    nombre:      nuevoDepartamento.value.nombre,
-    tipo:        'departamento',
-    nivel:       1,
-    padre_id:    1,
-    abierto:     false,
-    responsable: nuevoDepartamento.value.responsable || null,
+async function guardarDepartamento() {
+  try {
+    const res = await api.post('/departments', {
+      name:        nuevoDepartamento.value.name,
+      description: nuevoDepartamento.value.description,
+      company_id:  store.empresaActiva?.id,
+      manager_id:  nuevoDepartamento.value.manager_id || null,
+    })
+    store.departamentos.push(res.data)
+    proxy.$notify.success('Departamento registrado correctamente', 'Éxito')
+    router.push('/ControlOrganizacional')
+  } catch (e) {
+    proxy.$notify.error('Error al registrar departamento', 'Error')
   }
-
-  store.estructuraOrganizacional.push(nodoNuevo)
-  proxy.$notify.success('Departamento registrado correctamente', 'Éxito')
-  router.push('/ControlOrganizacional')
 }
 </script>
 
@@ -67,19 +68,24 @@ function guardarDepartamento() {
 
         <FormField label="Nombre del Departamento" required>
           <AppInput
-            v-model="nuevoDepartamento.nombre"
+            v-model="nuevoDepartamento.name"
             placeholder="Ej. Recursos Humanos"
             required
           />
         </FormField>
 
         <FormField label="Responsable" hint="opcional">
-          <AppInput v-model="nuevoDepartamento.responsable" placeholder="Ej. Ana López" />
-        </FormField>
+        <select v-model="nuevoDepartamento.manager_id" class="app-select">
+          <option :value="null">Sin responsable</option>
+          <option v-for="u in store.usuarios" :key="u.id" :value="u.id">
+            {{ u.name }} {{ u.paternal }}
+          </option>
+        </select>
+      </FormField>
 
         <FormField label="Descripción" hint="opcional" :col-span="2">
           <textarea
-            v-model="nuevoDepartamento.descripcion"
+            v-model="nuevoDepartamento.description"
             rows="3"
             placeholder="Describe las funciones principales del área..."
             class="app-input resize-none"

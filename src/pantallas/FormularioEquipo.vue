@@ -1,5 +1,6 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import api from '../services/api'
 import { useRouter } from 'vue-router'
 import { getCurrentInstance } from 'vue'
 import { useOrgStore } from "../stores/orgStore"
@@ -14,31 +15,30 @@ const store  = useOrgStore()
 const { proxy } = getCurrentInstance()
 
 const nuevoEquipo = ref({
-  nombre:         '',
-  lider:          '',
-  departamento_id: null,
-  descripcion:    '',
+  name:          '',
+  leader_id:     null,
+  department_id: null,
+  description:   '',
 })
 
-const departamentosDisponibles = store.estructuraOrganizacional
-  .filter(n => n.tipo === 'departamento')
-  .map(d => ({ value: d.id, label: d.nombre }))
+const departamentosDisponibles = computed(() =>
+  store.departamentos.map(d => ({ value: d.id, label: d.name }))
+)
 
-function guardarEquipo() {
-  const nodoNuevo = {
-    id:       store.estructuraOrganizacional.length + 10,
-    nombre:   nuevoEquipo.value.nombre,
-    tipo:     'equipo',
-    nivel:    2,
-    padre_id: nuevoEquipo.value.departamento_id
-      ? Number(nuevoEquipo.value.departamento_id) : null,
-    abierto: false,
-    lider:   nuevoEquipo.value.lider || null,
+async function guardarEquipo() {
+  try {
+    const res = await api.post('/teams', {
+      name:          nuevoEquipo.value.name,
+      description:   nuevoEquipo.value.description,
+      department_id: nuevoEquipo.value.department_id,
+      leader_id:     nuevoEquipo.value.leader_id || null,
+    })
+    store.equipos.push(res.data)
+    proxy.$notify.success('Equipo registrado correctamente', 'Éxito')
+    router.push('/ControlOrganizacional')
+  } catch (e) {
+    proxy.$notify.error('Error al registrar equipo', 'Error')
   }
-
-  store.estructuraOrganizacional.push(nodoNuevo)
-  proxy.$notify.success('Equipo registrado correctamente', 'Éxito')
-  router.push('/ControlOrganizacional')
 }
 </script>
 
@@ -74,19 +74,24 @@ function guardarEquipo() {
 
         <FormField label="Nombre del Equipo" required>
           <AppInput
-            v-model="nuevoEquipo.nombre"
+            v-model="nuevoEquipo.name"
             placeholder="Ej. Equipo Backend"
             required
           />
         </FormField>
 
         <FormField label="Líder del Equipo" hint="opcional">
-          <AppInput v-model="nuevoEquipo.lider" placeholder="Ej. Carlos Méndez" />
-        </FormField>
+        <select v-model="nuevoEquipo.leader_id" class="app-select">
+          <option :value="null">Sin líder</option>
+          <option v-for="u in store.usuarios" :key="u.id" :value="u.id">
+            {{ u.name }} {{ u.paternal }}
+          </option>
+        </select>
+      </FormField>
 
         <FormField label="Departamento" required :col-span="2">
           <AppSelect
-            v-model="nuevoEquipo.departamento_id"
+            v-model="nuevoEquipo.department_id"
             :options="departamentosDisponibles"
             placeholder="Selecciona el departamento"
             required
@@ -95,7 +100,7 @@ function guardarEquipo() {
 
         <FormField label="Descripción" hint="opcional" :col-span="2">
           <textarea
-            v-model="nuevoEquipo.descripcion"
+            v-model="nuevoEquipo.description"
             rows="3"
             placeholder="Describe las responsabilidades del equipo..."
             class="app-input resize-none"

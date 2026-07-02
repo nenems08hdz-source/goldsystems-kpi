@@ -1,5 +1,6 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import api from '../services/api'
 import { useRouter } from 'vue-router'
 import { getCurrentInstance } from 'vue'
 import { useOrgStore } from '../stores/orgStore'
@@ -14,49 +15,49 @@ const store  = useOrgStore()
 const { proxy } = getCurrentInstance()
 
 const nuevoUsuario = ref({
-  nombre:          '',
-  apellidoPaterno: '',
-  apellidoMaterno: '',
-  email:           '',
-  telefono:        '',
-  rol:             '',
-  departamento_id: null,
-  equipo_id:       null,
+  name:          '',
+  paternal:      '',
+  maternal:      '',
+  email:         '',
+  password:      '',
+  phone:         '',
+  role:          '',
+  department_id: null,
+  team_id:       null,
 })
 
-const departamentosDisponibles = store.estructuraOrganizacional
-  .filter(n => n.tipo === 'departamento')
-  .map(d => ({ value: d.id, label: d.nombre }))
+const departamentosDisponibles = computed(() =>
+  store.departamentos.map(d => ({ value: d.id, label: d.name }))
+)
 
-const equiposDisponibles = store.estructuraOrganizacional
-  .filter(n => n.tipo === 'equipo')
-  .map(e => ({ value: e.id, label: e.nombre }))
+const equiposDisponibles = computed(() =>
+  store.equipos.map(e => ({ value: e.id, label: e.name }))
+)
 
 const rolesAsignables = store.rolesDisponibles
-  .filter(r => r.eliminable)
-  .map(r => ({ value: r.codigo, label: `${r.nombre} — ${r.descripcion}` }))
+  .filter(r => r.codigo !== 'developer')
+  .map(r => ({ value: r.codigo, label: r.nombre }))
 
-function guardarUsuario() {
-  const usuarioNuevo = {
-    id:              store.usuarios.length + 1,
-    nombre:          nuevoUsuario.value.nombre,
-    apellidoPaterno: nuevoUsuario.value.apellidoPaterno,
-    apellidoMaterno: nuevoUsuario.value.apellidoMaterno,
-    email:           nuevoUsuario.value.email,
-    telefono:        nuevoUsuario.value.telefono || null,
-    rol:             nuevoUsuario.value.rol,
-    departamento_id: nuevoUsuario.value.departamento_id
-      ? Number(nuevoUsuario.value.departamento_id) : null,
-    equipo_id: nuevoUsuario.value.equipo_id
-      ? Number(nuevoUsuario.value.equipo_id) : null,
-    kpis:       0,
-    estado:     'activo',
-    ultimoLogin: null,
+async function guardarUsuario() {
+  try {
+    const res = await api.post('/users', {
+      name:          nuevoUsuario.value.name,
+      paternal:      nuevoUsuario.value.paternal,
+      maternal:      nuevoUsuario.value.maternal,
+      email:         nuevoUsuario.value.email,
+      password:      nuevoUsuario.value.password,
+      phone:         nuevoUsuario.value.phone || null,
+      company_id:    store.empresaActiva?.id,
+      department_id: nuevoUsuario.value.department_id || null,
+      team_id:       nuevoUsuario.value.team_id || null,
+      role:          nuevoUsuario.value.role || null,
+    })
+    store.usuarios.push(res.data)
+    proxy.$notify.success('Colaborador registrado correctamente', 'Éxito')
+    router.push('/ControlOrganizacional')
+  } catch (e) {
+    proxy.$notify.error('Error al registrar colaborador', 'Error')
   }
-
-  store.usuarios.push(usuarioNuevo)
-  proxy.$notify.success('Colaborador registrado correctamente', 'Éxito')
-  router.push('/ControlOrganizacional')
 }
 </script>
 
@@ -82,15 +83,15 @@ function guardarUsuario() {
       <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 p-8">
 
         <FormField label="Nombre" required>
-          <AppInput v-model="nuevoUsuario.nombre" placeholder="Ej. Juan" required />
+          <AppInput v-model="nuevoUsuario.name" placeholder="Ej. Juan" required />
         </FormField>
 
         <FormField label="Apellido Paterno" required>
-          <AppInput v-model="nuevoUsuario.apellidoPaterno" placeholder="Ej. Pérez" required />
+          <AppInput v-model="nuevoUsuario.paternal" placeholder="Ej. Pérez" required />
         </FormField>
 
         <FormField label="Apellido Materno" hint="opcional">
-          <AppInput v-model="nuevoUsuario.apellidoMaterno" placeholder="Ej. García" />
+          <AppInput v-model="nuevoUsuario.maternal" placeholder="Ej. García" />
         </FormField>
 
         <FormField label="Correo Corporativo" required>
@@ -104,15 +105,24 @@ function guardarUsuario() {
 
         <FormField label="Teléfono" hint="opcional">
           <AppInput
-            v-model="nuevoUsuario.telefono"
+            v-model="nuevoUsuario.phone"
             type="tel"
             placeholder="+52 999 000 0000"
           />
         </FormField>
 
+        <FormField label="Contraseña" required>
+        <AppInput
+          v-model="nuevoUsuario.password"
+          type="password"
+          placeholder="Mínimo 8 caracteres"
+          required
+        />
+      </FormField>
+
         <FormField label="Rol" required>
           <AppSelect
-            v-model="nuevoUsuario.rol"
+            v-model="nuevoUsuario.role"
             :options="rolesAsignables"
             placeholder="Selecciona un rol"
             required
@@ -121,7 +131,7 @@ function guardarUsuario() {
 
         <FormField label="Departamento">
           <AppSelect
-            v-model="nuevoUsuario.departamento_id"
+            v-model="nuevoUsuario.department_id"
             :options="[{ value: null, label: 'Sin departamento' }, ...departamentosDisponibles]"
             placeholder="Sin departamento"
           />
@@ -129,7 +139,7 @@ function guardarUsuario() {
 
         <FormField label="Equipo">
           <AppSelect
-            v-model="nuevoUsuario.equipo_id"
+            v-model="nuevoUsuario.team_id"
             :options="[{ value: null, label: 'Sin equipo' }, ...equiposDisponibles]"
             placeholder="Sin equipo"
           />

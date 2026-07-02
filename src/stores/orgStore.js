@@ -1,129 +1,129 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import api from '../services/api'
 
 export const useOrgStore = defineStore('orgStore', () => {
 
-  const usuarioActual = ref({
-    id: 1,
-    nombre: 'Admin Demo',
-    email: 'admin@kpi360.com',
-    rol: 'developer',
-    empresa_id: 1,
-  })
+  // ── Estado vacío (se llena desde el API) ─────────────
+  const empresas      = ref([])
+  const usuarios      = ref([])
+  const departamentos = ref([])
+  const equipos       = ref([])
+  const cargando      = ref(false)
 
-  const empresaActiva = ref({
-    id: 1,
-    nombre: 'KPI360 Corp',
-    razonSocial: 'KPI360 Corporation S.A. de C.V.',
-    rfc: 'KPI2024010101',
-    email: 'contacto@kpi360.com',
-    telefono: '+52 999 000 0001',
-    estado: 'activo',
-  })
-
-  const estructuraOrganizacional = ref([
-    { id: 1, nombre: 'KPI360 Corp',           tipo: 'empresa',      nivel: 0, abierto: true  },
-    { id: 2, nombre: 'Tecnología',             tipo: 'departamento', nivel: 1, padre_id: 1, abierto: true,  responsable: 'Carlos Méndez' },
-    { id: 3, nombre: 'Equipo Backend',         tipo: 'equipo',       nivel: 2, padre_id: 2, abierto: false, lider: 'Miguel Ruiz'  },
-    { id: 4, nombre: 'Equipo Frontend',        tipo: 'equipo',       nivel: 2, padre_id: 2, abierto: false, lider: 'Ana López'    },
-    { id: 5, nombre: 'Operaciones',            tipo: 'departamento', nivel: 1, padre_id: 1, abierto: true,  responsable: 'Laura Torres' },
-    { id: 6, nombre: 'Equipo Infraestructura', tipo: 'equipo',       nivel: 2, padre_id: 5, abierto: false, lider: 'Roberto Díaz' },
-    { id: 7, nombre: 'Calidad',                tipo: 'departamento', nivel: 1, padre_id: 1, abierto: false, responsable: 'Diego Vargas' },
-    { id: 8, nombre: 'Equipo QA',              tipo: 'equipo',       nivel: 2, padre_id: 7, abierto: false, lider: 'Diego Vargas' },
-    { id: 9, nombre: 'Finanzas',               tipo: 'departamento', nivel: 1, padre_id: 1, abierto: false, responsable: 'Valeria Núñez' },
-  ])
-
+  // Los roles son fijos del sistema, no necesitan API
   const rolesDisponibles = ref([
-    { id: 1, codigo: 'developer', nombre: 'Developer',      descripcion: 'Control total del sistema',     eliminable: false },
-    { id: 2, codigo: 'admin',     nombre: 'Admin',           descripcion: 'Gestiona una empresa completa', eliminable: false },
-    { id: 3, codigo: 'gerente',   nombre: 'Gerente',         descripcion: 'Gestiona departamentos',        eliminable: true  },
-    { id: 4, codigo: 'lider',     nombre: 'Líder de Equipo', descripcion: 'Gestiona KPIs de su equipo',    eliminable: true  },
-    { id: 5, codigo: 'empleado',  nombre: 'Empleado',        descripcion: 'Visualiza y captura KPIs',      eliminable: true  },
-    { id: 6, codigo: 'auditor',   nombre: 'Auditor',         descripcion: 'Solo lectura y auditoría',      eliminable: true  },
+    { codigo: 'developer',   nombre: 'Developer'    },
+    { codigo: 'admin',       nombre: 'Adminstrador'        },
+    { codigo: 'manager',     nombre: 'Gerente'      },
+    { codigo: 'team_leader', nombre: 'Lider de Equipo'  },
+    { codigo: 'employee',    nombre: 'Empleado'     },
+    { codigo: 'auditor',     nombre: 'Auditor'      },
   ])
 
-  const usuarios = ref([
-    { id: 1, nombre: 'Ana',     apellidoPaterno: 'López',     apellidoMaterno: 'Martínez', email: 'ana.lopez@kpi360.com',       telefono: '+52 999 111 2233', rol: 'empleado', departamento_id: 2, equipo_id: 4,    kpis: 12, estado: 'activo',    ultimoLogin: '2025-08-05' },
-    { id: 2, nombre: 'Carlos',  apellidoPaterno: 'Ruiz',      apellidoMaterno: 'Sánchez',  email: 'carlos.ruiz@kpi360.com',     telefono: '+52 999 222 3344', rol: 'lider',    departamento_id: 2, equipo_id: 3,    kpis: 8,  estado: 'activo',    ultimoLogin: '2025-08-04' },
-    { id: 3, nombre: 'Sofía',   apellidoPaterno: 'Martínez',  apellidoMaterno: 'García',   email: 'sofia.m@kpi360.com',         telefono: '+52 999 333 4455', rol: 'empleado', departamento_id: 5, equipo_id: 6,    kpis: 5,  estado: 'ausente',   ultimoLogin: '2025-07-30' },
-    { id: 4, nombre: 'Jorge',   apellidoPaterno: 'Rivas',     apellidoMaterno: 'Torres',   email: 'jorge.rivas@kpi360.com',     telefono: null,               rol: 'empleado', departamento_id: 5, equipo_id: 6,    kpis: 0,  estado: 'bloqueado', ultimoLogin: '2025-07-15' },
-    { id: 5, nombre: 'Pablo',   apellidoPaterno: 'Chable',    apellidoMaterno: 'Dzul',     email: 'pablo.chable@kpi360.com',    telefono: '+52 999 555 6677', rol: 'empleado', departamento_id: 2, equipo_id: 3,    kpis: 12, estado: 'activo',    ultimoLogin: '2025-08-05' },
-    { id: 6, nombre: 'Arantxa', apellidoPaterno: 'Sánchez',   apellidoMaterno: 'Pérez',    email: 'arantxa.sanchez@kpi360.com', telefono: '+52 999 666 7788', rol: 'gerente',  departamento_id: 2, equipo_id: null, kpis: 8,  estado: 'activo',    ultimoLogin: '2025-08-05' },
-    { id: 7, nombre: 'Christo', apellidoPaterno: 'Ajelo',     apellidoMaterno: 'Moo',      email: 'crhisto.a@kpi360.com',       telefono: '+52 999 777 8899', rol: 'empleado', departamento_id: 7, equipo_id: 8,    kpis: 5,  estado: 'ausente',   ultimoLogin: '2025-07-28' },
-    { id: 8, nombre: 'Jorge',   apellidoPaterno: 'Hernández', apellidoMaterno: 'Balam',    email: 'jorge.hernandez@kpi360.com', telefono: '+52 999 888 9900', rol: 'auditor',  departamento_id: null, equipo_id: null, kpis: 0, estado: 'activo',  ultimoLogin: '2025-08-03' },
-  ])
+  // Primera empresa activa (la que está usando el sistema)
+  const empresaActiva = computed(() => empresas.value[0] ?? null)
 
-  // plan → BD: companies.plan ('basic'|'professional'|'enterprise')
-  const empresas = ref([
-    {
-      id: 1,
-      nombre: 'KPI360 Corp',
-      razonSocial: 'KPI360 Corporation S.A. de C.V.',
-      rfc: 'KPI2024010101',
-      email: 'contacto@kpi360.com',
-      telefono: '+52 999 000 0001',
-      plan: 'enterprise',
-      estado: 'activo',
-      usuarios: 8,
-      kpis: 8,
-      fechaRegistro: '2024-01-15',
-    },
-    {
-      id: 2,
-      nombre: 'TechSol SA',
-      razonSocial: 'TechSol Soluciones S.A.',
-      rfc: 'TSO2023050202',
-      email: 'admin@techsol.com',
-      telefono: '+52 55 000 0002',
-      plan: 'professional',
-      estado: 'activo',
-      usuarios: 15,
-      kpis: 22,
-      fechaRegistro: '2024-03-10',
-    },
-    {
-      id: 3,
-      nombre: 'Infranet',
-      razonSocial: 'Infranet Servicios S.C.',
-      rfc: 'INF2022080303',
-      email: 'sistemas@infranet.mx',
-      telefono: '+52 81 000 0003',
-      plan: 'basic',
-      estado: 'inactivo',
-      usuarios: 3,
-      kpis: 5,
-      fechaRegistro: '2023-08-22',
-    },
-  ])
+  // Árbol organizacional construido desde los datos reales
+  const estructuraOrganizacional = computed(() => {
+    const nodos = []
+    departamentos.value.forEach(dep => {
+      nodos.push({
+        uid:         `dep-${dep.id}`,
+        id:          dep.id,
+        nombre:      dep.name,
+        tipo:        'departamento',
+        nivel:       1,
+        abierto:     true,
+        responsable: dep.manager?.name ?? null,
+      })
+      equipos.value
+        .filter(eq => eq.department_id === dep.id)
+        .forEach(eq => {
+          nodos.push({
+            uid:      `eq-${eq.id}`,
+            id:       eq.id,
+            nombre:   eq.name,
+            tipo:     'equipo',
+            nivel:    2,
+            padre_id: dep.id,
+            abierto:  false,
+            lider:    eq.leader?.name ?? null,
+          })
+        })
+    })
+    return nodos
+  })
 
-  function guardarEmpresa(nuevaEmpresa) {
-    empresas.value.push(nuevaEmpresa)
+  // ── Actions (llamadas al API) ─────────────────────────
+
+  async function cargarEmpresas() {
+    const res = await api.get('/companies')
+    empresas.value = res.data
   }
 
+  async function cargarUsuarios() {
+    const res = await api.get('/users')
+    usuarios.value = res.data
+  }
+
+  async function cargarDepartamentos() {
+    const res = await api.get('/departments')
+    departamentos.value = res.data
+  }
+
+  async function cargarEquipos() {
+    const res = await api.get('/teams')
+    equipos.value = res.data
+  }
+
+  // Carga todo a la vez (para usarlo al entrar a una pantalla)
+  async function cargarTodo() {
+    cargando.value = true
+    try {
+      await Promise.all([
+        cargarEmpresas(),
+        cargarUsuarios(),
+        cargarDepartamentos(),
+        cargarEquipos(),
+      ])
+    } finally {
+      cargando.value = false
+    }
+  }
+
+  // ── Helpers ───────────────────────────────────────────
+
   function nombreCompleto(usuario) {
-    return `${usuario.nombre} ${usuario.apellidoPaterno} ${usuario.apellidoMaterno}`
+    return `${usuario.name} ${usuario.paternal ?? ''} ${usuario.maternal ?? ''}`.trim()
   }
 
   function colorPorRol(rol) {
     const colores = {
-      developer: 'bg-violet-100 text-violet-700 border-violet-200',
-      admin:     'bg-[#3f2a52]/10 text-[#3f2a52] border-[#3f2a52]/20',
-      gerente:   'bg-emerald-100 text-emerald-700 border-emerald-200',
-      lider:     'bg-blue-100 text-blue-700 border-blue-200',
-      empleado:  'bg-gray-100 text-gray-600 border-gray-200',
-      auditor:   'bg-amber-100 text-amber-700 border-amber-200',
+      developer:   'bg-violet-100 text-violet-700 border-violet-200',
+      admin:       'bg-[#3f2a52]/10 text-[#3f2a52] border-[#3f2a52]/20',
+      manager:     'bg-emerald-100 text-emerald-700 border-emerald-200',
+      team_leader: 'bg-blue-100 text-blue-700 border-blue-200',
+      employee:    'bg-gray-100 text-gray-600 border-gray-200',
+      auditor:     'bg-amber-100 text-amber-700 border-amber-200',
     }
     return colores[rol] ?? 'bg-gray-100 text-gray-500'
   }
 
   return {
-    usuarioActual,
-    empresaActiva,
-    estructuraOrganizacional,
-    rolesDisponibles,
-    usuarios,
     empresas,
-    guardarEmpresa,
+    empresaActiva,
+    usuarios,
+    departamentos,
+    equipos,
+    rolesDisponibles,
+    estructuraOrganizacional,
+    cargando,
+    cargarEmpresas,
+    cargarUsuarios,
+    cargarDepartamentos,
+    cargarEquipos,
+    cargarTodo,
     nombreCompleto,
     colorPorRol,
   }

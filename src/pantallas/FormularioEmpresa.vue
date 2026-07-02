@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import api from '../services/api'
 import { useRouter } from 'vue-router'
 import { getCurrentInstance } from 'vue'
 import { useOrgStore } from "../stores/orgStore"
@@ -13,34 +14,31 @@ const store  = useOrgStore()
 const { proxy } = getCurrentInstance()
 
 const nuevaEmpresa = ref({
-  nombre:      '',
-  razonSocial: '',
-  rfc:         '',
+  name:        '',
+  legal_name:  '',
+  tax_id:      '',
   email:       '',
-  telefono:    '',
+  phone:       '',
 
-  nombreAdmin: '',
-  emailAdmin:  '',
+  admin_name:  '',
+  admin_email: '',
 })
 
-function guardarEmpresa() {
-  const empresaNueva = {
-    id:            Date.now(),
-    nombre:        nuevaEmpresa.value.nombre,
-    razonSocial:   nuevaEmpresa.value.razonSocial,
-    rfc:           nuevaEmpresa.value.rfc,
-    email:         nuevaEmpresa.value.email,
-    telefono:      nuevaEmpresa.value.telefono,
-
-    estado:        'activo',
-    usuarios:      1,
-    kpis:          0,
-    fechaRegistro: new Date().toISOString().split('T')[0],
+async function guardarEmpresa() {
+  try {
+    const res = await api.post('/companies', {
+      name:       nuevaEmpresa.value.name,
+      legal_name: nuevaEmpresa.value.legal_name,
+      tax_id:     nuevaEmpresa.value.tax_id,
+      email:      nuevaEmpresa.value.email,
+      phone:      nuevaEmpresa.value.phone,
+    })
+    store.empresas.push(res.data)
+    proxy.$notify.success('Empresa registrada correctamente', 'Éxito')
+    router.push('/GestionEmpresas')
+  } catch (e) {
+    proxy.$notify.error('Error al registrar empresa', 'Error')
   }
-
-  store.guardarEmpresa(empresaNueva)
-  proxy.$notify.success('Empresa registrada correctamente', 'Éxito')
-  router.push('/GestionEmpresas')
 }
 </script>
 
@@ -75,15 +73,15 @@ function guardarEmpresa() {
         <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
 
           <FormField label="Nombre Comercial" required>
-            <AppInput v-model="nuevaEmpresa.nombre" placeholder="Ej. TechSol SA" required />
+            <AppInput v-model="nuevaEmpresa.name" placeholder="Ej. TechSol SA" required />
           </FormField>
 
           <FormField label="Razón Social" required>
-            <AppInput v-model="nuevaEmpresa.razonSocial" placeholder="Ej. TechSol Soluciones S.A." required />
+            <AppInput v-model="nuevaEmpresa.legal_name" placeholder="Ej. TechSol Soluciones S.A." required />
           </FormField>
 
           <FormField label="RFC" required>
-            <AppInput v-model="nuevaEmpresa.rfc" placeholder="Ej. TSO2024010101" required />
+            <AppInput v-model="nuevaEmpresa.tax_id" placeholder="Ej. TSO2024010101" required />
           </FormField>
 
           <FormField label="Email Corporativo" required>
@@ -96,7 +94,7 @@ function guardarEmpresa() {
           </FormField>
 
           <FormField label="Teléfono" hint="opcional">
-            <AppInput v-model="nuevaEmpresa.telefono" type="tel" placeholder="+52 999 000 0000" />
+            <AppInput v-model="nuevaEmpresa.phone" type="tel" placeholder="+52 999 000 0000" />
           </FormField>
 
         </div>
@@ -121,12 +119,12 @@ function guardarEmpresa() {
         <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
 
           <FormField label="Nombre del Admin" required>
-            <AppInput v-model="nuevaEmpresa.nombreAdmin" placeholder="Ej. Juan Pérez" required />
+            <AppInput v-model="nuevaEmpresa.admin_name" placeholder="Ej. Juan Pérez" required />
           </FormField>
 
           <FormField label="Email del Admin" required>
             <AppInput
-              v-model="nuevaEmpresa.emailAdmin"
+              v-model="nuevaEmpresa.admin_email"
               type="email"
               placeholder="admin@empresa.com"
               required

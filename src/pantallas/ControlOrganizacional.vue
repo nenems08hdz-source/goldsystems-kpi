@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted  } from 'vue'
 import { getCurrentInstance } from 'vue'
 import { useOrgStore } from "../stores/orgStore"
 import { useKpiStore } from "../stores/kpiStore"
@@ -17,6 +17,10 @@ const store    = useOrgStore()
 const kpiStore = useKpiStore()
 const { proxy } = getCurrentInstance()
 
+onMounted(() => {
+  store.cargarTodo()
+})
+
 // árbol organizacional
 const nodoSeleccionado = ref(null)
 
@@ -32,10 +36,10 @@ const filtroBusqueda = ref('')
 const usuariosFiltrados = computed(() =>
   store.usuarios.filter(u => {
     const pasaNodo = !nodoSeleccionado.value ||
-      (nodoSeleccionado.value.tipo === 'departamento' && u.departamento_id === nodoSeleccionado.value.id) ||
-      (nodoSeleccionado.value.tipo === 'equipo'       && u.equipo_id       === nodoSeleccionado.value.id)
-    const pasaRol      = filtroRol.value      === '' || u.rol    === filtroRol.value
-    const pasaEstado   = filtroEstado.value   === '' || u.estado === filtroEstado.value
+      (nodoSeleccionado.value.tipo === 'departamento' && u.department_id === nodoSeleccionado.value.id) ||
+      (nodoSeleccionado.value.tipo === 'equipo'       && u.team_id       === nodoSeleccionado.value.id)
+    const pasaRol      = filtroRol.value      === '' || u.roles?.[0]?.name === filtroRol.value
+    const pasaEstado   = filtroEstado.value   === '' || u.status           === filtroEstado.value
     const pasaBusqueda = filtroBusqueda.value === '' ||
       store.nombreCompleto(u).toLowerCase().includes(filtroBusqueda.value.toLowerCase()) ||
       u.email.toLowerCase().includes(filtroBusqueda.value.toLowerCase())
@@ -46,7 +50,7 @@ const usuariosFiltrados = computed(() =>
 const tituloTabla = computed(() =>
   nodoSeleccionado.value
     ? `Usuarios: ${nodoSeleccionado.value.nombre}`
-    : `Todos los usuarios — ${store.empresaActiva.nombre}`
+    : `Todos los usuarios — ${store.empresaActiva?.name ?? ''}`
 )
 
 function limpiarFiltros() {
@@ -178,7 +182,7 @@ function eliminarNodo(nodo) {
         <div class="p-3 flex flex-col gap-1 max-h-[420px] overflow-y-auto">
           <div
             v-for="nodo in store.estructuraOrganizacional"
-            :key="nodo.id"
+            :key="nodo.uid"
             :style="{ paddingLeft: (nodo.nivel * 20) + 'px' }"
             class="group flex items-center justify-between p-2.5 rounded-xl transition-all duration-200 relative"
             :class="[
@@ -266,15 +270,15 @@ function eliminarNodo(nodo) {
             <td class="p-4 align-middle text-left">
               <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-full bg-[#3f2a52] text-white flex items-center justify-center text-[10px] font-bold shadow-sm flex-shrink-0">
-                  {{ fila.nombre.charAt(0) }}{{ fila.apellidoPaterno.charAt(0) }}
+                  {{ fila.name?.charAt(0) }}{{ fila.paternal?.charAt(0) }}
                 </div>
                 <div>
                   <div class="font-bold text-xs leading-none" style="color: var(--text-general);">
                     {{ store.nombreCompleto(fila) }}
                   </div>
                   <div class="text-[11px] mt-0.5" style="color: var(--subtext-general);">{{ fila.email }}</div>
-                  <div v-if="fila.telefono" class="text-[10px] mt-0.5" style="color: var(--subtext-general);"> 
-                    {{ fila.telefono }}
+                  <div v-if="fila.phone" class="text-[10px] mt-0.5" style="color: var(--subtext-general);">
+                    {{ fila.phone }}
                   </div>
                 </div>
               </div>
@@ -282,24 +286,23 @@ function eliminarNodo(nodo) {
 
             <td class="p-4 align-middle text-center">
               <EtiquetaBadge
-                :texto="store.rolesDisponibles.find(r => r.codigo === fila.rol)?.nombre ?? fila.rol"
-                :clase="store.colorPorRol(fila.rol)"
-              />
+                :texto="store.rolesDisponibles.find(r => r.codigo === fila.roles?.[0]?.name)?.nombre ?? fila.roles?.[0]?.name"
+                :clase="store.colorPorRol(fila.roles?.[0]?.name)"
+/>
             </td>
 
             <td class="p-4 align-middle text-left">
               <div class="flex items-center gap-1.5">
-                <span class="font-semibold text-sm" style="color: var(--text-general);">{{ fila.kpis }}</span>
+                <span class="font-semibold text-sm" style="color: var(--text-general);">—</span>
                 <span style="color: var(--card-text-hint);" class="text-xs"></span>
               </div>
             </td>
 
             <td class="p-4 align-middle text-left">
-              <span class="text-xs" style="color: var(--subtext-general);">{{ fila.ultimoLogin ?? '—' }}</span>
-            </td>
+<span class="text-xs" style="color: var(--subtext-general);">{{ fila.last_login ? fila.last_login.slice(0, 10) : '—' }}</span>            </td>
 
             <td class="p-4 align-middle text-center">
-              <StatusBadge :tipo="fila.estado" />
+              <StatusBadge :tipo="fila.status" />
             </td>
 
           </template>
