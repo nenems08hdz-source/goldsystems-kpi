@@ -11,6 +11,7 @@ import FormField          from '../components/ui/FormField.vue'
 import BotonAccion        from '../components/ui/BotonAccion.vue'
 import EtiquetaBadge      from '../components/ui/EtiquetaBadge.vue'
 import StatusBadge        from '../components/StatusBadge.vue'
+import { useAuthStore } from '../stores/authStore'
 
 
 const store    = useOrgStore()
@@ -34,14 +35,14 @@ const filtroEstado   = ref('')
 const filtroBusqueda = ref('')
 
 const usuariosFiltrados = computed(() =>
-  store.usuarios.filter(u => {
+  usuarios.value.filter(u => {
     const pasaNodo = !nodoSeleccionado.value ||
       (nodoSeleccionado.value.tipo === 'departamento' && u.department_id === nodoSeleccionado.value.id) ||
       (nodoSeleccionado.value.tipo === 'equipo'       && u.team_id       === nodoSeleccionado.value.id)
     const pasaRol      = filtroRol.value      === '' || u.roles?.[0]?.name === filtroRol.value
     const pasaEstado   = filtroEstado.value   === '' || u.status           === filtroEstado.value
     const pasaBusqueda = filtroBusqueda.value === '' ||
-      store.nombreCompleto(u).toLowerCase().includes(filtroBusqueda.value.toLowerCase()) ||
+      `${u.name} ${u.paternal} ${u.maternal}`.toLowerCase().includes(filtroBusqueda.value.toLowerCase()) || // sirve para la búsqueda por nombre
       u.email.toLowerCase().includes(filtroBusqueda.value.toLowerCase())
     return pasaNodo && pasaRol && pasaEstado && pasaBusqueda
   })
@@ -86,10 +87,18 @@ function abrirModificarRol(usuario) {
 }
 
 function guardarRol() {
-  const index = store.usuarios.findIndex(u => u.id === usuarioSeleccionado.value.id)
-  if (index !== -1) store.usuarios[index].rol = rolSeleccionado.value
+  async function guardarRol() {
+  await fetch(`http://127.0.0.1:8000/api/users/${usuarioSeleccionado.value.id}`, {
+    method: 'PUT',                                                                  //Llama "PUT /api/users/{id}"" enviando el nuevo rol en el body
+    headers: { 'Authorization': `Bearer ${auth.token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ role: rolSeleccionado.value })
+  })
+  // Actualiza localmente
+  const u = usuarios.value.find(u => u.id === usuarioSeleccionado.value.id)  //se actualiza localmente para que la tabla refleje el cambio sin tener que recargar la página
+  if (u && u.roles?.[0]) u.roles[0].name = rolSeleccionado.value
   proxy.$notify.success('Rol actualizado correctamente', 'Éxito')
   mostrarPanelRol.value = false
+ }
 }
 
 // modal eliminar usuario
@@ -101,17 +110,21 @@ function confirmarEliminacion(usuario) {
   showModal.value = true
 }
 
-function ejecutarEliminacion() {
-  store.usuarios = store.usuarios.filter(u => u.id !== usuarioAEliminar.value.id)
+async function ejecutarEliminacion() {
+  await fetch(`http://127.0.0.1:8000/api/users/${usuarioAEliminar.value.id}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${auth.token}` },
+  })
+  usuarios.value = usuarios.value.filter(u => u.id !== usuarioAEliminar.value.id)
   proxy.$notify.success('Usuario eliminado correctamente', 'Éxito')
   showModal.value = false
 }
 
 // helpers árbol
 function contarUsuarios(nodo) {
-  if (nodo.tipo === 'departamento') return store.usuarios.filter(u => u.departamento_id === nodo.id).length
-  if (nodo.tipo === 'equipo')       return store.usuarios.filter(u => u.equipo_id       === nodo.id).length
-  return store.usuarios.length
+  if (nodo.tipo === 'departamento') return usuarios.value.filter(u => u.department_id === Number(nodo.id.split('-')[1])).length
+  if (nodo.tipo === 'equipo')       return usuarios.value.filter(u => u.team_id       === Number(nodo.id.split('-')[1])).length
+  return usuarios.value.length
 }
 
 function eliminarNodo(nodo) {
@@ -143,8 +156,8 @@ function eliminarNodo(nodo) {
       <FormField label="Rol">
         <select v-model="filtroRol" class="app-select">
           <option value="">Todos los roles</option>
-          <option v-for="rol in store.rolesDisponibles" :key="rol.id" :value="rol.codigo">
-            {{ rol.nombre }}
+          <option v-for="rol in roles" :key="rol.id" :value="rol.name">
+             {{ rol.name }}
           </option>
         </select>
       </FormField>
@@ -227,6 +240,7 @@ function eliminarNodo(nodo) {
                   ? 'background: var(--sidebar-active-bg); color: var(--sidebar-active-text);'
                   : 'background: var(--tabla-borde); color: var(--subtext-general);'"
               >{{ contarUsuarios(nodo) }}</span>
+
               <BotonAccion v-if="nodo.tipo !== 'empresa'"
                 variante="trash"
                 titulo="Eliminar"
@@ -252,7 +266,7 @@ function eliminarNodo(nodo) {
         <div class="flex items-center justify-between mb-2 px-1">
           <p class="text-xs" style="color: var(--card-text-hint);">
             Mostrando <strong style="color: var(--card-text);">{{ usuariosFiltrados.length }}</strong>
-            de <strong style="color: var(--card-text);">{{ store.usuarios.length }}</strong> usuarios
+            de <strong style="color: var(--card-text);">{{ usuarios.length }}</strong> usuarios
             <span v-if="nodoSeleccionado" class="font-semibold" style="color: var(--text-encabezado);">
               — {{ nodoSeleccionado.nombre }}
             </span>
@@ -265,7 +279,8 @@ function eliminarNodo(nodo) {
           :datos="usuariosFiltrados"
           :mostrarAcciones="true"
         >
-          <template #default="{ fila }">
+          <!-- apartado donde todos los registros seran datos reales  -->
+          <template #default="{ fila }"> 
 
             <td class="p-4 align-middle text-left">
               <div class="flex items-center gap-3">
@@ -273,9 +288,9 @@ function eliminarNodo(nodo) {
                   {{ fila.name?.charAt(0) }}{{ fila.paternal?.charAt(0) }}
                 </div>
                 <div>
-                  <div class="font-bold text-xs leading-none" style="color: var(--text-general);">
-                    {{ store.nombreCompleto(fila) }}
-                  </div>
+                    <div class="font-bold text-xs leading-none" style="color: var(--text-general);">
+                        {{ fila.name }} {{ fila.paternal }} {{ fila.maternal }}
+                     </div>
                   <div class="text-[11px] mt-0.5" style="color: var(--subtext-general);">{{ fila.email }}</div>
                   <div v-if="fila.phone" class="text-[10px] mt-0.5" style="color: var(--subtext-general);">
                     {{ fila.phone }}
@@ -284,6 +299,7 @@ function eliminarNodo(nodo) {
               </div>
             </td>
 
+         <!--Apartado de roles -->
             <td class="p-4 align-middle text-center">
               <EtiquetaBadge
                 :texto="store.rolesDisponibles.find(r => r.codigo === fila.roles?.[0]?.name)?.nombre ?? fila.roles?.[0]?.name"
@@ -301,6 +317,7 @@ function eliminarNodo(nodo) {
             <td class="p-4 align-middle text-left">
 <span class="text-xs" style="color: var(--subtext-general);">{{ fila.last_login ? fila.last_login.slice(0, 10) : '—' }}</span>            </td>
 
+          <!--apartado del estado -->
             <td class="p-4 align-middle text-center">
               <StatusBadge :tipo="fila.status" />
             </td>
@@ -329,7 +346,7 @@ function eliminarNodo(nodo) {
             <div>
               <span class="text-[10px] font-black uppercase tracking-wider" style="color: var(--sidebar-active-bg);">KPIs Asignados</span>
               <h3 class="text-lg font-bold leading-tight" style="color: var(--text-encabezado);">
-                {{ store.nombreCompleto(usuarioSeleccionado) }}
+                {{ usuarioSeleccionado?.name }} {{ usuarioSeleccionado?.paternal }}
               </h3>
               <p class="text-xs mt-0.5" style="color: var(--subtext-general);">{{ usuarioSeleccionado?.email }}</p>
             </div>
@@ -381,7 +398,7 @@ function eliminarNodo(nodo) {
           <div>
             <h3 class="text-lg font-bold" style="color: var(--text-encabezado);">Modificar Rol</h3>
             <p class="text-xs mt-0.5" style="color: var(--subtext-general);">
-              {{ store.nombreCompleto(usuarioSeleccionado) }}
+              {{ usuarioSeleccionado?.name }} {{ usuarioSeleccionado?.paternal }}
             </p>
           </div>
           <BotonAccion variante="close" titulo="Cerrar" @click="mostrarPanelRol = false" />
