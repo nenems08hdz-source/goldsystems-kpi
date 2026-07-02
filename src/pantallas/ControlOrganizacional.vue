@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted  } from 'vue'
 import { getCurrentInstance } from 'vue'
 import { useOrgStore } from "../stores/orgStore"
 import { useKpiStore } from "../stores/kpiStore"
@@ -18,73 +18,8 @@ const store    = useOrgStore()
 const kpiStore = useKpiStore()
 const { proxy } = getCurrentInstance()
 
-const auth = useAuthStore()   //Se agrega useAuthStore para tener acceso al token y al usuario que se esta logueado. Los ref([]) son reactivas ya que se actualiza cada que se cambia de pantalla automáticamente
-const usuarios      = ref([])
-const departamentos = ref([])
-const equipos       = ref([])
-const roles         = ref([])
-
-const empresaActiva = ref({ nombre: '' })
-onMounted(async () => {
-  const headers = { 'Authorization': `Bearer ${auth.token}` }
-
-  const [resUsuarios, resDepts, resEquipos, resRoles] = await Promise.all([  //se ejecuta automáticamente cuando la pantalla se abre.
-    fetch('http://127.0.0.1:8000/api/users',       { headers }),
-    fetch('http://127.0.0.1:8000/api/departments', { headers }),
-    fetch('http://127.0.0.1:8000/api/teams',       { headers }),
-    fetch('http://127.0.0.1:8000/api/roles',       { headers }),
-  ])
-
-  const dataUsuarios = await resUsuarios.json()
-  const dataDepts    = await resDepts.json()
-  const dataEquipos  = await resEquipos.json()
-  const dataRoles    = await resRoles.json()
-
-  usuarios.value      = dataUsuarios
-  departamentos.value = dataDepts
-  equipos.value       = dataEquipos
-  roles.value         = dataRoles
-
-  // Construye el árbol con datos reales de la API
-  const arbol = []
-  // Nodo empresa (nivel 0)
-  arbol.push({
-    id:     `empresa-${auth.user.company_id}`,
-    nombre: auth.user.name + ' Corp',
-    tipo:   'empresa',
-    nivel:  0,  //se toma el nombre del usuario logueado
-    abierto: true
-  })
-
-  // Departamentos (nivel 1), nos muestra cada departamento que devuelve la API
-  dataDepts.forEach(d => {
-    arbol.push({
-      id:          `dept-${d.id}`,
-      nombre:      d.name,
-      tipo:        'departamento',
-      nivel:       1,
-      padre_id:    `empresa-${d.company_id}`,
-      abierto:     true,
-      responsable: d.manager ?? null
-    })
-
-    // Equipos de este departamento (nivel 2), nos muestra los equipos filtrados por department_id para que queden anidados bajo su departamento
-    dataEquipos
-      .filter(e => e.department_id === d.id)
-      .forEach(e => {
-        arbol.push({
-          id:       `equipo-${e.id}`,
-          nombre:   e.name,
-          tipo:     'equipo',
-          nivel:    2,
-          padre_id: `dept-${e.department_id}`,
-          abierto:  false,
-          lider:    e.leader ?? null
-        })
-      })
-  })
-
-  store.estructuraOrganizacional = arbol
+onMounted(() => {
+  store.cargarTodo()
 })
 
 // árbol organizacional
@@ -102,10 +37,10 @@ const filtroBusqueda = ref('')
 const usuariosFiltrados = computed(() =>
   usuarios.value.filter(u => {
     const pasaNodo = !nodoSeleccionado.value ||
-      (nodoSeleccionado.value.tipo === 'departamento' && u.department_id === Number(nodoSeleccionado.value.id.split('-')[1])) ||
-      (nodoSeleccionado.value.tipo === 'equipo'       && u.team_id       === Number(nodoSeleccionado.value.id.split('-')[1]))
-    const pasaRol      = filtroRol.value    === '' || u.roles?.[0]?.name === filtroRol.value   //el rol viene como un array de objetos, tomamos el primero
-    const pasaEstado   = filtroEstado.value === '' || u.status           === filtroEstado.value
+      (nodoSeleccionado.value.tipo === 'departamento' && u.department_id === nodoSeleccionado.value.id) ||
+      (nodoSeleccionado.value.tipo === 'equipo'       && u.team_id       === nodoSeleccionado.value.id)
+    const pasaRol      = filtroRol.value      === '' || u.roles?.[0]?.name === filtroRol.value
+    const pasaEstado   = filtroEstado.value   === '' || u.status           === filtroEstado.value
     const pasaBusqueda = filtroBusqueda.value === '' ||
       `${u.name} ${u.paternal} ${u.maternal}`.toLowerCase().includes(filtroBusqueda.value.toLowerCase()) || // sirve para la búsqueda por nombre
       u.email.toLowerCase().includes(filtroBusqueda.value.toLowerCase())
@@ -116,7 +51,7 @@ const usuariosFiltrados = computed(() =>
 const tituloTabla = computed(() =>
   nodoSeleccionado.value
     ? `Usuarios: ${nodoSeleccionado.value.nombre}`
-    : `Todos los usuarios — ${empresaActiva.value.nombre}`
+    : `Todos los usuarios — ${store.empresaActiva?.name ?? ''}`
 )
 
 function limpiarFiltros() {
@@ -260,7 +195,7 @@ function eliminarNodo(nodo) {
         <div class="p-3 flex flex-col gap-1 max-h-[420px] overflow-y-auto">
           <div
             v-for="nodo in store.estructuraOrganizacional"
-            :key="nodo.id"
+            :key="nodo.uid"
             :style="{ paddingLeft: (nodo.nivel * 20) + 'px' }"
             class="group flex items-center justify-between p-2.5 rounded-xl transition-all duration-200 relative"
             :class="[
@@ -347,46 +282,44 @@ function eliminarNodo(nodo) {
           <!-- apartado donde todos los registros seran datos reales  -->
           <template #default="{ fila }"> 
 
-              <td class="p-4 align-middle text-left">
-                <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-full bg-[#3f2a52] text-white flex items-center justify-center text-[10px] font-bold shadow-sm flex-shrink-0">
-                      {{ fila.name?.charAt(0) }}{{ fila.paternal?.charAt(0) }}
-                   </div>
+            <td class="p-4 align-middle text-left">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-[#3f2a52] text-white flex items-center justify-center text-[10px] font-bold shadow-sm flex-shrink-0">
+                  {{ fila.name?.charAt(0) }}{{ fila.paternal?.charAt(0) }}
+                </div>
                 <div>
                     <div class="font-bold text-xs leading-none" style="color: var(--text-general);">
                         {{ fila.name }} {{ fila.paternal }} {{ fila.maternal }}
                      </div>
                   <div class="text-[11px] mt-0.5" style="color: var(--subtext-general);">{{ fila.email }}</div>
-                      <div v-if="fila.phone" class="text-[10px] mt-0.5" style="color: var(--subtext-general);">
-                          {{ fila.phone }}
-                       </div>
-                   </div>
-                 </div>
-              </td>
+                  <div v-if="fila.phone" class="text-[10px] mt-0.5" style="color: var(--subtext-general);">
+                    {{ fila.phone }}
+                  </div>
+                </div>
+              </div>
+            </td>
 
          <!--Apartado de roles -->
             <td class="p-4 align-middle text-center">
-                <EtiquetaBadge
-                    :texto="fila.roles?.[0]?.name ?? '—'"
-                    :clase="store.colorPorRol(fila.roles?.[0]?.name ?? '')"
-                   />
-              </td>
+              <EtiquetaBadge
+                :texto="store.rolesDisponibles.find(r => r.codigo === fila.roles?.[0]?.name)?.nombre ?? fila.roles?.[0]?.name"
+                :clase="store.colorPorRol(fila.roles?.[0]?.name)"
+/>
+            </td>
 
             <td class="p-4 align-middle text-left">
               <div class="flex items-center gap-1.5">
-                <span class="font-semibold text-sm" style="color: var(--text-general);">{{ fila.kpis }}</span>
+                <span class="font-semibold text-sm" style="color: var(--text-general);">—</span>
                 <span style="color: var(--card-text-hint);" class="text-xs"></span>
               </div>
             </td>
 
-            <!--apartado del ultimo acceso o inicio de sesion -->
-           <td class="p-4 align-middle text-left">
-              <span class="text-xs" style="color: var(--subtext-general);">{{ fila.last_login?.slice(0,10) ?? '—' }}</span>
-          </td>
+            <td class="p-4 align-middle text-left">
+<span class="text-xs" style="color: var(--subtext-general);">{{ fila.last_login ? fila.last_login.slice(0, 10) : '—' }}</span>            </td>
 
           <!--apartado del estado -->
             <td class="p-4 align-middle text-center">
-              <StatusBadge :tipo="fila.status === 'active' ? 'activo' : fila.status === 'inactive' ? 'bloqueado' : fila.status" />
+              <StatusBadge :tipo="fila.status" />
             </td>
 
           </template>

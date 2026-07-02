@@ -23,9 +23,9 @@ const config = {
   warning:   { badge: 'text-amber-700  bg-amber-50  border-amber-200',  dot: 'bg-amber-500',  label: 'En riesgo'  },
   danger:    { badge: 'text-rose-700   bg-rose-50   border-rose-200',   dot: 'bg-rose-500',   label: 'Crítico'    },
   // ── Estados de usuario ───────────────────────────────────────
-  activo:    { badge: 'text-emerald-700 bg-emerald-50 border-emerald-200', dot: 'bg-emerald-500', label: 'Activo'     },
-  ausente:   { badge: 'text-amber-700  bg-amber-50  border-amber-200',  dot: 'bg-amber-500',  label: 'Ausente'    },
-  bloqueado: { badge: 'text-rose-700   bg-rose-50   border-rose-200',   dot: 'bg-rose-500',   label: 'Bloqueado'  },
+  active:    { badge: 'text-emerald-700 bg-emerald-50 border-emerald-200', dot: 'bg-emerald-500', label: 'Activo'     },
+  inactive:   { badge: 'text-amber-700  bg-amber-50  border-amber-200',  dot: 'bg-amber-500',  label: 'Ausente'    },
+  blocked: { badge: 'text-rose-700   bg-rose-50   border-rose-200',   dot: 'bg-rose-500',   label: 'Bloqueado'  },
   // ── Estados de captura de métrica ────────────────────────────
   aTiempo:   { badge: 'text-emerald-700 bg-emerald-50 border-emerald-200', dot: 'bg-emerald-500', label: 'A Tiempo'   },
   porVencer: { badge: 'text-amber-700  bg-amber-50  border-amber-200',  dot: 'bg-amber-500',  label: 'Por Vencer' },

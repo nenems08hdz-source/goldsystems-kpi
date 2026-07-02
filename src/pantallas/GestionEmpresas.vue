@@ -1,4 +1,6 @@
 <script setup>
+import { useAuthStore } from '../stores/authStore'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getCurrentInstance } from 'vue'
 import { useOrgStore } from "../stores/orgStore"
@@ -8,12 +10,15 @@ import FormField          from '../components/ui/FormField.vue'
 import StatusBadge        from '../components/StatusBadge.vue'
 import BotonAccion        from '../components/ui/BotonAccion.vue'
 import AppButton          from '../components/ui/AppButton.vue'
-import { useAuthStore } from '../stores/authStore'
-import { ref, computed, onMounted } from 'vue'
+
 
 const router      = useRouter()
 const store       = useOrgStore()
 const { proxy }   = getCurrentInstance()
+
+onMounted(() => {
+  store.cargarEmpresas()
+})
 
 const API_URL     = import.meta.env.VITE_API_URL                  // http://localhost:8000/api
 const STORAGE_URL = API_URL?.replace('/api', '/storage') ?? ''    // http://localhost:8000/storage
@@ -25,9 +30,9 @@ const empresasFiltradas = computed(() =>
   store.empresas.filter(e => {
     const textoBusqueda = filtroBusqueda.value.toLowerCase()
     const pasaBusqueda  = textoBusqueda === '' ||
-      e.nombre.toLowerCase().includes(textoBusqueda) ||
-      e.razonSocial.toLowerCase().includes(textoBusqueda)
-    const pasaEstado = filtroEstado.value === '' || e.estado === filtroEstado.value
+      e.name.toLowerCase().includes(textoBusqueda) ||
+      e.legal_name.toLowerCase().includes(textoBusqueda)
+    const pasaEstado = filtroEstado.value === '' || e.status === filtroEstado.value
     return pasaBusqueda && pasaEstado
   })
 )
@@ -106,8 +111,8 @@ onMounted(() => {
       <FormField label="Estado">
         <select v-model="filtroEstado" class="app-select">
           <option value="">Todas</option>
-          <option value="activo">Solo activas</option>
-          <option value="inactivo">Solo inactivas</option>
+          <option value="active">Solo activas</option>
+          <option value="inactive">Solo inactivas</option>
         </select>
       </FormField>
 
@@ -136,7 +141,7 @@ onMounted(() => {
                       <img v-if="empresa.logo"
                            :src="`${STORAGE_URL}/${empresa.logo}`"
                             class="w-full h-full object-cover" />
-                       <span v-else>{{ empresa.nombre?.charAt(0) }}</span>
+                       <span v-else>{{ empresa.name?.charAt(0) }}</span>
                   </div>
 
         <label class="absolute -bottom-1 -right-1 p-0.5 px-1 rounded-md text-[9px] font-bold cursor-pointer"
@@ -146,11 +151,11 @@ onMounted(() => {
          </label>
    </div>
       <div>
-           <h3 class="text-sm font-bold" style="color: var(--text-general);">{{ empresa.nombre }}</h3>
-            <p class="text-[10px] mt-0.5" style="color: var(--subtext-general);">{{ empresa.razonSocial }}</p>
+           <h3 class="text-sm font-bold" style="color: var(--text-general);">{{ empresa.name }}</h3>
+            <p class="text-[10px] mt-0.5" style="color: var(--subtext-general);">{{ empresa.legal_name }}</p>
        </div>
     </div>
- <StatusBadge :tipo="empresa.estado === 'activo' ? 'activo' : 'bloqueado'" />
+ <StatusBadge :tipo="empresa.status" />
 </div>
 
         <div class="p-4 space-y-1.5 flex-grow">
@@ -160,28 +165,28 @@ onMounted(() => {
           </p>
           <p class="text-[11px] flex items-center gap-2" style="color: var(--subtext-general);">
             <i class="fi fi-sr-phone-call text-[10px]"></i>
-            {{ empresa.telefono || '—' }}
+            {{ empresa.phone || '—' }}
           </p>
           <p class="text-[11px] flex items-center gap-2" style="color: var(--subtext-general);">
             <i class="fi fi-sr-id-card text-[10px]"></i>
-            RFC: {{ empresa.rfc }}
+            RFC: {{ empresa.tax_id }}
           </p>
         </div>
 
         <div class="px-4 py-3 flex items-center gap-4"
           style="border-top: 1px solid var(--tabla-borde);">
           <div class="text-center">
-            <p class="text-base font-black" style="color: var(--text-encabezado);">{{ empresa.usuarios }}</p>
+            <p class="text-base font-black" style="color: var(--text-encabezado);"> - </p>
             <p class="text-[9px] uppercase tracking-wide" style="color: var(--subtext-general);">Usuarios</p>
           </div>
 
           <div class="text-center">
-            <p class="text-base font-black" style="color: var(--text-encabezado);">{{ empresa.kpis }}</p>
+            <p class="text-base font-black" style="color: var(--text-encabezado);"> - </p>
             <p class="text-[9px] uppercase tracking-wide" style="color: var(--subtext-general);">KPIs</p>
           </div>
 
           <div class="text-center">
-            <p class="text-[10px] font-bold" style="color: var(--text-general);">{{ empresa.fechaRegistro }}</p>
+            <p class="text-[10px] font-bold" style="color: var(--text-general);">{{ empresa.created_at?.slice(0, 10)}}</p>
             <p class="text-[9px] uppercase tracking-wide" style="color: var(--subtext-general);">Registro</p>
           </div>
 
