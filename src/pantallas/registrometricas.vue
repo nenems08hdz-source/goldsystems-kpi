@@ -72,7 +72,7 @@ async function guardarMetrica() {
   } catch {
     errorMensaje.value = 'Error al guardar. Intenta de nuevo.'
   }
-
+}
 </script>
 
 <template>
