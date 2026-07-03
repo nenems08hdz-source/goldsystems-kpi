@@ -94,9 +94,9 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
             :nombre="item.subtitulo"
             :departamento="item.departamento"
             :responsable="item.responsable"
-            :valor="item.objetivo"
+            :valor="`${item.progreso}%`"
             :periodicidad="item.periodicidad"
-            :estado="item.estado"
+            :estado="item.estadoTipo === 'success' ? 'saludable' : item.estadoTipo === 'warning' ? 'en riesgo' : 'critico'"
             :progreso="item.progreso"
           />
         </div>

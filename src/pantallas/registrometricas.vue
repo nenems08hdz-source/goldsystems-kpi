@@ -1,9 +1,6 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, getCurrentInstance } from 'vue'
 import { useAuthStore } from '../stores/authStore'
-import { getCurrentInstance } from 'vue'
-import { useKpiStore }  from '../stores/kpiStore'
-import { useOrgStore }  from '../stores/orgStore'
 import EtiquetaBadge from '../components/ui/EtiquetaBadge.vue'
 import AppButton     from '../components/ui/AppButton.vue'
 import BotonAccion   from '../components/ui/BotonAccion.vue'
@@ -13,10 +10,9 @@ const props = defineProps({
 })
 const emit = defineEmits(['guardado', 'cancelar'])
 
-const store    = useKpiStore()
-const orgStore = useOrgStore()
 const auth     = useAuthStore()
 const capturas = ref([])
+const { proxy } = getCurrentInstance()
 
 onMounted(async () => {
   const res = await fetch(`http://127.0.0.1:8000/api/kpi-records?kpi_id=${props.kpi.id}`, {
@@ -93,20 +89,6 @@ async function guardarMetrica() {
   emit('guardado')
 }
 
-  store.registrarCaptura({
-    kpi_id:           props.kpi.id,
-    captured_by:      orgStore.usuarioActual.id,
-    value:            Number(form.value.value),
-    period_start:     form.value.period_start,
-    period_end:       null,
-    notes:            form.value.notes,
-    kpi_assignment_id: null,
-  })
-
-  proxy.$notify.success(`Métrica registrada para "${props.kpi.nombre}"`, 'Guardado')
-  form.value = { period_start: '', value: '', notes: '' }
-  errorMensaje.value = ''
-  emit('guardado')
 
 </script>
 
