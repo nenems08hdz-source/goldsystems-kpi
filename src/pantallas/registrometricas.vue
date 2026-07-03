@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, getCurrentInstance } from 'vue'
+import { useAuthStore } from '../stores/authStore'
 import api from '../services/api'
 import EtiquetaBadge from '../components/ui/EtiquetaBadge.vue'
 import AppButton     from '../components/ui/AppButton.vue'
@@ -11,6 +12,7 @@ const props = defineProps({
 const emit = defineEmits(['guardado', 'cancelar'])
 
 const { proxy } = getCurrentInstance()
+const auth     = useAuthStore()
 const capturas = ref([])
 
 onMounted(async () => {
@@ -60,6 +62,7 @@ async function guardarMetrica() {
   try {
     const res = await api.post('/kpi-records', {
       kpi_id:       props.kpi.id,
+      captured_by:  auth.user.id,
       value:        Number(form.value.value),
       period_start: form.value.period_start,
       notes:        form.value.notes || null,

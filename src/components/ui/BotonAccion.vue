@@ -36,7 +36,7 @@ const estilos = {
     class="inline-flex items-center justify-center w-8 h-8 rounded-lg transition-colors text-sm flex-shrink-0"
     :class="[estilos[variante] ?? estilos.edit]"
     style="color: var(--card-text-hint); background: var(--tabla-header-bg);"
-    @click="$emit('click')"
+    @click.stop="$emit('click')"
   >
     <i :class="iconos[variante] ?? iconos.edit" />
   </button>

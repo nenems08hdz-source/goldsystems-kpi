@@ -30,9 +30,12 @@ const departamentosDisponibles = computed(() =>
   store.departamentos.map(d => ({ value: d.id, label: d.name }))
 )
 
-const equiposDisponibles = computed(() =>
-  store.equipos.map(e => ({ value: e.id, label: e.name }))
-)
+const equiposDisponibles = computed(() => {
+  if (!nuevoUsuario.value.department_id) return []
+  return store.equipos
+    .filter(e => e.department_id === Number(nuevoUsuario.value.department_id))
+    .map(e => ({ value: e.id, label: e.name }))
+})
 
 const rolesAsignables = store.rolesDisponibles
   .filter(r => r.codigo !== 'developer')
@@ -108,6 +111,7 @@ async function guardarUsuario() {
             v-model="nuevoUsuario.phone"
             type="tel"
             placeholder="+52 999 000 0000"
+            autocomplete="off"
           />
         </FormField>
 
@@ -116,6 +120,7 @@ async function guardarUsuario() {
           v-model="nuevoUsuario.password"
           type="password"
           placeholder="Mínimo 8 caracteres"
+          autocomplete="new-password"
           required
         />
       </FormField>
@@ -134,6 +139,7 @@ async function guardarUsuario() {
             v-model="nuevoUsuario.department_id"
             :options="[{ value: null, label: 'Sin departamento' }, ...departamentosDisponibles]"
             placeholder="Sin departamento"
+            @change="nuevoUsuario.team_id = null"
           />
         </FormField>
 
@@ -141,7 +147,8 @@ async function guardarUsuario() {
           <AppSelect
             v-model="nuevoUsuario.team_id"
             :options="[{ value: null, label: 'Sin equipo' }, ...equiposDisponibles]"
-            placeholder="Sin equipo"
+            :placeholder="nuevoUsuario.department_id ? 'Sin equipo' : 'Selecciona departamento primero'"
+            :disabled="!nuevoUsuario.department_id"
           />
         </FormField>
 

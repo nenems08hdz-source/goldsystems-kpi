@@ -66,7 +66,7 @@ onMounted(async () => {
       responsable:         k.creator
                             ? `${k.creator.name} ${k.creator.paternal ?? ''}`.trim()
                             : '—',
-      meta:                k.goal ? `${k.goal} ${k.unit ?? ''}`.trim() : '—',
+      meta:                k.goal ? `${parseFloat(k.goal)} ${k.unit ?? ''}`.trim() : '—',
       progreso,
       traffic_light,
       estado,

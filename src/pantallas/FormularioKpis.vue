@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getCurrentInstance } from 'vue'
 import { useKpiStore } from '../stores/kpiStore'
@@ -16,14 +16,17 @@ const store    = useKpiStore()
 const { proxy } = getCurrentInstance()
 const auth = useAuthStore()
 const departamentosApi = ref([])
+const equiposApi       = ref([])
 const usuariosApi      = ref([])
 
 onMounted(async () => {
-  const [resDepts, resUsuarios] = await Promise.all([
+  const [resDepts, resEquipos, resUsuarios] = await Promise.all([
     api.get('/departments'),
+    api.get('/teams'),
     api.get('/users'),
   ])
   departamentosApi.value = resDepts.data
+  equiposApi.value       = resEquipos.data
   usuariosApi.value      = resUsuarios.data
 })
 
@@ -36,8 +39,7 @@ const nuevoKpi = ref({
   usuario_id:      null,
   progreso:        0,
   periodicidad:    'Mensual',
-  meta:            '',
-  goal:            null,
+  goal:            '',
   unit:            '%',
   minimum:         null,
   maximum:         null,
@@ -55,9 +57,9 @@ const opcionesDepartamentos = computed(() =>
 const opcionesEquipos = computed(() => {
   if (!nuevoKpi.value.departamento_id) return []
   const deptId = Number(nuevoKpi.value.departamento_id)
-  return usuariosApi.value
-    .filter(u => u.team_id && u.department_id === deptId)
-    .map(u => ({ value: u.team_id, label: `Equipo ${u.team_id}` }))
+  return equiposApi.value
+    .filter(e => e.department_id === deptId)
+    .map(e => ({ value: e.id, label: e.name }))
 })
 
 // Responsables filtrados por departamento/equipo seleccionado
@@ -90,6 +92,11 @@ const unidadPorTipo = {
   'Puntaje':    'pts',
 }
 
+// Actualiza la unidad automáticamente al cambiar el tipo
+watch(() => nuevoKpi.value.tipoMetrica, (tipo) => {
+  nuevoKpi.value.unit = unidadPorTipo[tipo] ?? '%'
+})
+
 async function guardarKpi() {
   // Mapeo de valores display → valores que acepta la API
   const tipoApiMap = {
@@ -114,7 +121,7 @@ async function guardarKpi() {
     formula:       nuevoKpi.value.formula,
     type:          tipoApiMap[nuevoKpi.value.tipoMetrica],
     frequency:     frecuenciaApiMap[nuevoKpi.value.periodicidad],
-    goal:          nuevoKpi.value.goal    ? Number(nuevoKpi.value.goal)    : null,
+    goal:          nuevoKpi.value.goal !== '' ? Number(nuevoKpi.value.goal) : null,
     minimum:       nuevoKpi.value.minimum ? Number(nuevoKpi.value.minimum) : null,
     maximum:       nuevoKpi.value.maximum ? Number(nuevoKpi.value.maximum) : null,
     unit:          nuevoKpi.value.unit,
@@ -122,7 +129,7 @@ async function guardarKpi() {
     status:        'active',
     company_id:    auth.user.company_id,
     department_id: nuevoKpi.value.departamento_id ? Number(nuevoKpi.value.departamento_id) : null,
-    created_by:    auth.user.id,
+    created_by:    nuevoKpi.value.usuario_id ? Number(nuevoKpi.value.usuario_id) : auth.user.id,
   }
 
   try {
@@ -144,6 +151,22 @@ async function guardarKpi() {
     proxy.$notify.error('Error al guardar el KPI', 'Error')
   }
 }
+
+// Semáforo relativo a la meta (no asume porcentaje)
+const cumplimiento = computed(() => {
+  const val  = Number(nuevoKpi.value.progreso)
+  const meta = Number(nuevoKpi.value.goal)
+  if (!val || !meta || meta === 0) return null
+  return (val / meta) * 100
+})
+
+const semaforo = computed(() => {
+  const c = cumplimiento.value
+  if (c === null) return null
+  if (c >= 80) return { clase: 'text-emerald-600', texto: 'Saludable' }
+  if (c >= 50) return { clase: 'text-amber-500',   texto: 'En riesgo' }
+  return         { clase: 'text-rose-500',     texto: 'Crítico'   }
+})
 
 /* Opciones estáticas */
 const opcionesPeriodicidad = ['Diario', 'Semanal', 'Mensual', 'Trimestral', 'Anual']
@@ -254,36 +277,36 @@ const opcionesTipoMetrica  = [
           <AppSelect v-model="nuevoKpi.tipoMetrica" :options="opcionesTipoMetrica" />
         </FormField>
 
+        <FormField label="Meta / Objetivo" hint="valor numérico" required :col-span="2">
+          <AppInput
+            v-model="nuevoKpi.goal"
+            type="number"
+            step="0.01"
+            placeholder="Ej. 95  o  200  o  5000"
+            required
+          />
+        </FormField>
+
         <FormField
-          label="Valor Inicial (0-100)"
-          hint="define el estado automáticamente"
+          label="Valor Inicial"
+          hint="define el estado vs la meta"
           required
         >
           <AppInput
             v-model="nuevoKpi.progreso"
             type="number"
+            step="0.01"
             :min="0"
-            :max="100"
-            placeholder="Ej. 85"
+            placeholder="Ej. 85, 5000, 920..."
             required
           />
-          <p class="text-[10px] mt-1" :class="{
-            'text-emerald-600': nuevoKpi.progreso >= 80,
-            'text-amber-500':   nuevoKpi.progreso >= 50 && nuevoKpi.progreso < 80,
-            'text-rose-500':    nuevoKpi.progreso < 50,
-          }">
-            <span v-if="nuevoKpi.progreso >= 80">● Estado: Saludable</span>
-            <span v-else-if="nuevoKpi.progreso >= 50">● Estado: En riesgo</span>
-            <span v-else-if="nuevoKpi.progreso > 0">● Estado: Crítico</span>
+          <p v-if="semaforo" class="text-[10px] mt-1" :class="semaforo.clase">
+            ● Estado: {{ semaforo.texto }}
+            <span class="opacity-60">({{ cumplimiento.toFixed(1) }}% de la meta)</span>
           </p>
-        </FormField>
-
-        <FormField label="Meta / Objetivo" required :col-span="2">
-          <AppInput
-            v-model="nuevoKpi.meta"
-            placeholder="Ej. > 95%  o  < 200ms  o  $5,000 USD"
-            required
-          />
+          <p v-else-if="nuevoKpi.progreso && !nuevoKpi.goal" class="text-[10px] mt-1 text-amber-400">
+            Ingresa la meta primero para calcular el estado.
+          </p>
         </FormField>
 
       </div>

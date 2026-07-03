@@ -4,6 +4,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getCurrentInstance } from 'vue'
 import { useOrgStore } from "../stores/orgStore"
+import api from '../services/api'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
 import ModalConfirmacion  from '../components/ModalConfirmacion.vue'
 import FormField          from '../components/ui/FormField.vue'
@@ -46,10 +47,15 @@ function confirmarEliminacion(empresa) {
   showModal.value = true
 }
 
-function ejecutarEliminacion() {
-  const index = store.empresas.findIndex(e => e.id === empresaAEliminar.value.id)
-  if (index !== -1) store.empresas.splice(index, 1)
-  proxy.$notify.success('Empresa eliminada correctamente', 'Éxito')
+async function ejecutarEliminacion() {
+  try {
+    await api.delete(`/companies/${empresaAEliminar.value.id}`)
+    const index = store.empresas.findIndex(e => e.id === empresaAEliminar.value.id)
+    if (index !== -1) store.empresas.splice(index, 1)
+    proxy.$notify.success('Empresa eliminada correctamente', 'Éxito')
+  } catch {
+    proxy.$notify.error('Error al eliminar la empresa', 'Error')
+  }
   showModal.value = false
 }
 
