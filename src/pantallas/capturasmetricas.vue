@@ -1,8 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, getCurrentInstance } from 'vue'
-import { useAuthStore } from '../stores/authStore'
-import { useKpiStore }    from '../stores/kpiStore'
-import { useOrgStore }    from '../stores/orgStore'
+import { useKpiStore } from '../stores/kpiStore'
+import api from '../services/api'
 import PlantillaTabla     from '../components/PlantillaTabla.vue'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
 import ModalConfirmacion  from '../components/ModalConfirmacion.vue'
@@ -12,16 +11,13 @@ import BotonAccion        from '../components/ui/BotonAccion.vue'
 import StatusBadge        from '../components/StatusBadge.vue'
 import AppButton          from '../components/ui/AppButton.vue'
 
-const store    = useKpiStore()
-const orgStore = useOrgStore()
-const auth  = useAuthStore()
+const { proxy } = getCurrentInstance()
+const store = useKpiStore()
 const kpis  = ref([])
 
 onMounted(async () => {
-  const res = await fetch('http://127.0.0.1:8000/api/kpis', {
-    headers: { 'Authorization': `Bearer ${auth.token}` }
-  })
-  const data = await res.json()
+  const res  = await api.get('/kpis')
+  const data = res.data
 
   const tipoMap = { percentage: 'Porcentaje', money: 'Monetario', time: 'Tiempo', absolute: 'Puntaje', custom: 'Puntaje' }
   const frecuenciaMap = { daily: 'Diario', weekly: 'Semanal', monthly: 'Mensual', quarterly: 'Trimestral', annual: 'Anual' }
@@ -67,9 +63,7 @@ function prepararEliminacion(kpi) {
 }
 
 function ejecutarEliminacion() {
-  store.indicadores = store.indicadores.filter(
-    i => i.id !== kpiAEliminar.value.id
-  )
+  kpis.value = kpis.value.filter(i => i.id !== kpiAEliminar.value.id)
   proxy.$notify.success('El KPI ha sido eliminado correctamente', 'Éxito')
   showModal.value = false
 }

@@ -1,9 +1,6 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useAuthStore } from '../stores/authStore'
-import { getCurrentInstance } from 'vue'
-import { useKpiStore }  from '../stores/kpiStore'
-import { useOrgStore }  from '../stores/orgStore'
+import { ref, computed, onMounted, getCurrentInstance } from 'vue'
+import api from '../services/api'
 import EtiquetaBadge from '../components/ui/EtiquetaBadge.vue'
 import AppButton     from '../components/ui/AppButton.vue'
 import BotonAccion   from '../components/ui/BotonAccion.vue'
@@ -13,16 +10,12 @@ const props = defineProps({
 })
 const emit = defineEmits(['guardado', 'cancelar'])
 
-const store    = useKpiStore()
-const orgStore = useOrgStore()
-const auth     = useAuthStore()
+const { proxy } = getCurrentInstance()
 const capturas = ref([])
 
 onMounted(async () => {
-  const res = await fetch(`http://127.0.0.1:8000/api/kpi-records?kpi_id=${props.kpi.id}`, {
-    headers: { 'Authorization': `Bearer ${auth.token}` }
-  })
-  capturas.value = await res.json()
+  const res = await api.get(`/kpi-records?kpi_id=${props.kpi.id}`)
+  capturas.value = res.data
 })
 
 const form = ref({
@@ -64,49 +57,21 @@ async function guardarMetrica() {
     return
   }
 
-  const res = await fetch('http://127.0.0.1:8000/api/kpi-records', {
-    method:  'POST',
-    headers: {
-      'Authorization': `Bearer ${auth.token}`,
-      'Content-Type':  'application/json',
-    },
-    body: JSON.stringify({
+  try {
+    const res = await api.post('/kpi-records', {
       kpi_id:       props.kpi.id,
-      captured_by:  auth.user.id,
       value:        Number(form.value.value),
       period_start: form.value.period_start,
       notes:        form.value.notes || null,
-    }),
-  })
-
-  if (!res.ok) {
+    })
+    capturas.value.unshift(res.data)
+    proxy.$notify.success(`Métrica registrada para "${props.kpi.nombre}"`, 'Guardado')
+    form.value = { period_start: '', value: '', notes: '' }
+    errorMensaje.value = ''
+    emit('guardado')
+  } catch {
     errorMensaje.value = 'Error al guardar. Intenta de nuevo.'
-    return
   }
-
-  const nueva = await res.json()
-  capturas.value.unshift(nueva)
-
-  proxy.$notify.success(`Métrica registrada para "${props.kpi.nombre}"`, 'Guardado')
-  form.value = { period_start: '', value: '', notes: '' }
-  errorMensaje.value = ''
-  emit('guardado')
-}
-
-  store.registrarCaptura({
-    kpi_id:           props.kpi.id,
-    captured_by:      orgStore.usuarioActual.id,
-    value:            Number(form.value.value),
-    period_start:     form.value.period_start,
-    period_end:       null,
-    notes:            form.value.notes,
-    kpi_assignment_id: null,
-  })
-
-  proxy.$notify.success(`Métrica registrada para "${props.kpi.nombre}"`, 'Guardado')
-  form.value = { period_start: '', value: '', notes: '' }
-  errorMensaje.value = ''
-  emit('guardado')
 
 </script>
 

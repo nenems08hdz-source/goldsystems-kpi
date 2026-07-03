@@ -3,8 +3,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getCurrentInstance } from 'vue'
 import { useKpiStore } from '../stores/kpiStore'
-import { useOrgStore } from '../stores/orgStore'
 import { useAuthStore } from '../stores/authStore'
+import api from '../services/api'
 import AppButton          from '@/components/ui/AppButton.vue'
 import AppInput           from '@/components/ui/AppInput.vue'
 import AppSelect          from '@/components/ui/AppSelect.vue'
@@ -14,19 +14,17 @@ import EncabezadoPantalla from '@/components/EncabezadoPantalla.vue'
 const router   = useRouter()
 const store    = useKpiStore()
 const { proxy } = getCurrentInstance()
-const orgStore = useOrgStore()
 const auth = useAuthStore()
 const departamentosApi = ref([])
 const usuariosApi      = ref([])
 
 onMounted(async () => {
-  const headers = { 'Authorization': `Bearer ${auth.token}` }
   const [resDepts, resUsuarios] = await Promise.all([
-    fetch('http://127.0.0.1:8000/api/departments', { headers }),
-    fetch('http://127.0.0.1:8000/api/users',       { headers }),
+    api.get('/departments'),
+    api.get('/users'),
   ])
-  departamentosApi.value = await resDepts.json()
-  usuariosApi.value      = await resUsuarios.json()
+  departamentosApi.value = resDepts.data
+  usuariosApi.value      = resUsuarios.data
 })
 
 const nuevoKpi = ref({
@@ -38,15 +36,14 @@ const nuevoKpi = ref({
   usuario_id:      null,
   progreso:        0,
   periodicidad:    'Mensual',
-  meta:            '',       // texto display: ej. '> 95%'
-  goal:            null,     // BD: valor numérico de la meta
-  unit:            '%',      // BD: unidad de medida
+  meta:            '',
+  goal:            null,
+  unit:            '%',
   minimum:         null,
   maximum:         null,
   weight:          1.00,
   tipoMetrica:     'Porcentaje',
   status:          'active',
-  company_id:      1,
 })
 
 // Departamentos desde la API
@@ -128,40 +125,24 @@ async function guardarKpi() {
     created_by:    auth.user.id,
   }
 
-  const res = await fetch('http://127.0.0.1:8000/api/kpis', {
-    method:  'POST',
-    headers: {
-      'Authorization': `Bearer ${auth.token}`,
-      'Content-Type':  'application/json',
-    },
-    body: JSON.stringify(payload),
-  })
+  try {
+    const resKpi = await api.post('/kpis', payload)
+    const kpiCreado = resKpi.data
 
-  const kpiCreado = await res.json()
-
-  if (!res.ok) {
-    proxy.$notify.error('Error al guardar el KPI', 'Error')
-    return
-  }
-
-  // Si hay valor inicial, guardarlo como primer registro
-  if (nuevoKpi.value.progreso > 0) {
-    await fetch('http://127.0.0.1:8000/api/kpi-records', {
-    method:  'POST',
-    headers: {
-      'Authorization': `Bearer ${auth.token}`,
-      'Content-Type':  'application/json',
-    },
-      body: JSON.stringify({
+    if (nuevoKpi.value.progreso > 0) {
+      await api.post('/kpi-records', {
         kpi_id:       kpiCreado.id,
         value:        Number(nuevoKpi.value.progreso),
         period_start: new Date().toISOString().split('T')[0],
         captured_by:  auth.user.id,
-      }),
-    })
+      })
+    }
+
+    proxy.$notify.success('KPI registrado correctamente', 'Éxito')
+    router.push('/kpis')
+  } catch {
+    proxy.$notify.error('Error al guardar el KPI', 'Error')
   }
-  proxy.$notify.success('KPI registrado correctamente', 'Éxito')
-  router.push('/kpis')
 }
 
 /* Opciones estáticas */

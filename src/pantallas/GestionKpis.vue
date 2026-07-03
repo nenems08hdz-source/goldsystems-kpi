@@ -2,8 +2,8 @@
 // ── Imports ───────────────────────────────────────────────────────────────────
 import { ref, computed, onMounted } from 'vue'
 import { getCurrentInstance } from 'vue'
-import { useAuthStore } from '../stores/authStore'   // para obtener el token
-import { useKpiStore } from '../stores/kpiStore'     // para usar calcularEstado()
+import { useKpiStore } from '../stores/kpiStore'
+import api from '../services/api'
 import plantillatabla     from '../components/PlantillaTabla.vue'
 import tarjetasestado     from '../components/TarjetasEstado.vue'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
@@ -16,7 +16,6 @@ import EtiquetaBadge      from '../components/ui/EtiquetaBadge.vue'
 
 const { proxy } = getCurrentInstance()
 const store = useKpiStore()
-const auth  = useAuthStore()
 
 // ── Mapeos API → Display ──────────────────────────────────────────────────────
 // La API guarda los tipos en inglés (percentage, money...)
@@ -44,11 +43,8 @@ const kpis = ref([])
 
 // ── Carga de datos al abrir la pantalla ──────────────────────────────────────
 onMounted(async () => {
-  const headers = { 'Authorization': `Bearer ${auth.token}` }
-
-  // Petición GET a la API (con departamento, creador y último registro incluidos)
-  const res  = await fetch('http://127.0.0.1:8000/api/kpis', { headers })
-  const data = await res.json()
+  const res  = await api.get('/kpis')
+  const data = res.data
 
   // Transformamos cada KPI de la API al formato que usa el template
   kpis.value = data.map(k => {
@@ -147,12 +143,13 @@ function prepararEliminacion(kpi) {
 
 // Llama a la API para eliminar y quita el KPI de la lista local
 async function ejecutarEliminacion() {
-  await fetch(`http://127.0.0.1:8000/api/kpis/${kpiAEliminar.value.id}`, {
-    method: 'DELETE',
-    headers: { 'Authorization': `Bearer ${auth.token}` },
-  })
-  kpis.value = kpis.value.filter(i => i.id !== kpiAEliminar.value.id)
-  proxy.$notify.success('El KPI ha sido eliminado correctamente', 'Éxito')
+  try {
+    await api.delete(`/kpis/${kpiAEliminar.value.id}`)
+    kpis.value = kpis.value.filter(i => i.id !== kpiAEliminar.value.id)
+    proxy.$notify.success('El KPI ha sido eliminado correctamente', 'Éxito')
+  } catch {
+    proxy.$notify.error('Error al eliminar el KPI', 'Error')
+  }
   showModal.value = false
 }
 </script>
