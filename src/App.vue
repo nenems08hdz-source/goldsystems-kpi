@@ -1,11 +1,13 @@
 <script setup>
 import { RouterView, useRoute } from 'vue-router'
 import { useLayoutStore } from '@/stores/layout'
+import { useKpiStore } from '@/stores/kpiStore' //cambio 1 
 import sidebar from './components/Sidebar.vue'
 import navbar from './components/Navbar.vue'
 import { onMounted, onUnmounted } from 'vue'
 
 const layout = useLayoutStore()
+const kpiStore = useKpiStore() ////cambio 2
 const route  = useRoute()
 
 // Auto-colapsa el sidebar en pantallas pequeñas (<1024px)
@@ -19,6 +21,7 @@ onMounted(() => {
   document.documentElement.classList.add('dark')
   handleResize()
   window.addEventListener('resize', handleResize)
+  
 })
 
 onUnmounted(() => {

@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Ajustes from '../components/Ajustes.vue'
 import Auditoria from '../pantallas/Auditoria.vue'
-import CapturasMetricas from '../pantallas/CapturasMetricas.vue'
+import CapturasMetricas from '../pantallas/Capturasmetricas.vue'
 import ConfiguracionNotificacion from '../pantallas/ConfiguracionNotificacion.vue'
 import ConfiguracionSeguridad from '../pantallas/ConfiguracionSeguridad.vue'
 import ControlOrganizacional from '../pantallas/ControlOrganizacional.vue'
@@ -15,7 +15,7 @@ import GestionEmpresas from '../pantallas/GestionEmpresas.vue'
 import GestionKpis from '../pantallas/GestionKpis.vue'
 import PanelPrincipal from '../pantallas/PanelPrincipal.vue'
 import PersonalizarPanel from '../pantallas/PersonalizarPantalla.vue'
-import RegistroMetricas from '../pantallas/RegistroMetricas.vue'
+import RegistroMetricas from '../pantallas/Registrometricas.vue'
 import Login from '../pantallas/Login.vue'
 import { useAuthStore } from '../stores/authStore'
 
@@ -74,9 +74,10 @@ const router = createRouter({
       component: FormularioEquipo
   },
     {
-      path: '/kpis/nuevo', 
-      name: 'nuevo-kpi',
-      component: FormularioKpis
+      path: '/kpis/editar/:id',
+      name: 'EditarKpi',
+      component: () => import('../pantallas/FormularioKpisEdicion.vue'),
+      meta: { requiresAuth: true }
   },
      {
       path: '/organizacion/nuevo',

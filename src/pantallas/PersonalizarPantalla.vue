@@ -19,7 +19,8 @@ const tipoGraficaLocal    = ref('linea')
 const filtroBusqueda      = ref('')
 const filtroEstado        = ref('todos')
 
-onMounted(() => {
+onMounted(async () => {
+  await kpiStore.cargarIndicadores()
   store.cargarOrden()
   store.cargarPreferencias()
   listaLocal.value          = JSON.parse(JSON.stringify(store.widgets))

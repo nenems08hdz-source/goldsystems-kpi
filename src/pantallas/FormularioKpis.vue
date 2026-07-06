@@ -1,10 +1,10 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getCurrentInstance } from 'vue'
 import { useKpiStore } from '../stores/kpiStore'
-import { useOrgStore } from '../stores/orgStore'
 import { useAuthStore } from '../stores/authStore'
+import api from '../services/api'
 import AppButton          from '@/components/ui/AppButton.vue'
 import AppInput           from '@/components/ui/AppInput.vue'
 import AppSelect          from '@/components/ui/AppSelect.vue'
@@ -14,19 +14,20 @@ import EncabezadoPantalla from '@/components/EncabezadoPantalla.vue'
 const router   = useRouter()
 const store    = useKpiStore()
 const { proxy } = getCurrentInstance()
-const orgStore = useOrgStore()
 const auth = useAuthStore()
 const departamentosApi = ref([])
+const equiposApi       = ref([])
 const usuariosApi      = ref([])
 
 onMounted(async () => {
-  const headers = { 'Authorization': `Bearer ${auth.token}` }
-  const [resDepts, resUsuarios] = await Promise.all([
-    fetch('http://127.0.0.1:8000/api/departments', { headers }),
-    fetch('http://127.0.0.1:8000/api/users',       { headers }),
+  const [resDepts, resEquipos, resUsuarios] = await Promise.all([
+    api.get('/departments'),
+    api.get('/teams'),
+    api.get('/users'),
   ])
-  departamentosApi.value = await resDepts.json()
-  usuariosApi.value      = await resUsuarios.json()
+  departamentosApi.value = resDepts.data
+  equiposApi.value       = resEquipos.data
+  usuariosApi.value      = resUsuarios.data
 })
 
 const nuevoKpi = ref({
@@ -38,15 +39,13 @@ const nuevoKpi = ref({
   usuario_id:      null,
   progreso:        0,
   periodicidad:    'Mensual',
-  meta:            '',       // texto display: ej. '> 95%'
-  goal:            null,     // BD: valor numérico de la meta
-  unit:            '%',      // BD: unidad de medida
+  goal:            '',
+  unit:            '%',
   minimum:         null,
   maximum:         null,
   weight:          1.00,
   tipoMetrica:     'Porcentaje',
   status:          'active',
-  company_id:      1,
 })
 
 // Departamentos desde la API
@@ -58,9 +57,9 @@ const opcionesDepartamentos = computed(() =>
 const opcionesEquipos = computed(() => {
   if (!nuevoKpi.value.departamento_id) return []
   const deptId = Number(nuevoKpi.value.departamento_id)
-  return usuariosApi.value
-    .filter(u => u.team_id && u.department_id === deptId)
-    .map(u => ({ value: u.team_id, label: `Equipo ${u.team_id}` }))
+  return equiposApi.value
+    .filter(e => e.department_id === deptId)
+    .map(e => ({ value: e.id, label: e.name }))
 })
 
 // Responsables filtrados por departamento/equipo seleccionado
@@ -93,6 +92,11 @@ const unidadPorTipo = {
   'Puntaje':    'pts',
 }
 
+// Actualiza la unidad automáticamente al cambiar el tipo
+watch(() => nuevoKpi.value.tipoMetrica, (tipo) => {
+  nuevoKpi.value.unit = unidadPorTipo[tipo] ?? '%'
+})
+
 async function guardarKpi() {
   // Mapeo de valores display → valores que acepta la API
   const tipoApiMap = {
@@ -117,7 +121,7 @@ async function guardarKpi() {
     formula:       nuevoKpi.value.formula,
     type:          tipoApiMap[nuevoKpi.value.tipoMetrica],
     frequency:     frecuenciaApiMap[nuevoKpi.value.periodicidad],
-    goal:          nuevoKpi.value.goal    ? Number(nuevoKpi.value.goal)    : null,
+    goal:          nuevoKpi.value.goal !== '' ? Number(nuevoKpi.value.goal) : null,
     minimum:       nuevoKpi.value.minimum ? Number(nuevoKpi.value.minimum) : null,
     maximum:       nuevoKpi.value.maximum ? Number(nuevoKpi.value.maximum) : null,
     unit:          nuevoKpi.value.unit,
@@ -125,44 +129,65 @@ async function guardarKpi() {
     status:        'active',
     company_id:    auth.user.company_id,
     department_id: nuevoKpi.value.departamento_id ? Number(nuevoKpi.value.departamento_id) : null,
-    created_by:    auth.user.id,
+    created_by:    nuevoKpi.value.usuario_id ? Number(nuevoKpi.value.usuario_id) : auth.user.id,
   }
 
-  const res = await fetch('http://127.0.0.1:8000/api/kpis', {
-    method:  'POST',
-    headers: {
-      'Authorization': `Bearer ${auth.token}`,
-      'Content-Type':  'application/json',
-    },
-    body: JSON.stringify(payload),
-  })
+  try {
+    const resKpi = await api.post('/kpis', payload)
+    const kpiCreado = resKpi.data
 
-  const kpiCreado = await res.json()
-
-  if (!res.ok) {
-    proxy.$notify.error('Error al guardar el KPI', 'Error')
-    return
-  }
-
-  // Si hay valor inicial, guardarlo como primer registro
-  if (nuevoKpi.value.progreso > 0) {
-    await fetch('http://127.0.0.1:8000/api/kpi-records', {
-    method:  'POST',
-    headers: {
-      'Authorization': `Bearer ${auth.token}`,
-      'Content-Type':  'application/json',
-    },
-      body: JSON.stringify({
+    if (nuevoKpi.value.progreso > 0) {
+      await api.post('/kpi-records', {
         kpi_id:       kpiCreado.id,
         value:        Number(nuevoKpi.value.progreso),
         period_start: new Date().toISOString().split('T')[0],
         captured_by:  auth.user.id,
-      }),
+      })
+    }
+
+      const estado = store.calcularEstado(nuevoKpi.value.progreso)
+    store.indicadores.push({
+      id:                   kpiCreado.id,
+      nombre:               nuevoKpi.value.nombre,
+      subtitulo:            nuevoKpi.value.subtitulo || nuevoKpi.value.nombre,
+      departamento:         departamentosApi.value.find(d => d.id === nuevoKpi.value.departamento_id)?.name || '',
+      responsable:          usuariosApi.value.find(u => u.id === nuevoKpi.value.usuario_id)?.name || '',
+      progreso:             Number(nuevoKpi.value.progreso),
+      goal:                 nuevoKpi.value.goal,
+      unit:                 nuevoKpi.value.unit,
+      estadoTipo:           estado.estadoTipo,
+      estado:               estado.estado,
+      traffic_light:        estado.traffic_light,
+      historial:            [Number(nuevoKpi.value.progreso)],
+      etiquetasHistorial:   ['Hoy'],
+      ultimaActualizacion:  new Date().toISOString().split('T')[0],
+      graficasCompatibles:  ['linea', 'barras'],
+      periodicidad:         nuevoKpi.value.periodicidad,
+      tipoMetrica:          nuevoKpi.value.tipoMetrica,
     })
+
+    proxy.$notify.success('KPI registrado correctamente', 'Éxito')
+    router.push('/kpis')
+  } catch {
+    proxy.$notify.error('Error al guardar el KPI', 'Error')
   }
-  proxy.$notify.success('KPI registrado correctamente', 'Éxito')
-  router.push('/kpis')
 }
+
+// Semáforo relativo a la meta (no asume porcentaje)
+const cumplimiento = computed(() => {
+  const val  = Number(nuevoKpi.value.progreso)
+  const meta = Number(nuevoKpi.value.goal)
+  if (!val || !meta || meta === 0) return null
+  return (val / meta) * 100
+})
+
+const semaforo = computed(() => {
+  const c = cumplimiento.value
+  if (c === null) return null
+  if (c >= 80) return { clase: 'text-emerald-600', texto: 'Saludable' }
+  if (c >= 50) return { clase: 'text-amber-500',   texto: 'En riesgo' }
+  return         { clase: 'text-rose-500',     texto: 'Crítico'   }
+})
 
 /* Opciones estáticas */
 const opcionesPeriodicidad = ['Diario', 'Semanal', 'Mensual', 'Trimestral', 'Anual']
@@ -273,36 +298,36 @@ const opcionesTipoMetrica  = [
           <AppSelect v-model="nuevoKpi.tipoMetrica" :options="opcionesTipoMetrica" />
         </FormField>
 
+        <FormField label="Meta / Objetivo" hint="valor numérico" required :col-span="2">
+          <AppInput
+            v-model="nuevoKpi.goal"
+            type="number"
+            step="0.01"
+            placeholder="Ej. 95  o  200  o  5000"
+            required
+          />
+        </FormField>
+
         <FormField
-          label="Valor Inicial (0-100)"
-          hint="define el estado automáticamente"
+          label="Valor Inicial"
+          hint="define el estado vs la meta"
           required
         >
           <AppInput
             v-model="nuevoKpi.progreso"
             type="number"
+            step="0.01"
             :min="0"
-            :max="100"
-            placeholder="Ej. 85"
+            placeholder="Ej. 85, 5000, 920..."
             required
           />
-          <p class="text-[10px] mt-1" :class="{
-            'text-emerald-600': nuevoKpi.progreso >= 80,
-            'text-amber-500':   nuevoKpi.progreso >= 50 && nuevoKpi.progreso < 80,
-            'text-rose-500':    nuevoKpi.progreso < 50,
-          }">
-            <span v-if="nuevoKpi.progreso >= 80">● Estado: Saludable</span>
-            <span v-else-if="nuevoKpi.progreso >= 50">● Estado: En riesgo</span>
-            <span v-else-if="nuevoKpi.progreso > 0">● Estado: Crítico</span>
+          <p v-if="semaforo" class="text-[10px] mt-1" :class="semaforo.clase">
+            ● Estado: {{ semaforo.texto }}
+            <span class="opacity-60">({{ cumplimiento.toFixed(1) }}% de la meta)</span>
           </p>
-        </FormField>
-
-        <FormField label="Meta / Objetivo" required :col-span="2">
-          <AppInput
-            v-model="nuevoKpi.meta"
-            placeholder="Ej. > 95%  o  < 200ms  o  $5,000 USD"
-            required
-          />
+          <p v-else-if="nuevoKpi.progreso && !nuevoKpi.goal" class="text-[10px] mt-1 text-amber-400">
+            Ingresa la meta primero para calcular el estado.
+          </p>
         </FormField>
 
       </div>

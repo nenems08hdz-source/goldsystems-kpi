@@ -12,6 +12,7 @@ import BotonAccion        from '../components/ui/BotonAccion.vue'
 import EtiquetaBadge      from '../components/ui/EtiquetaBadge.vue'
 import StatusBadge        from '../components/StatusBadge.vue'
 import { useAuthStore } from '../stores/authStore'
+import api from '../services/api'
 
 
 const store    = useOrgStore()
@@ -25,13 +26,12 @@ const roles    = ref([])
 
 onMounted(async () => {
   store.cargarTodo()
-  const headers = { 'Authorization': `Bearer ${auth.token}` }
   const [resUsers, resRoles] = await Promise.all([
-    fetch('http://127.0.0.1:8000/api/users', { headers }),
-    fetch('http://127.0.0.1:8000/api/roles', { headers }),
+    api.get('/users'),
+    api.get('/roles'),
   ])
-  usuarios.value = await resUsers.json()
-  roles.value    = await resRoles.json()
+  usuarios.value = resUsers.data
+  roles.value    = resRoles.data
 })
 
 // árbol organizacional
@@ -102,18 +102,17 @@ function abrirModificarRol(usuario) {
 }
 
 async function guardarRol() {
-  await fetch(`http://127.0.0.1:8000/api/users/${usuarioSeleccionado.value.id}`, {
-    method:  'PUT',
-    headers: { 'Authorization': `Bearer ${auth.token}`, 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ role: rolSeleccionado.value })
-  })
-  // Actualiza localmente para que la tabla refleje el cambio sin recargar
-  const u = usuarios.value.find(u => u.id === usuarioSeleccionado.value.id)
-  if (u) {
-    if (!u.roles) u.roles = [{}]
-    u.roles[0] = { ...u.roles[0], name: rolSeleccionado.value }
+  try {
+    await api.put(`/users/${usuarioSeleccionado.value.id}`, { role: rolSeleccionado.value })
+    const u = usuarios.value.find(u => u.id === usuarioSeleccionado.value.id)
+    if (u) {
+      if (!u.roles) u.roles = [{}]
+      u.roles[0] = { ...u.roles[0], name: rolSeleccionado.value }
+    }
+    proxy.$notify.success('Rol actualizado correctamente', 'Éxito')
+  } catch {
+    proxy.$notify.error('Error al actualizar el rol', 'Error')
   }
-  proxy.$notify.success('Rol actualizado correctamente', 'Éxito')
   mostrarPanelRol.value = false
 }
 
@@ -126,13 +125,23 @@ function confirmarEliminacion(usuario) {
   showModal.value = true
 }
 
+// modal eliminar nodo (departamento / equipo)
+const showModalNodo  = ref(false)
+const nodoAEliminar  = ref(null)
+
+function confirmarEliminacionNodo(nodo) {
+  nodoAEliminar.value = nodo
+  showModalNodo.value = true
+}
+
 async function ejecutarEliminacion() {
-  await fetch(`http://127.0.0.1:8000/api/users/${usuarioAEliminar.value.id}`, {
-    method: 'DELETE',
-    headers: { 'Authorization': `Bearer ${auth.token}` },
-  })
-  usuarios.value = usuarios.value.filter(u => u.id !== usuarioAEliminar.value.id)
-  proxy.$notify.success('Usuario eliminado correctamente', 'Éxito')
+  try {
+    await api.delete(`/users/${usuarioAEliminar.value.id}`)
+    usuarios.value = usuarios.value.filter(u => u.id !== usuarioAEliminar.value.id)
+    proxy.$notify.success('Usuario eliminado correctamente', 'Éxito')
+  } catch {
+    proxy.$notify.error('Error al eliminar el usuario', 'Error')
+  }
   showModal.value = false
 }
 
@@ -144,14 +153,23 @@ function contarUsuarios(nodo) {
   return usuarios.value.length
 }
 
-function eliminarNodo(nodo) {
-  const hijosIds = store.estructuraOrganizacional
-    .filter(n => n.padre_id === nodo.id)
-    .map(n => n.id)
-  store.estructuraOrganizacional = store.estructuraOrganizacional
-    .filter(n => n.id !== nodo.id && !hijosIds.includes(n.id))
-  if (nodoSeleccionado.value?.id === nodo.id) nodoSeleccionado.value = null
-  proxy.$notify.success(`${nodo.nombre} eliminado correctamente`, 'Éxito')
+async function eliminarNodo() {
+  const nodo = nodoAEliminar.value
+  try {
+    const endpoint = nodo.tipo === 'departamento' ? `/departments/${nodo.id}` : `/teams/${nodo.id}`
+    await api.delete(endpoint)
+    if (nodo.tipo === 'departamento') {
+      store.departamentos = store.departamentos.filter(d => d.id !== nodo.id)
+      store.equipos = store.equipos.filter(e => e.department_id !== nodo.id)
+    } else {
+      store.equipos = store.equipos.filter(e => e.id !== nodo.id)
+    }
+    if (nodoSeleccionado.value?.id === nodo.id) nodoSeleccionado.value = null
+    proxy.$notify.success(`${nodo.nombre} eliminado correctamente`, 'Éxito')
+  } catch {
+    proxy.$notify.error(`Error al eliminar ${nodo.nombre}`, 'Error')
+  }
+  showModalNodo.value = false
 }
 </script>
 
@@ -260,8 +278,7 @@ function eliminarNodo(nodo) {
               <BotonAccion v-if="nodo.tipo !== 'empresa'"
                 variante="trash"
                 titulo="Eliminar"
-                class="opacity-0 group-hover:opacity-100"
-                @click.stop="eliminarNodo(nodo)"
+                @click="confirmarEliminacionNodo(nodo)"
               />
             </div>
           </div>
@@ -456,6 +473,14 @@ function eliminarNodo(nodo) {
       mensaje="Esta acción eliminará al usuario permanentemente."
       @confirmar="ejecutarEliminacion"
       @cancelar="showModal = false"
+    />
+
+    <ModalConfirmacion
+      :isOpen="showModalNodo"
+      titulo="¿Estás seguro?"
+      :mensaje="`Esta acción eliminará el ${nodoAEliminar?.tipo === 'departamento' ? 'departamento' : 'equipo'} permanentemente.`"
+      @confirmar="eliminarNodo"
+      @cancelar="showModalNodo = false"
     />
   </div>
 </template>

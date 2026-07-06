@@ -1,12 +1,13 @@
 <script setup>
 defineProps({
-  modelValue:  { type: [String, Number], default: '' },
-  type:        { type: String,  default: 'text' },
-  placeholder: { type: String,  default: '' },
-  required:    { type: Boolean, default: false },
-  disabled:    { type: Boolean, default: false },
-  min:         { type: [String, Number], default: undefined },
-  max:         { type: [String, Number], default: undefined },
+  modelValue:   { type: [String, Number], default: '' },
+  type:         { type: String,  default: 'text' },
+  placeholder:  { type: String,  default: '' },
+  required:     { type: Boolean, default: false },
+  disabled:     { type: Boolean, default: false },
+  min:          { type: [String, Number], default: undefined },
+  max:          { type: [String, Number], default: undefined },
+  autocomplete: { type: String,  default: undefined },
 })
 
 defineEmits(['update:modelValue'])
@@ -22,6 +23,7 @@ defineEmits(['update:modelValue'])
     :disabled="disabled"
     :min="min"
     :max="max"
+    :autocomplete="autocomplete"
     @input="$emit('update:modelValue', $event.target.value)"
   />
 </template>

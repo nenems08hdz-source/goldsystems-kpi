@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useUiStore }    from '../stores/uiStore'
 import { useKpiStore }   from '../stores/kpiStore'
 import { useAuthStore }  from '../stores/authStore'
+import api from '../services/api'
 import EncabezadoPantalla     from '../components/EncabezadoPantalla.vue'
 import GraficaKpiEspecifica   from '../components/GraficaKpiEspecifica.vue'
 import MedidorKpi             from '../components/MedidorKpi.vue'
@@ -34,10 +35,8 @@ onMounted(async () => {
   const tipoMap      = { percentage: 'Porcentaje', money: 'Monetario', time: 'Tiempo', absolute: 'Puntaje', custom: 'Puntaje' }
   const frecuenciaMap = { daily: 'Diario', weekly: 'Semanal', monthly: 'Mensual', quarterly: 'Trimestral', annual: 'Anual' }
 
-  const res  = await fetch('http://127.0.0.1:8000/api/kpis', {
-    headers: { 'Authorization': `Bearer ${auth.token}` }
-  })
-  const data = await res.json()
+  const res  = await api.get('/kpis')
+  const data = res.data
 
   kpis.value = data.map(k => {
     const progreso = k.latest_record ? Number(k.latest_record.value) : 0
@@ -58,7 +57,11 @@ onMounted(async () => {
 })
 
 const ordenWidgets  = computed(() => store.widgets.map(w => w.id))
-const kpisResumen  = computed(() => kpis.value)
+const kpisResumen  = computed(() =>
+  store.kpisActivos.length > 0
+    ? kpis.value.filter(k => store.kpisActivos.includes(k.id))
+    : kpis.value.slice(0, 4)
+)
 const kpisDetalle  = computed(() => kpis.value)
 const kpisCriticas = computed(() =>
   kpis.value.filter(i => i.estadoTipo === 'danger' || i.estadoTipo === 'warning')

@@ -7,13 +7,13 @@ export const useUiStore = defineStore('uiStore', () => {
   const kpiStore = useKpiStore()
 
   const widgets = ref([
-    { id: 'tarjetas', nombre: 'Tarjetas KPI',             iconoNombre: 'LayoutDashboard', descripcion: 'Resumen rápido de los KPIs activos' },
-    { id: 'graficas', nombre: 'Medidor y Progreso',        iconoNombre: 'BarChart2',       descripcion: 'Gráfica circular y barras de progreso' },
-    { id: 'criticos', nombre: 'KPIs Críticos y en Riesgo', iconoNombre: 'AlertTriangle',   descripcion: 'Lista de indicadores que necesitan atención' },
-    { id: 'detalle',  nombre: 'Métricas Detalladas',       iconoNombre: 'ClipboardList',   descripcion: 'Tabla completa por departamento' },
+     { id: 'tarjetas', nombre: 'Tarjetas KPI', descripcion: 'Resumen rápido de los KPIs activos' },
+     { id: 'graficas', nombre: 'Medidor y Progreso', descripcion: 'Gráfica circular y barras de progreso' },
+     { id: 'criticos', nombre: 'KPIs Críticos y en Riesgo', descripcion: 'Lista de indicadores que necesitan atención' },
+     { id: 'detalle', nombre: 'Métricas Detalladas', descripcion: 'Tabla completa por departamento' },
   ])
 
-  const kpisActivos            = ref([1, 2, 3, 4])
+  const kpisActivos = ref([])
   const modoGrafica            = ref('general')
   const kpiSeleccionadoGrafica = ref(1)
   const tipoGraficaEspecifica  = ref('linea')

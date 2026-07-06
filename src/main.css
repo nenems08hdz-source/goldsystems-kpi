@@ -190,6 +190,15 @@ body {
 }
 .app-select { cursor: pointer; }
 
+/* ── Fix autofill del navegador (Chrome/Edge ponen fondo blanco) ── */
+.app-input:-webkit-autofill,
+.app-input:-webkit-autofill:hover,
+.app-input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px var(--input-bg) inset !important;
+  -webkit-text-fill-color: var(--input-text) !important;
+  caret-color: var(--input-text);
+}
+
 /* ── AppButton ── */
 .app-btn {
   display: inline-flex;
