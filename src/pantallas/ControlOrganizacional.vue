@@ -2,7 +2,6 @@
 import { ref, computed, onMounted  } from 'vue'
 import { getCurrentInstance } from 'vue'
 import { useOrgStore } from "../stores/orgStore"
-import { useKpiStore } from "../stores/kpiStore"
 import plantillatabla     from '../components/PlantillaTabla.vue'
 import ModalConfirmacion  from '../components/ModalConfirmacion.vue'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
@@ -16,23 +15,26 @@ import api from '../services/api'
 
 
 const store    = useOrgStore()
-const kpiStore = useKpiStore()
 const { proxy } = getCurrentInstance()
 const auth     = useAuthStore()
 
 // ── Datos de la API ───────────────────────────────────────────────────────────
-const usuarios = ref([])
-const roles    = ref([])
+const usuarios     = ref([])
+const assignments  = ref([])  // todos los assignments para contar por usuario
 
 onMounted(async () => {
   store.cargarTodo()
-  const [resUsers, resRoles] = await Promise.all([
+  const [resUsers, resAssignments] = await Promise.all([
     api.get('/users'),
-    api.get('/roles'),
+    api.get('/kpi-assignments'),
   ])
-  usuarios.value = resUsers.data
-  roles.value    = resRoles.data
+  usuarios.value    = resUsers.data
+  assignments.value = resAssignments.data
 })
+
+function contarKpisUsuario(userId) {
+  return assignments.value.filter(a => a.user_id === userId && a.status === 'active').length
+}
 
 // árbol organizacional
 const nodoSeleccionado = ref(null)
@@ -79,41 +81,30 @@ function limpiarFiltros() {
 // panel KPIs del usuario
 const mostrarPanelKpis    = ref(false)
 const usuarioSeleccionado = ref(null)
+const kpisDelUsuario      = ref([])
+const cargandoKpis        = ref(false)
 
-const kpisDelUsuario = computed(() =>
-  usuarioSeleccionado.value ? kpiStore.kpisDeUsuario(usuarioSeleccionado.value.id) : []
-)
-
-function abrirPanelKpis(usuario) {
+async function abrirPanelKpis(usuario) {
   usuarioSeleccionado.value = usuario
-  mostrarPanelRol.value  = false
-  mostrarPanelKpis.value = true
-}
-
-// panel modificar rol
-const mostrarPanelRol = ref(false)
-const rolSeleccionado = ref('')
-
-function abrirModificarRol(usuario) {
-  usuarioSeleccionado.value = usuario
-  rolSeleccionado.value     = usuario.roles?.[0]?.name ?? ''  // usa el rol real de la API
-  mostrarPanelKpis.value = false
-  mostrarPanelRol.value  = true
-}
-
-async function guardarRol() {
+  mostrarPanelKpis.value    = true
+  kpisDelUsuario.value      = []
+  cargandoKpis.value        = true
   try {
-    await api.put(`/users/${usuarioSeleccionado.value.id}`, { role: rolSeleccionado.value })
-    const u = usuarios.value.find(u => u.id === usuarioSeleccionado.value.id)
-    if (u) {
-      if (!u.roles) u.roles = [{}]
-      u.roles[0] = { ...u.roles[0], name: rolSeleccionado.value }
-    }
-    proxy.$notify.success('Rol actualizado correctamente', 'Éxito')
+    const res = await api.get(`/kpi-assignments?user_id=${usuario.id}`)
+    kpisDelUsuario.value = res.data
+      .filter(a => a.status === 'active' && a.kpi)
+      .map(a => ({
+        id:     a.kpi.id,
+        nombre: a.kpi.name,
+        meta:   a.kpi.goal ? `${parseFloat(a.kpi.goal)} ${a.kpi.unit ?? ''}`.trim() : '—',
+        valor:  a.kpi.latest_record ? Number(a.kpi.latest_record.value) : null,
+        unit:   a.kpi.unit ?? '',
+      }))
   } catch {
-    proxy.$notify.error('Error al actualizar el rol', 'Error')
+    proxy.$notify.error('Error al cargar KPIs del usuario', 'Error')
+  } finally {
+    cargandoKpis.value = false
   }
-  mostrarPanelRol.value = false
 }
 
 // modal eliminar usuario
@@ -176,10 +167,15 @@ async function eliminarNodo() {
 <template>
   <div class="p-3 min-h-screen" style="background: transparent;">
 
-    <EncabezadoPantalla
-      titulo="Control Organizacional"
-      descripcion="Estructura jerárquica de la empresa, control de acceso por roles y gestión de usuarios."
-    />
+    <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-2">
+      <EncabezadoPantalla
+        titulo="Control Organizacional"
+        descripcion="Estructura jerárquica de la empresa, control de acceso por roles y gestión de usuarios."
+      />
+      <AppButton variant="secondary" class="flex-shrink-0" @click="$router.push('/roles')">
+        🔐 Roles y permisos
+      </AppButton>
+    </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 p-5 rounded-xl shadow-md border border-[#beaed8]/90 mt-6"
       style="background: var(--card-bg);">
@@ -340,11 +336,10 @@ async function eliminarNodo() {
 />
             </td>
 
-            <td class="p-4 align-middle text-left">
-              <div class="flex items-center gap-1.5">
-                <span class="font-semibold text-sm" style="color: var(--text-general);">—</span>
-                <span style="color: var(--card-text-hint);" class="text-xs"></span>
-              </div>
+            <td class="p-4 align-middle text-center">
+              <span class="font-semibold text-sm" style="color: var(--text-general);">
+                {{ contarKpisUsuario(fila.id) }}
+              </span>
             </td>
 
             <td class="p-4 align-middle text-left">
@@ -358,7 +353,7 @@ async function eliminarNodo() {
           </template>
 
           <template #iconos-acciones="{ item }">
-            <BotonAccion variante="edit"  titulo="Modificar Rol"      @click="abrirModificarRol(item)" />
+            <BotonAccion variante="edit"  titulo="Editar Usuario"     @click="$router.push(`/organizacion/editar/${item.id}`)" />
             <BotonAccion variante="stats" titulo="Ver KPIs Asignados" @click="abrirPanelKpis(item)" />
             <BotonAccion variante="trash" titulo="Eliminar Usuario"   @click="confirmarEliminacion(item)" />
           </template>
@@ -391,20 +386,33 @@ async function eliminarNodo() {
               style="color: var(--tabla-header-text);">
               Métricas en seguimiento ({{ kpisDelUsuario.length }})
             </label>
-            <div v-for="kpi in kpisDelUsuario" :key="kpi.id"
-              class="flex items-center p-3 rounded-xl"
-              style="border: 1px solid var(--tabla-borde); background: var(--tabla-hover);">
-              <span class="text-base mr-2.5">📈</span>
-              <div>
-                <div class="text-xs font-bold" style="color: var(--text-general);">{{ kpi.nombre }}</div>
-                <div class="text-[10px]" style="color: var(--subtext-general);">Meta: {{ kpi.meta }}</div>
+
+            <div v-if="cargandoKpis" class="text-center py-8 text-xs" style="color: var(--subtext-general);">
+              Cargando...
+            </div>
+
+            <template v-else>
+              <div v-for="kpi in kpisDelUsuario" :key="kpi.id"
+                class="flex items-center justify-between p-3 rounded-xl"
+                style="border: 1px solid var(--tabla-borde); background: var(--tabla-hover);">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-base">📈</span>
+                  <div>
+                    <div class="text-xs font-bold" style="color: var(--text-general);">{{ kpi.nombre }}</div>
+                    <div class="text-[10px]" style="color: var(--subtext-general);">Meta: {{ kpi.meta }}</div>
+                  </div>
+                </div>
+                <div v-if="kpi.valor !== null" class="text-xs font-bold flex-shrink-0" style="color: var(--text-general);">
+                  {{ kpi.valor }} {{ kpi.unit }}
+                </div>
               </div>
-            </div>
-            <div v-if="kpisDelUsuario.length === 0"
-              class="text-center py-8 text-xs rounded-xl"
-              style="color: var(--subtext-general); border: 1px dashed var(--tabla-borde);">
-              Este usuario no tiene KPIs asignados.
-            </div>
+
+              <div v-if="kpisDelUsuario.length === 0"
+                class="text-center py-8 text-xs rounded-xl"
+                style="color: var(--subtext-general); border: 1px dashed var(--tabla-borde);">
+                Este usuario no tiene KPIs asignados.
+              </div>
+            </template>
           </div>
         </div>
 
@@ -419,53 +427,6 @@ async function eliminarNodo() {
       </div>
     </div>
 
-    <!-- panel lateral: modificar rol -->
-    <div v-if="mostrarPanelRol"
-      class="fixed inset-0 z-50 flex justify-end"
-      style="background: rgba(0,0,0,0.4);"
-      @click="mostrarPanelRol = false">
-      <div class="w-full max-w-sm h-full shadow-2xl flex flex-col p-6 animate-slideLeft"
-        style="background: var(--card-bg); border-left: 1px solid var(--tabla-borde);"
-        @click.stop>
-        <div class="flex justify-between items-start pb-4 mb-6" style="border-bottom: 1px solid var(--tabla-borde);">
-          <div>
-            <h3 class="text-lg font-bold" style="color: var(--text-encabezado);">Modificar Rol</h3>
-            <p class="text-xs mt-0.5" style="color: var(--subtext-general);">
-              {{ usuarioSeleccionado?.name }} {{ usuarioSeleccionado?.paternal }}
-            </p>
-          </div>
-          <BotonAccion variante="close" titulo="Cerrar" @click="mostrarPanelRol = false" />
-        </div>
-
-        <div class="flex flex-col gap-3 flex-1">
-          <label class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--tabla-header-text);">
-            Selecciona el nuevo rol
-          </label>
-          <div class="flex flex-col gap-2">
-            <div v-for="rol in roles" :key="rol.id"
-              @click="rolSeleccionado = rol.name"
-              class="flex items-start gap-3 p-3 rounded-lg transition-all cursor-pointer"
-              :style="rol.name === rolSeleccionado
-                ? 'border: 1px solid var(--sidebar-active-bg); background: var(--tabla-hover);'
-                : 'border: 1px solid var(--tabla-borde);'"
-            >
-              <div class="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5"
-                :style="rol.name === rolSeleccionado ? 'border-color: var(--sidebar-active-bg)' : 'border-color: var(--subtext-general)'">
-                <div v-if="rol.name === rolSeleccionado" class="w-2 h-2 rounded-full" style="background: var(--sidebar-active-bg);"></div>
-              </div>
-              <div>
-                <p class="text-xs font-semibold" style="color: var(--text-general);">{{ rol.name }}</p>
-                <p class="text-[10px] mt-0.5" style="color: var(--subtext-general);">{{ rol.description ?? '' }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <AppButton variant="primary" class="mt-6 w-full justify-center" @click="guardarRol">
-          Guardar Cambios
-        </AppButton>
-      </div>
-    </div>
 
     <ModalConfirmacion
       :isOpen="showModal"

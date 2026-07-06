@@ -1,8 +1,7 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, getCurrentInstance } from 'vue'
 import api from '../services/api'
 import { useRouter } from 'vue-router'
-import { getCurrentInstance } from 'vue'
 import { useOrgStore } from '../stores/orgStore'
 import EncabezadoPantalla from '@/components/EncabezadoPantalla.vue'
 import AppButton          from '@/components/ui/AppButton.vue'
@@ -37,16 +36,22 @@ const equiposDisponibles = computed(() => {
     .map(e => ({ value: e.id, label: e.name }))
 })
 
-const rolesAsignables = store.rolesDisponibles
-  .filter(r => r.codigo !== 'developer')
-  .map(r => ({ value: r.codigo, label: r.nombre }))
+const rolesAsignables = computed(() =>
+  store.rolesDisponibles
+    .filter(r => r.codigo !== 'developer')
+    .map(r => ({ value: r.codigo, label: r.nombre }))
+)
+
+onMounted(() => {
+  store.cargarTodo()
+})
 
 async function guardarUsuario() {
   try {
     const res = await api.post('/users', {
       name:          nuevoUsuario.value.name,
       paternal:      nuevoUsuario.value.paternal,
-      maternal:      nuevoUsuario.value.maternal,
+      maternal:      nuevoUsuario.value.maternal || null,
       email:         nuevoUsuario.value.email,
       password:      nuevoUsuario.value.password,
       phone:         nuevoUsuario.value.phone || null,
@@ -58,7 +63,7 @@ async function guardarUsuario() {
     store.usuarios.push(res.data)
     proxy.$notify.success('Colaborador registrado correctamente', 'Éxito')
     router.push('/ControlOrganizacional')
-  } catch (e) {
+  } catch {
     proxy.$notify.error('Error al registrar colaborador', 'Error')
   }
 }
@@ -82,8 +87,7 @@ async function guardarUsuario() {
       class="w-full max-w-5xl rounded-xl shadow-md border overflow-hidden"
       style="background: var(--card-bg); border-color: rgba(190,174,216,0.9);"
     >
-
-      <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 p-8">
+      <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
 
         <FormField label="Nombre" required>
           <AppInput v-model="nuevoUsuario.name" placeholder="Ej. Juan" required />
@@ -98,40 +102,19 @@ async function guardarUsuario() {
         </FormField>
 
         <FormField label="Correo Corporativo" required>
-          <AppInput
-            v-model="nuevoUsuario.email"
-            type="email"
-            placeholder="juan.perez@empresa.com"
-            required
-          />
+          <AppInput v-model="nuevoUsuario.email" type="email" placeholder="juan.perez@empresa.com" required />
         </FormField>
 
         <FormField label="Teléfono" hint="opcional">
-          <AppInput
-            v-model="nuevoUsuario.phone"
-            type="tel"
-            placeholder="+52 999 000 0000"
-            autocomplete="off"
-          />
+          <AppInput v-model="nuevoUsuario.phone" type="tel" placeholder="+52 999 000 0000" autocomplete="off" />
         </FormField>
 
         <FormField label="Contraseña" required>
-        <AppInput
-          v-model="nuevoUsuario.password"
-          type="password"
-          placeholder="Mínimo 8 caracteres"
-          autocomplete="new-password"
-          required
-        />
-      </FormField>
+          <AppInput v-model="nuevoUsuario.password" type="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password" required />
+        </FormField>
 
         <FormField label="Rol" required>
-          <AppSelect
-            v-model="nuevoUsuario.role"
-            :options="rolesAsignables"
-            placeholder="Selecciona un rol"
-            required
-          />
+          <AppSelect v-model="nuevoUsuario.role" :options="rolesAsignables" placeholder="Selecciona un rol" required />
         </FormField>
 
         <FormField label="Departamento">
@@ -158,14 +141,11 @@ async function guardarUsuario() {
         class="px-8 py-6 border-t flex justify-end gap-3"
         style="background: var(--tabla-header-bg); border-color: rgba(190,174,216,0.2);"
       >
-        <AppButton variant="secondary" @click="router.push('/ControlOrganizacional')">
+        <AppButton variant="secondary" type="button" @click="router.push('/ControlOrganizacional')">
           Cancelar
         </AppButton>
-        <AppButton type="submit">
-          Guardar Colaborador
-        </AppButton>
+        <AppButton type="submit">Guardar Colaborador</AppButton>
       </div>
-
     </form>
   </div>
 </template>

@@ -136,6 +136,15 @@ async function guardarKpi() {
     const resKpi = await api.post('/kpis', payload)
     const kpiCreado = resKpi.data
 
+    // Crear asignación para el responsable seleccionado
+    const responsableId = nuevoKpi.value.usuario_id ? Number(nuevoKpi.value.usuario_id) : auth.user.id
+    await api.post('/kpi-assignments', {
+      kpi_id:     kpiCreado.id,
+      user_id:    responsableId,
+      start_date: new Date().toISOString().split('T')[0],
+      status:     'active',
+    })
+
     if (nuevoKpi.value.progreso > 0) {
       await api.post('/kpi-records', {
         kpi_id:       kpiCreado.id,

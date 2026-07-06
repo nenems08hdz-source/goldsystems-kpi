@@ -10,6 +10,7 @@ import FormularioDepartamento from '@/pantallas/FormularioDepartamento.vue'
 import FormularioEmpresa from '../pantallas/FormularioEmpresa.vue'
 import FormularioEquipo from '../pantallas/FormularioEquipo.vue'
 import FormularioKpis from '../pantallas/FormularioKpis.vue'
+import GestionRoles from '../pantallas/GestionRoles.vue'
 import FormularioUsuario from '../pantallas/FormularioUsuario.vue'
 import GestionEmpresas from '../pantallas/GestionEmpresas.vue'
 import GestionKpis from '../pantallas/GestionKpis.vue'
@@ -69,9 +70,33 @@ const router = createRouter({
       component: FormularioEmpresa
   },
     {
+      path: '/GestionEmpresas/editar/:id',
+      name: 'editar-empresa',
+      component: () => import('../pantallas/FormularioEmpresaEdicion.vue'),
+      meta: { requiresAuth: true }
+  },
+    {
       path: '/FormularioEquipo',
       name: 'FormularioEquipo',
       component: FormularioEquipo
+  },
+    {
+      path: '/roles',
+      name: 'gestion-roles',
+      component: GestionRoles,
+      meta: { requiresAuth: true }
+  },
+    {
+      path: '/organizacion/editar/:id',
+      name: 'editar-usuario',
+      component: () => import('../pantallas/FormularioUsuarioEdicion.vue'),
+      meta: { requiresAuth: true }
+  },
+    {
+      path: '/kpis/nuevo',
+      name: 'nuevo-kpi',
+      component: FormularioKpis,
+      meta: { requiresAuth: true }
   },
     {
       path: '/kpis/editar/:id',

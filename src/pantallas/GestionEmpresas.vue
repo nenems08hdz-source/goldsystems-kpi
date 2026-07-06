@@ -196,7 +196,8 @@ onMounted(() => {
             <p class="text-[9px] uppercase tracking-wide" style="color: var(--subtext-general);">Registro</p>
           </div>
 
-          <div class="ml-auto">
+          <div class="ml-auto flex items-center gap-2">
+            <BotonAccion variante="edit" titulo="Editar empresa" @click="router.push(`/GestionEmpresas/editar/${empresa.id}`)" />
             <BotonAccion variante="trash" titulo="Eliminar empresa" @click="confirmarEliminacion(empresa)" />
           </div>
         </div>
