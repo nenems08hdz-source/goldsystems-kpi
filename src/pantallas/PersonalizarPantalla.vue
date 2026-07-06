@@ -23,8 +23,11 @@ onMounted(async () => {
   await kpiStore.cargarIndicadores()
   store.cargarOrden()
   store.cargarPreferencias()
-  listaLocal.value          = JSON.parse(JSON.stringify(store.widgets))
-  kpisActivosLocal.value    = [...store.kpisActivos]
+  listaLocal.value = JSON.parse(JSON.stringify(store.widgets))
+
+  // Filtra IDs guardados que ya no existen en la BD (evita slots fantasma)
+  const idsValidos = kpiStore.indicadores.map(i => i.id)
+  kpisActivosLocal.value = store.kpisActivos.filter(id => idsValidos.includes(id))
   modoGraficaLocal.value    = store.modoGrafica
   kpiSeleccionadoLocal.value = store.kpiSeleccionadoGrafica
   tipoGraficaLocal.value    = store.tipoGraficaEspecifica
