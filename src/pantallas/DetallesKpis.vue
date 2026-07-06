@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useKpiStore } from '../stores/kpiStore'
 import GraficaKpiEspecifica from '../components/GraficaKpiEspecifica.vue'
@@ -11,8 +11,17 @@ const route  = useRoute()
 const router = useRouter()
 const store  = useKpiStore()
 
-const idKpi = Number(route.params.id)
-const kpi   = computed(() => store.indicadores.find(i => i.id === idKpi))
+const idKpi    = Number(route.params.id)
+const cargando = ref(false)
+const kpi      = computed(() => store.indicadores.find(i => i.id === idKpi))
+
+onMounted(async () => {
+  if (!store.indicadores.length) {
+    cargando.value = true
+    await store.cargarIndicadores()
+    cargando.value = false
+  }
+})
 const tipoSeleccionado = ref(kpi.value?.graficasCompatibles?.[0] ?? 'linea')
 
 const eventosBase = ref([
@@ -99,7 +108,12 @@ const registrosFiltrados = computed(() => {
       ← Volver al Listado
     </AppButton>
 
-    <div v-if="!kpi" class="rounded-xl p-8 text-center"
+    <div v-if="cargando" class="rounded-xl p-8 text-center"
+      style="background: var(--card-bg); border: 1px solid var(--tabla-borde);">
+      <p class="text-sm" style="color: var(--subtext-general);">Cargando KPI...</p>
+    </div>
+
+    <div v-else-if="!kpi" class="rounded-xl p-8 text-center"
       style="background: var(--card-bg); border: 1px solid var(--tabla-borde);">
       <p class="text-sm" style="color: var(--subtext-general);">No se encontró el KPI solicitado.</p>
       <button @click="router.push('/kpis')" class="mt-4 text-xs font-bold underline"
