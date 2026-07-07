@@ -31,29 +31,14 @@ onMounted(async () => {
     store.cargarOrden()
   }
   store.cargarPreferencias()
+
+  // Cargar todos los KPIs desde la API al store
+  await kpiStore.cargarIndicadores()
+
+  // Usar los KPIs del store directamente
+  kpis.value = kpiStore.indicadores
+
   setTimeout(() => { listoPararenderizar.value = true }, 50)
-  const tipoMap      = { percentage: 'Porcentaje', money: 'Monetario', time: 'Tiempo', absolute: 'Puntaje', custom: 'Puntaje' }
-  const frecuenciaMap = { daily: 'Diario', weekly: 'Semanal', monthly: 'Mensual', quarterly: 'Trimestral', annual: 'Anual' }
-
-  const res  = await api.get('/kpis')
-  const data = res.data
-
-  kpis.value = data.map(k => {
-    const progreso = k.latest_record ? Number(k.latest_record.value) : 0
-    const { estado, estadoTipo } = kpiStore.calcularEstado(progreso)
-    return {
-      id:           k.id,
-      nombre:       k.name,
-      subtitulo:    k.subtitle ?? k.name,
-      departamento: k.department?.name ?? '—',
-      responsable:  k.creator ? `${k.creator.name} ${k.creator.paternal ?? ''}`.trim() : '—',
-      objetivo:     k.goal ? `${k.goal} ${k.unit ?? ''}`.trim() : '—',
-      periodicidad: frecuenciaMap[k.frequency] ?? k.frequency,
-      progreso,
-      estado,
-      estadoTipo,
-    }
-  })
 })
 
 const ordenWidgets  = computed(() => store.widgets.map(w => w.id))
@@ -110,20 +95,20 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 
           <template v-if="store.modoGrafica === 'general'">
-            <div v-if="listoPararenderizar"
+            <div v-if="listoPararenderizar && kpisResumen.length > 0"
               class="border border-[#beaed8]/70 rounded-2xl p-5 shadow-sm h-60 flex flex-col justify-between"
               style="background: var(--grafics-bg);">
               <p class="text-[11px] font-bold text-[#beaed8] uppercase tracking-wider">Resumen de KPIs</p>
               <div class="flex-1 flex items-center justify-center">
-                <MedidorKpi />
+                <MedidorKpi :kpis="kpisResumen" />
               </div>
             </div>
-            <div v-if="listoPararenderizar"
+            <div v-if="listoPararenderizar && kpisResumen.length > 0 "
               class="border border-[#beaed8]/70 rounded-2xl p-5 shadow-sm h-60 flex flex-col justify-between"
               style="background: var(--grafics-bg);">
               <p class="text-[11px] font-bold text-[#beaed8] uppercase tracking-wider">Progreso General</p>
               <div class="flex-1 flex items-center justify-center overflow-hidden">
-                <ProgresoKpi />
+                 <ProgresoKpi :kpis="kpisResumen" />
               </div>
             </div>
           </template>
