@@ -12,6 +12,7 @@ import FormField          from '@/components/ui/FormField.vue'
 const router = useRouter()
 const store  = useOrgStore()
 const { proxy } = getCurrentInstance()
+const mostrarPassword = ref(false)
 
 const nuevoUsuario = ref({
   name:          '',
@@ -110,7 +111,25 @@ async function guardarUsuario() {
         </FormField>
 
         <FormField label="Contraseña" required>
-          <AppInput v-model="nuevoUsuario.password" type="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password" required />
+          <div class="relative">
+            <AppInput
+              v-model="nuevoUsuario.password"
+              :type="mostrarPassword ? 'text' : 'password'"
+              placeholder="Mínimo 8 caracteres"
+              autocomplete="new-password"
+              required
+              class="pr-10"
+            />
+            <button
+              type="button"
+              @click="mostrarPassword = !mostrarPassword"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-sm transition-colors"
+              style="color: var(--subtext-general);"
+              :title="mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            >
+              <i :class="mostrarPassword ? 'fi fi-sr-eye-crossed' : 'fi fi-sr-eye'" />
+            </button>
+          </div>
         </FormField>
 
         <FormField label="Rol" required>

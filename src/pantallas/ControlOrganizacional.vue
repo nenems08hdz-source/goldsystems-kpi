@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted  } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { getCurrentInstance } from 'vue'
 import { useOrgStore } from "../stores/orgStore"
 import plantillatabla     from '../components/PlantillaTabla.vue'
@@ -80,6 +80,31 @@ function limpiarFiltros() {
   filtroBusqueda.value = ''
   nodoSeleccionado.value = null
 }
+
+// ── Paginación ────────────────────────────────────────────────────────────────
+const paginaActual = ref(1)
+const porPagina    = 10
+
+const totalPaginas = computed(() => Math.max(1, Math.ceil(usuariosFiltrados.value.length / porPagina)))
+
+const usuariosPaginados = computed(() => {
+  const inicio = (paginaActual.value - 1) * porPagina
+  return usuariosFiltrados.value.slice(inicio, inicio + porPagina)
+})
+
+watch([filtroRol, filtroEstado, filtroBusqueda, nodoSeleccionado],
+  () => { paginaActual.value = 1 }
+)
+
+const paginasVisibles = computed(() => {
+  const total  = totalPaginas.value
+  const actual = paginaActual.value
+  const inicio = Math.max(1, actual - 2)
+  const fin    = Math.min(total, actual + 2)
+  const paginas = []
+  for (let i = inicio; i <= fin; i++) paginas.push(i)
+  return paginas
+})
 
 // panel KPIs del usuario
 const mostrarPanelKpis    = ref(false)
@@ -176,7 +201,7 @@ async function eliminarNodo() {
         descripcion="Estructura jerárquica de la empresa, control de acceso por roles y gestión de usuarios."
       />
       <AppButton variant="secondary" class="flex-shrink-0" @click="$router.push('/roles')">
-        🔐 Roles y permisos
+         Roles y permisos
       </AppButton>
     </div>
 
@@ -190,8 +215,8 @@ async function eliminarNodo() {
       <FormField label="Rol">
         <select v-model="filtroRol" class="app-select">
           <option value="">Todos los roles</option>
-          <option v-for="rol in roles" :key="rol.id" :value="rol.name">
-             {{ rol.name }}
+          <option v-for="rol in store.rolesDisponibles" :key="rol.codigo" :value="rol.codigo">
+             {{ rol.nombre }}
           </option>
         </select>
       </FormField>
@@ -297,8 +322,8 @@ async function eliminarNodo() {
       <div class="lg:col-span-8">
         <div class="flex items-center justify-between mb-2 px-1">
           <p class="text-xs" style="color: var(--card-text-hint);">
-            Mostrando <strong style="color: var(--card-text);">{{ usuariosFiltrados.length }}</strong>
-            de <strong style="color: var(--card-text);">{{ usuarios.length }}</strong> usuarios
+            Mostrando <strong style="color: var(--card-text);">{{ usuariosPaginados.length }}</strong>
+            de <strong style="color: var(--card-text);">{{ usuariosFiltrados.length }}</strong> usuarios
             <span v-if="nodoSeleccionado" class="font-semibold" style="color: var(--text-encabezado);">
               — {{ nodoSeleccionado.nombre }}
             </span>
@@ -308,7 +333,7 @@ async function eliminarNodo() {
         <plantillatabla
           :titulo="tituloTabla"
           :encabezados="['Usuario', 'Rol', 'KPIs', 'Último Acceso', 'Estado']"
-          :datos="usuariosFiltrados"
+          :datos="usuariosPaginados"
           :mostrarAcciones="true"
         >
           <!-- apartado donde todos los registros seran datos reales  -->
@@ -361,6 +386,35 @@ async function eliminarNodo() {
             <BotonAccion variante="trash" titulo="Eliminar Usuario"   @click="confirmarEliminacion(item)" />
           </template>
         </plantillatabla>
+
+        <!-- Paginación -->
+        <div v-if="totalPaginas > 1" class="flex items-center justify-center gap-1 mt-4">
+          <button @click="paginaActual--" :disabled="paginaActual === 1"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+            :style="paginaActual === 1 ? 'opacity:0.35; cursor:not-allowed;' : 'cursor:pointer;'"
+            style="background: var(--card-bg); border: 1px solid var(--tabla-borde); color: var(--text-general);">←</button>
+
+          <button v-if="paginasVisibles[0] > 1" @click="paginaActual = 1"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold"
+            style="background: var(--card-bg); border: 1px solid var(--tabla-borde); color: var(--text-general);">1</button>
+          <span v-if="paginasVisibles[0] > 2" class="text-xs px-1" style="color: var(--subtext-general);">…</span>
+
+          <button v-for="p in paginasVisibles" :key="p" @click="paginaActual = p"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+            :style="p === paginaActual
+              ? 'background: var(--sidebar-active-bg); color: var(--sidebar-active-text); border: 1px solid var(--sidebar-active-bg);'
+              : 'background: var(--card-bg); border: 1px solid var(--tabla-borde); color: var(--text-general);'">{{ p }}</button>
+
+          <span v-if="paginasVisibles[paginasVisibles.length-1] < totalPaginas - 1" class="text-xs px-1" style="color: var(--subtext-general);">…</span>
+          <button v-if="paginasVisibles[paginasVisibles.length-1] < totalPaginas" @click="paginaActual = totalPaginas"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold"
+            style="background: var(--card-bg); border: 1px solid var(--tabla-borde); color: var(--text-general);">{{ totalPaginas }}</button>
+
+          <button @click="paginaActual++" :disabled="paginaActual === totalPaginas"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+            :style="paginaActual === totalPaginas ? 'opacity:0.35; cursor:not-allowed;' : 'cursor:pointer;'"
+            style="background: var(--card-bg); border: 1px solid var(--tabla-borde); color: var(--text-general);">→</button>
+        </div>
       </div>
     </div>
 
@@ -399,7 +453,7 @@ async function eliminarNodo() {
                 class="flex items-center justify-between p-3 rounded-xl"
                 style="border: 1px solid var(--tabla-borde); background: var(--tabla-hover);">
                 <div class="flex items-center gap-2.5">
-                  <span class="text-base">📈</span>
+                  <i class="fi fi-sr-stats text-base" style="color: var(--subtext-general);"></i>
                   <div>
                     <div class="text-xs font-bold" style="color: var(--text-general);">{{ kpi.nombre }}</div>
                     <div class="text-[10px]" style="color: var(--subtext-general);">Meta: {{ kpi.meta }}</div>

@@ -14,6 +14,16 @@ const permisosPorModulo = ref({})   // { 'kpis': [{id, name, module, assigned},.
 const guardando        = ref(false)
 const cargando         = ref(false)
 
+// Nombres legibles para cada rol
+const nombreRol = {
+  'developer':   'Developer',
+  'admin':       'Administrador',
+  'manager':     'Gerente',
+  'team_leader': 'Líder de Equipo',
+  'employee':    'Empleado',
+  'auditor':     'Auditor',
+}
+
 // Nombres legibles para cada módulo
 const nombreModulo = {
   'companies':         'Empresas',
@@ -127,7 +137,7 @@ const modulosOrdenados = computed(() => Object.keys(permisosPorModulo.value))
               ? 'background: var(--sidebar-active-bg); color: var(--sidebar-active-text);'
               : 'color: var(--text-general);'"
           >
-            <div class="font-semibold">{{ rol.name }}</div>
+            <div class="font-semibold">{{ nombreRol[rol.name] ?? rol.name }}</div>
             <div v-if="rol.description" class="text-[10px] mt-0.5 opacity-60">{{ rol.description }}</div>
           </button>
         </div>

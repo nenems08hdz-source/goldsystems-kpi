@@ -123,6 +123,34 @@ const indicadoresFiltrados = computed(() =>
   })
 )
 
+// ── Paginación ────────────────────────────────────────────────────────────────
+const paginaActual = ref(1)
+const porPagina    = 10
+
+const totalPaginas = computed(() => Math.max(1, Math.ceil(indicadoresFiltrados.value.length / porPagina)))
+
+const indicadoresPaginados = computed(() => {
+  const inicio = (paginaActual.value - 1) * porPagina
+  return indicadoresFiltrados.value.slice(inicio, inicio + porPagina)
+})
+
+// Regresa a página 1 cuando cambia cualquier filtro
+watch([filtroDepartamento, filtroTipoMetrica, filtroEstado, filtroPeriodicidad, filtroBusqueda],
+  () => { paginaActual.value = 1 }
+)
+
+// Genera el array de páginas visibles: siempre muestra máx 5 números alrededor de la actual
+const paginasVisibles = computed(() => {
+  const total   = totalPaginas.value
+  const actual  = paginaActual.value
+  const rango   = 2
+  const inicio  = Math.max(1, actual - rango)
+  const fin     = Math.min(total, actual + rango)
+  const paginas = []
+  for (let i = inicio; i <= fin; i++) paginas.push(i)
+  return paginas
+})
+
 // ── Contadores para las tarjetas de estado ────────────────────────────────────
 const contadorEstados = computed(() => ({
   saludables: kpis.value.filter(i => i.estadoTipo === 'success').length,
@@ -241,8 +269,14 @@ async function ejecutarEliminacion() {
 
     <div class="flex items-center justify-between mt-4 mb-1 px-1">
       <p class="text-xs" style="color: var(--subtext-general);">
-        Mostrando <strong style="color: var(--text-general);">{{ indicadoresFiltrados.length }}</strong>
-        de <strong style="color: var(--text-general);">{{ kpis.length }}</strong> KPIs
+        Mostrando
+        <strong style="color: var(--text-general);">{{ indicadoresPaginados.length }}</strong>
+        de
+        <strong style="color: var(--text-general);">{{ indicadoresFiltrados.length }}</strong>
+        KPIs
+        <span v-if="indicadoresFiltrados.length !== kpis.length">
+          ({{ kpis.length }} en total)
+        </span>
       </p>
       <p v-if="indicadoresFiltrados.length === 0" class="text-xs text-amber-500 font-semibold">
         Sin resultados para los filtros aplicados
@@ -252,7 +286,7 @@ async function ejecutarEliminacion() {
     <plantillatabla
       titulo="Listado Central de KPIs"
       :encabezados="['Nombre del KPI', 'Departamento', 'Tipo de Métrica', 'Responsable', 'Periodicidad', 'Valor Actual', 'Meta', 'Estado']"
-      :datos="indicadoresFiltrados"
+      :datos="indicadoresPaginados"
       :mostrarAcciones="true"
     >
       <template #default="{ fila }">
@@ -298,6 +332,56 @@ async function ejecutarEliminacion() {
         <BotonAccion variante="trash" titulo="Eliminar KPI" @click="prepararEliminacion(item)" />
       </template>
     </plantillatabla>
+
+    <!-- Paginación -->
+    <div v-if="totalPaginas > 1" class="flex items-center justify-center gap-1 mt-4">
+
+      <button
+        @click="paginaActual--"
+        :disabled="paginaActual === 1"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+        :style="paginaActual === 1
+          ? 'opacity:0.35; cursor:not-allowed; color: var(--subtext-general);'
+          : 'color: var(--text-general); cursor:pointer;'"
+        style="background: var(--card-bg); border: 1px solid var(--tabla-borde);"
+      >←</button>
+
+      <button
+        v-if="paginasVisibles[0] > 1"
+        @click="paginaActual = 1"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+        style="background: var(--card-bg); border: 1px solid var(--tabla-borde); color: var(--text-general);"
+      >1</button>
+      <span v-if="paginasVisibles[0] > 2" class="text-xs px-1" style="color: var(--subtext-general);">…</span>
+
+      <button
+        v-for="p in paginasVisibles"
+        :key="p"
+        @click="paginaActual = p"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+        :style="p === paginaActual
+          ? 'background: var(--sidebar-active-bg); color: var(--sidebar-active-text); border: 1px solid var(--sidebar-active-bg);'
+          : 'background: var(--card-bg); border: 1px solid var(--tabla-borde); color: var(--text-general);'"
+      >{{ p }}</button>
+
+      <span v-if="paginasVisibles[paginasVisibles.length - 1] < totalPaginas - 1" class="text-xs px-1" style="color: var(--subtext-general);">…</span>
+      <button
+        v-if="paginasVisibles[paginasVisibles.length - 1] < totalPaginas"
+        @click="paginaActual = totalPaginas"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+        style="background: var(--card-bg); border: 1px solid var(--tabla-borde); color: var(--text-general);"
+      >{{ totalPaginas }}</button>
+
+      <button
+        @click="paginaActual++"
+        :disabled="paginaActual === totalPaginas"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+        :style="paginaActual === totalPaginas
+          ? 'opacity:0.35; cursor:not-allowed; color: var(--subtext-general);'
+          : 'color: var(--text-general); cursor:pointer;'"
+        style="background: var(--card-bg); border: 1px solid var(--tabla-borde);"
+      >→</button>
+    </div>
 
     <ModalConfirmacion
       :isOpen="showModal"

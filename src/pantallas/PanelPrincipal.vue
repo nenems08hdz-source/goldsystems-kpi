@@ -29,34 +29,16 @@ onMounted(async () => {
   if (!ordenValido) {
     localStorage.removeItem('panelWidgetsOrden')
     store.cargarOrden()
-     await store.cargarIndicadores() 
-    store.cargarPreferencias()
-    kpiStore.indicadores = kpis.value
   }
   store.cargarPreferencias()
+
+  // Cargar todos los KPIs desde la API al store
+  await kpiStore.cargarIndicadores()
+
+  // Usar los KPIs del store directamente
+  kpis.value = kpiStore.indicadores
+
   setTimeout(() => { listoPararenderizar.value = true }, 50)
-  const tipoMap      = { percentage: 'Porcentaje', money: 'Monetario', time: 'Tiempo', absolute: 'Puntaje', custom: 'Puntaje' }
-  const frecuenciaMap = { daily: 'Diario', weekly: 'Semanal', monthly: 'Mensual', quarterly: 'Trimestral', annual: 'Anual' }
-
-  const res  = await api.get('/kpis')
-  const data = res.data
-
-  kpis.value = data.map(k => {
-    const progreso = k.latest_record ? Number(k.latest_record.value) : 0
-    const { estado, estadoTipo } = kpiStore.calcularEstado(progreso)
-    return {
-      id:           k.id,
-      nombre:       k.name,
-      subtitulo:    k.subtitle ?? k.name,
-      departamento: k.department?.name ?? '—',
-      responsable:  k.creator ? `${k.creator.name} ${k.creator.paternal ?? ''}`.trim() : '—',
-      objetivo:     k.goal ? `${k.goal} ${k.unit ?? ''}`.trim() : '—',
-      periodicidad: frecuenciaMap[k.frequency] ?? k.frequency,
-      progreso,
-      estado,
-      estadoTipo,
-    }
-  })
 })
 
 const ordenWidgets  = computed(() => store.widgets.map(w => w.id))
