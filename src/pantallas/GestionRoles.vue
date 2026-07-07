@@ -10,7 +10,7 @@ const router = useRouter()
 
 const roles            = ref([])
 const rolSeleccionado  = ref(null)
-const permisosPorModulo = ref({})   // { 'kpis': [{id, name, module, assigned},...], ... }
+const permisosPorModulo = ref({})  
 const guardando        = ref(false)
 const cargando         = ref(false)
 

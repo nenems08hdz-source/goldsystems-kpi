@@ -1,7 +1,7 @@
 <script setup>
-import { RouterView, useRoute } from 'vue-router'
+import { RouterView, useRoute, useRouter } from 'vue-router'
 import { useLayoutStore } from '@/stores/layout'
-import { useKpiStore } from '@/stores/kpiStore' //cambio 1 
+import { useKpiStore } from '@/stores/kpiStore' //cambio 1
 import sidebar from './components/Sidebar.vue'
 import navbar from './components/Navbar.vue'
 import { onMounted, onUnmounted } from 'vue'
@@ -9,6 +9,11 @@ import { onMounted, onUnmounted } from 'vue'
 const layout = useLayoutStore()
 const kpiStore = useKpiStore() ////cambio 2
 const route  = useRoute()
+const router = useRouter()
+
+router.afterEach(() => {
+  document.getElementById('main-content')?.scrollTo({ top: 0 })
+})
 
 // Auto-colapsa el sidebar en pantallas pequeñas (<1024px)
 const handleResize = () => {
@@ -46,7 +51,7 @@ onUnmounted(() => {
     <div class="flex-1 flex flex-col min-w-0 transition-all duration-300">
       <navbar v-if="route.path !== '/login'" />
 
-      <main :class="['flex-1 overflow-y-auto', route.path === '/login' || route.meta.fullWidth ? '' : 'p-4 md:p-6 lg:p-8']">
+      <main id="main-content" :class="['flex-1 overflow-y-auto', route.path === '/login' || route.meta.fullWidth ? '' : 'p-4 md:p-6 lg:p-8']">
         <RouterView />
       </main>
     </div>
