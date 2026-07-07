@@ -21,15 +21,18 @@ const auth     = useAuthStore()
 // ── Datos de la API ───────────────────────────────────────────────────────────
 const usuarios     = ref([])
 const assignments  = ref([])  // todos los assignments para contar por usuario
+const roles        = ref([])
 
 onMounted(async () => {
   store.cargarTodo()
-  const [resUsers, resAssignments] = await Promise.all([
+  const [resUsers, resAssignments, resRoles] = await Promise.all([
     api.get('/users'),
     api.get('/kpi-assignments'),
+    api.get('/roles'),
   ])
   usuarios.value    = resUsers.data
   assignments.value = resAssignments.data
+  roles.value       = resRoles.data
 })
 
 function contarKpisUsuario(userId) {

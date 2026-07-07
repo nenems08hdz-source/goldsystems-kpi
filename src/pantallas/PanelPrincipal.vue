@@ -29,6 +29,9 @@ onMounted(async () => {
   if (!ordenValido) {
     localStorage.removeItem('panelWidgetsOrden')
     store.cargarOrden()
+     await store.cargarIndicadores() 
+    store.cargarPreferencias()
+    kpiStore.indicadores = kpis.value
   }
   store.cargarPreferencias()
   setTimeout(() => { listoPararenderizar.value = true }, 50)
@@ -110,20 +113,20 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 
           <template v-if="store.modoGrafica === 'general'">
-            <div v-if="listoPararenderizar"
+            <div v-if="listoPararenderizar && kpisResumen.length > 0"
               class="border border-[#beaed8]/70 rounded-2xl p-5 shadow-sm h-60 flex flex-col justify-between"
               style="background: var(--grafics-bg);">
               <p class="text-[11px] font-bold text-[#beaed8] uppercase tracking-wider">Resumen de KPIs</p>
               <div class="flex-1 flex items-center justify-center">
-                <MedidorKpi />
+                <MedidorKpi :kpis="kpisResumen" />
               </div>
             </div>
-            <div v-if="listoPararenderizar"
+            <div v-if="listoPararenderizar && kpisResumen.length > 0 "
               class="border border-[#beaed8]/70 rounded-2xl p-5 shadow-sm h-60 flex flex-col justify-between"
               style="background: var(--grafics-bg);">
               <p class="text-[11px] font-bold text-[#beaed8] uppercase tracking-wider">Progreso General</p>
               <div class="flex-1 flex items-center justify-center overflow-hidden">
-                <ProgresoKpi />
+                 <ProgresoKpi :kpis="kpisResumen" />
               </div>
             </div>
           </template>
