@@ -8,6 +8,7 @@ import AppButton          from '@/components/ui/AppButton.vue'
 import AppInput           from '@/components/ui/AppInput.vue'
 import AppSelect          from '@/components/ui/AppSelect.vue'
 import FormField          from '@/components/ui/FormField.vue'
+import FormContenedor from '@/components/ui/FormContenedor.vue'
 
 const router = useRouter()
 const route  = useRoute()
@@ -90,12 +91,13 @@ async function guardar() {
       </AppButton>
     </div>
 
-    <div v-if="cargando" class="text-sm" style="color: var(--subtext-general);">Cargando...</div>
+    <FormContenedor>
+      <div v-if="cargando" class="text-sm" style="color: var(--subtext-general);">Cargando...</div>
 
-    <form
+      <form
       v-else
       @submit.prevent="guardar"
-      class="flex flex-col gap-6 max-w-4xl"
+      class="flex flex-col gap-6 w-full"
     >
 
       <div
@@ -148,6 +150,7 @@ async function guardar() {
         <AppButton type="submit">Guardar Cambios</AppButton>
       </div>
 
-    </form>
+      </form>
+    </FormContenedor>
   </div>
 </template>

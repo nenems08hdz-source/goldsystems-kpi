@@ -9,6 +9,7 @@ import AppButton          from '@/components/ui/AppButton.vue'
 import AppInput           from '@/components/ui/AppInput.vue'
 import AppSelect          from '@/components/ui/AppSelect.vue'
 import FormField          from '@/components/ui/FormField.vue'
+import FormContenedor from '@/components/ui/FormContenedor.vue'
 
 const router = useRouter()
 const store  = useOrgStore()
@@ -55,9 +56,10 @@ async function guardarEquipo() {
       </AppButton>
     </div>
 
-    <form
+    <FormContenedor>
+      <form
       @submit.prevent="guardarEquipo"
-      class="w-full max-w-2xl rounded-xl shadow-md border overflow-hidden"
+      class="w-full rounded-xl shadow-md border overflow-hidden"
       style="background: var(--card-bg); border-color: rgba(190,174,216,0.5);"
     >
 
@@ -121,6 +123,7 @@ async function guardarEquipo() {
         </AppButton>
       </div>
 
-    </form>
+      </form>
+    </FormContenedor>
   </div>
 </template>

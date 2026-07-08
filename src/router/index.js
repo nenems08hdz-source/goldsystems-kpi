@@ -66,6 +66,18 @@ const router = createRouter({
       component: FormularioDepartamento
   },
     {
+      path: '/departamentos/editar/:id',
+      name: 'editar-departamento',
+      component: () => import('../pantallas/FormularioDepartamentoEdicion.vue'),
+      meta: { requiresAuth: true }
+  },
+    {
+      path: '/equipos/editar/:id',
+      name: 'editar-equipo',
+      component: () => import('../pantallas/FormularioEquipoEdicion.vue'),
+      meta: { requiresAuth: true }
+  },
+    {
       path: '/GestionEmpresas/nueva',
       name: 'nueva-empresa',
       component: FormularioEmpresa

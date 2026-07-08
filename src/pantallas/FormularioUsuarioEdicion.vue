@@ -8,6 +8,7 @@ import AppButton          from '@/components/ui/AppButton.vue'
 import AppInput           from '@/components/ui/AppInput.vue'
 import AppSelect          from '@/components/ui/AppSelect.vue'
 import FormField          from '@/components/ui/FormField.vue'
+import FormContenedor from '@/components/ui/FormContenedor.vue'
 
 const router = useRouter()
 const route  = useRoute()
@@ -59,7 +60,7 @@ const permisosPorModulo = ref({})
 const cargandoPermisos  = ref(false)
 const guardandoPermisos = ref(false)
 
-const nombreModulo = {
+const nombreModuloCRUD = {
   'companies':         'Empresas',
   'users':             'Usuarios',
   'departments':       'Departamentos',
@@ -76,6 +77,14 @@ const nombreModulo = {
   'audit-logs':        'Auditoría',
 }
 
+const nombreModuloVisibilidad = {
+  'org':       'Control Organizacional',
+  'roles':     'Roles y Permisos',
+  'kpis':      'KPIs',
+  'audit':     'Auditoría',
+  'dashboard': 'Dashboard',
+}
+
 const nombreAccion = {
   'index':   'Ver',
   'store':   'Crear',
@@ -83,17 +92,46 @@ const nombreAccion = {
   'destroy': 'Eliminar',
 }
 
-const modulosOrdenados = computed(() => Object.keys(permisosPorModulo.value))
+const accionesCRUD = ['index', 'store', 'update', 'destroy']
+function esCRUD(nombre) {
+  return accionesCRUD.some(a => nombre.endsWith('.' + a))
+}
+
+// Permisos CRUD agrupados por módulo
+const permisosCRUD = computed(() => {
+  const r = {}
+  for (const [mod, perms] of Object.entries(permisosPorModulo.value)) {
+    const crud = perms.filter(p => esCRUD(p.name))
+    if (crud.length) r[mod] = crud
+  }
+  return r
+})
+
+// Permisos de visibilidad agrupados por módulo
+const permisosVisibilidad = computed(() => {
+  const r = {}
+  for (const [mod, perms] of Object.entries(permisosPorModulo.value)) {
+    const vis = perms.filter(p => !esCRUD(p.name))
+    if (vis.length) r[mod] = vis
+  }
+  return r
+})
+
+const hayVisibilidad = computed(() => Object.keys(permisosVisibilidad.value).length > 0)
 
 function moduloCompleto(modulo) {
-  return permisosPorModulo.value[modulo]?.every(p => p.from_role || p.direct) ?? false
+  return permisosCRUD.value[modulo]?.every(p => p.from_role || p.direct) ?? false
 }
 
 function toggleModulo(modulo) {
   const todos = moduloCompleto(modulo)
-  permisosPorModulo.value[modulo].forEach(p => {
+  permisosCRUD.value[modulo].forEach(p => {
     if (!p.from_role) p.direct = !todos
   })
+}
+
+function buscarPermiso(modulo, accion) {
+  return permisosCRUD.value[modulo]?.find(p => p.name.endsWith('.' + accion))
 }
 
 async function cargarPermisos() {
@@ -198,6 +236,7 @@ async function guardar() {
     <div v-if="cargando" class="text-sm" style="color: var(--subtext-general);">Cargando...</div>
 
     <template v-else>
+      <FormContenedor>
 
       <!-- Tabs -->
       <div class="flex gap-1 mb-6 p-1 rounded-xl w-fit"
@@ -226,7 +265,7 @@ async function guardar() {
       <form
         v-if="tabActivo === 'info'"
         @submit.prevent="guardar"
-        class="w-full max-w-5xl rounded-xl shadow-md border overflow-hidden"
+        class="w-full rounded-xl shadow-md border overflow-hidden"
         style="background: var(--card-bg); border-color: rgba(190,174,216,0.9);"
       >
         <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -295,7 +334,7 @@ async function guardar() {
       </form>
 
       <!-- ── Tab: Permisos ── -->
-      <div v-else-if="tabActivo === 'permisos'" class="w-full max-w-5xl">
+      <div v-else-if="tabActivo === 'permisos'" class="w-full">
 
         <div v-if="cargandoPermisos"
           class="rounded-xl border flex items-center justify-center h-48"
@@ -321,55 +360,47 @@ async function guardar() {
             </AppButton>
           </div>
 
-          <div class="rounded-xl border overflow-hidden"
+          <!-- ═══════════════════════════════════════════════ -->
+          <!-- SECCIÓN 1: PERMISOS DE ACCESO (CRUD)         -->
+          <!-- ═══════════════════════════════════════════════ -->
+          <div class="rounded-xl border overflow-hidden mb-6"
             style="background: var(--card-bg); border-color: rgba(190,174,216,0.5);">
 
-            <!-- Encabezado -->
-            <div class="flex items-center px-4 py-2 text-[10px] font-black uppercase tracking-wider border-b"
-              style="background: var(--tabla-header-bg); color: var(--tabla-header-text); border-color: rgba(190,174,216,0.3);">
-              <div class="flex-1">Módulo</div>
-              <div class="w-14 text-center">Todo</div>
-              <div class="w-14 text-center" v-for="a in ['index','store','update','destroy']" :key="a">
-                {{ nombreAccion[a] }}
+            <div class="px-4 py-3 border-b flex items-center gap-2"
+              style="background: var(--tabla-header-bg); border-color: rgba(190,174,216,0.3);">
+              <i class="fi fi-sr-lock text-xs" style="color: var(--subtext-general);"></i>
+              <div>
+                <p class="text-xs font-black uppercase tracking-wider" style="color: var(--tabla-header-text);">Permisos de Acceso</p>
+                <p class="text-[10px] mt-0.5" style="color: var(--subtext-general);">Los sombreados vienen del rol y no se pueden quitar</p>
               </div>
             </div>
 
-            <!-- Filas -->
-            <div
-              v-for="modulo in modulosOrdenados"
-              :key="modulo"
+            <div class="flex items-center px-4 py-2 text-[10px] font-black uppercase tracking-wider border-b"
+              style="color: var(--tabla-header-text); border-color: rgba(190,174,216,0.2); opacity:0.8;">
+              <div class="flex-1">Módulo</div>
+              <div class="w-14 text-center">Todo</div>
+              <div class="w-14 text-center" v-for="a in accionesCRUD" :key="a">{{ nombreAccion[a] }}</div>
+            </div>
+
+            <div v-for="(permisos, modulo) in permisosCRUD" :key="modulo"
               class="flex items-center px-4 py-3 border-b"
-              style="border-color: rgba(190,174,216,0.15);"
-            >
+              style="border-color: rgba(190,174,216,0.12);">
               <div class="flex-1 text-xs font-semibold" style="color: var(--text-general);">
-                {{ nombreModulo[modulo] ?? modulo }}
+                {{ nombreModuloCRUD[modulo] ?? modulo }}
               </div>
-
               <div class="w-14 flex justify-center">
-                <input
-                  type="checkbox"
-                  :checked="moduloCompleto(modulo)"
-                  @change="toggleModulo(modulo)"
-                  class="w-4 h-4 cursor-pointer accent-[#3f2a52]"
-                />
+                <input type="checkbox" :checked="moduloCompleto(modulo)"
+                  @change="toggleModulo(modulo)" class="w-4 h-4 cursor-pointer accent-[#3f2a52]" />
               </div>
-
-              <template v-for="accion in ['index','store','update','destroy']" :key="accion">
+              <template v-for="accion in accionesCRUD" :key="accion">
                 <div class="w-14 flex justify-center">
-                  <template v-if="permisosPorModulo[modulo].find(p => p.name.endsWith('.' + accion))">
-                    <input
-                      type="checkbox"
-                      :checked="permisosPorModulo[modulo].find(p => p.name.endsWith('.' + accion)).from_role
-                             || permisosPorModulo[modulo].find(p => p.name.endsWith('.' + accion)).direct"
-                      :disabled="permisosPorModulo[modulo].find(p => p.name.endsWith('.' + accion)).from_role"
-                      @change="(e) => {
-                        const p = permisosPorModulo[modulo].find(p => p.name.endsWith('.' + accion))
-                        if (p && !p.from_role) p.direct = e.target.checked
-                      }"
+                  <template v-if="buscarPermiso(modulo, accion)">
+                    <input type="checkbox"
+                      :checked="buscarPermiso(modulo, accion).from_role || buscarPermiso(modulo, accion).direct"
+                      :disabled="buscarPermiso(modulo, accion).from_role"
+                      @change="(e) => { const p = buscarPermiso(modulo, accion); if (p && !p.from_role) p.direct = e.target.checked }"
                       class="w-4 h-4 accent-[#3f2a52]"
-                      :class="permisosPorModulo[modulo].find(p => p.name.endsWith('.' + accion)).from_role
-                        ? 'opacity-40 cursor-not-allowed'
-                        : 'cursor-pointer'"
+                      :class="buscarPermiso(modulo, accion).from_role ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'"
                     />
                   </template>
                   <span v-else class="text-[10px]" style="color: var(--subtext-general);">—</span>
@@ -377,9 +408,59 @@ async function guardar() {
               </template>
             </div>
           </div>
+
+          <!-- ═══════════════════════════════════════════════ -->
+          <!-- SECCIÓN 2: PERMISOS DE VISIBILIDAD             -->
+          <!-- ═══════════════════════════════════════════════ -->
+          <div v-if="hayVisibilidad" class="rounded-xl border overflow-hidden"
+            style="background: var(--card-bg); border-color: rgba(190,174,216,0.5);">
+
+            <div class="px-4 py-3 border-b flex items-center gap-2"
+              style="background: var(--tabla-header-bg); border-color: rgba(190,174,216,0.3);">
+              <i class="fi fi-sr-eye text-xs" style="color: var(--subtext-general);"></i>
+              <div>
+                <p class="text-xs font-black uppercase tracking-wider" style="color: var(--tabla-header-text);">Permisos de Visibilidad</p>
+                <p class="text-[10px] mt-0.5" style="color: var(--subtext-general);">Permisos extras para este usuario independientes de su rol</p>
+              </div>
+            </div>
+
+            <div v-for="(permisos, modulo) in permisosVisibilidad" :key="modulo"
+              class="border-b last:border-0" style="border-color: rgba(190,174,216,0.15);">
+              <div class="px-4 py-2" style="background: rgba(190,174,216,0.06);">
+                <p class="text-[10px] font-black uppercase tracking-wider" style="color: var(--subtext-general);">
+                  {{ nombreModuloVisibilidad[modulo] ?? modulo }}
+                </p>
+              </div>
+              <div class="px-4 py-3 grid grid-cols-1 md:grid-cols-2 gap-1">
+                <label v-for="permiso in permisos" :key="permiso.name"
+                  class="flex items-start gap-3 py-2 px-3 rounded-lg transition-colors"
+                  :class="permiso.from_role || permiso.direct ? 'cursor-default' : 'cursor-pointer'"
+                  :style="(permiso.from_role || permiso.direct) ? 'background: rgba(63,42,82,0.08);' : ''">
+                  <input type="checkbox"
+                    :checked="permiso.from_role || permiso.direct"
+                    :disabled="permiso.from_role"
+                    @change="(e) => { if (!permiso.from_role) permiso.direct = e.target.checked }"
+                    class="mt-0.5 w-4 h-4 accent-[#3f2a52] flex-shrink-0"
+                    :class="permiso.from_role ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'"
+                  />
+                  <div>
+                    <p class="text-xs font-semibold" style="color: var(--text-general);">
+                      {{ permiso.description ?? permiso.name }}
+                    </p>
+                    <p v-if="permiso.from_role" class="text-[10px] mt-0.5" style="color: var(--subtext-general);">
+                      Viene del rol
+                    </p>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+
         </template>
       </div>
 
+
+      </FormContenedor>
     </template>
   </div>
 </template>

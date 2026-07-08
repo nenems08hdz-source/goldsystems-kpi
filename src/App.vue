@@ -1,15 +1,18 @@
 <script setup>
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import { useLayoutStore } from '@/stores/layout'
-import { useKpiStore } from '@/stores/kpiStore' //cambio 1
+import { useKpiStore } from '@/stores/kpiStore'
+import { useAuthStore } from '@/stores/authStore'
+import api from '@/services/api'
 import sidebar from './components/Sidebar.vue'
 import navbar from './components/Navbar.vue'
 import { onMounted, onUnmounted } from 'vue'
 
-const layout = useLayoutStore()
-const kpiStore = useKpiStore() ////cambio 2
-const route  = useRoute()
-const router = useRouter()
+const layout  = useLayoutStore()
+const kpiStore = useKpiStore()
+const auth    = useAuthStore()
+const route   = useRoute()
+const router  = useRouter()
 
 router.afterEach(() => {
   document.getElementById('main-content')?.scrollTo({ top: 0 })
@@ -22,11 +25,23 @@ const handleResize = () => {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   document.documentElement.classList.add('dark')
   handleResize()
   window.addEventListener('resize', handleResize)
-  
+
+  // Si hay token, restaura user/role/permisos desde el backend (no desde localStorage).
+  // Así nadie puede modificar sus permisos desde las DevTools.
+  if (auth.token) {
+    try {
+      const res = await api.get('/me')
+      auth.setUserData(res.data.user, res.data.role, res.data.permisos ?? [])
+    } catch {
+      // Token inválido o expirado — cierra sesión y manda al login
+      auth.logout()
+      router.push('/login')
+    }
+  }
 })
 
 onUnmounted(() => {

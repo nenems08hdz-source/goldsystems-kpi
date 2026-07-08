@@ -1,20 +1,19 @@
 <script setup>
 import { ref, computed, onMounted, getCurrentInstance } from 'vue'
-import { useRouter } from 'vue-router'
 import api from '../services/api'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
 import AppButton          from '../components/ui/AppButton.vue'
 
 const { proxy } = getCurrentInstance()
-const router = useRouter()
 
-const roles            = ref([])
-const rolSeleccionado  = ref(null)
-const permisosPorModulo = ref({})  
-const guardando        = ref(false)
-const cargando         = ref(false)
+const roles             = ref([])
+const rolSeleccionado   = ref(null)
+const permisosPorModulo = ref({})
+const guardando         = ref(false)
+const cargando          = ref(false)
 
-// Nombres legibles para cada rol
+// ── Nombres legibles ───────────────────────────────────────────────────────
+
 const nombreRol = {
   'developer':   'Developer',
   'admin':       'Administrador',
@@ -24,8 +23,7 @@ const nombreRol = {
   'auditor':     'Auditor',
 }
 
-// Nombres legibles para cada módulo
-const nombreModulo = {
+const nombreModuloCRUD = {
   'companies':         'Empresas',
   'users':             'Usuarios',
   'departments':       'Departamentos',
@@ -37,18 +35,57 @@ const nombreModulo = {
   'kpi-records':       'Registros KPI',
   'kpi-results':       'Resultados KPI',
   'dashboards':        'Dashboards',
-  'dashboard-widgets': 'Widgets',
+  'dashboard-widgets': 'Widgets del Dashboard',
   'notifications':     'Notificaciones',
-  'audit-logs':        'Auditoría',
+  'audit-logs':        'Auditoría (logs)',
 }
 
-// Nombres legibles para cada acción
+const nombreModuloVisibilidad = {
+  'org':       'Control Organizacional',
+  'roles':     'Roles y Permisos',
+  'kpis':      'KPIs',
+  'audit':     'Auditoría',
+  'dashboard': 'Dashboard',
+}
+
 const nombreAccion = {
   'index':   'Ver',
   'store':   'Crear',
   'update':  'Editar',
   'destroy': 'Eliminar',
 }
+
+// ── Separación de permisos ─────────────────────────────────────────────────
+// Los permisos CRUD siempre terminan en .index .store .update .destroy
+// Todo lo demás es "visibilidad" (controla la interfaz, no el servidor)
+
+const accionesCRUD = ['index', 'store', 'update', 'destroy']
+
+function esCRUD(nombre) {
+  return accionesCRUD.some(a => nombre.endsWith('.' + a))
+}
+
+const permisosCRUD = computed(() => {
+  const resultado = {}
+  for (const [modulo, permisos] of Object.entries(permisosPorModulo.value)) {
+    const crud = permisos.filter(p => esCRUD(p.name))
+    if (crud.length > 0) resultado[modulo] = crud
+  }
+  return resultado
+})
+
+const permisosVisibilidad = computed(() => {
+  const resultado = {}
+  for (const [modulo, permisos] of Object.entries(permisosPorModulo.value)) {
+    const visib = permisos.filter(p => !esCRUD(p.name))
+    if (visib.length > 0) resultado[modulo] = visib
+  }
+  return resultado
+})
+
+const hayVisibilidad = computed(() => Object.keys(permisosVisibilidad.value).length > 0)
+
+// ── Acciones ───────────────────────────────────────────────────────────────
 
 onMounted(async () => {
   const res = await api.get('/roles')
@@ -69,15 +106,17 @@ async function seleccionarRol(rol) {
   }
 }
 
-// Verifica si TODOS los permisos de un módulo están asignados
-function moduloCompleto(modulo) {
-  return permisosPorModulo.value[modulo]?.every(p => p.assigned) ?? false
+function moduloCRUDCompleto(modulo) {
+  return permisosCRUD.value[modulo]?.every(p => p.assigned) ?? false
 }
 
-// Activa/desactiva todos los permisos de un módulo
-function toggleModulo(modulo) {
-  const todos = moduloCompleto(modulo)
-  permisosPorModulo.value[modulo].forEach(p => p.assigned = !todos)
+function toggleModuloCRUD(modulo) {
+  const todos = moduloCRUDCompleto(modulo)
+  permisosCRUD.value[modulo].forEach(p => p.assigned = !todos)
+}
+
+function buscarPermiso(modulo, accion) {
+  return permisosCRUD.value[modulo]?.find(p => p.name.endsWith('.' + accion))
 }
 
 async function guardar() {
@@ -100,8 +139,6 @@ async function guardar() {
     guardando.value = false
   }
 }
-
-const modulosOrdenados = computed(() => Object.keys(permisosPorModulo.value))
 </script>
 
 <template>
@@ -110,7 +147,7 @@ const modulosOrdenados = computed(() => Object.keys(permisosPorModulo.value))
     <div class="mb-6 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
       <EncabezadoPantalla
         titulo="Gestión de Roles y Permisos"
-        descripcion="Configura qué puede hacer cada rol dentro del sistema."
+        descripcion="Configura qué puede hacer y qué puede ver cada rol dentro del sistema."
       />
       <AppButton variant="secondary" class="flex-shrink-0" @click="$router.push('/ControlOrganizacional')">
         ← Volver
@@ -120,13 +157,11 @@ const modulosOrdenados = computed(() => Object.keys(permisosPorModulo.value))
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
 
       <!-- Lista de roles -->
-      <div class="lg:col-span-3 rounded-xl border overflow-hidden"
+      <div class="lg:col-span-3 rounded-xl border overflow-hidden self-start"
         style="background: var(--card-bg); border-color: rgba(190,174,216,0.5);">
-
         <div class="px-4 py-3 border-b" style="background: var(--tabla-header-bg); border-color: rgba(190,174,216,0.3);">
           <p class="text-xs font-black uppercase tracking-wider" style="color: var(--tabla-header-text);">Roles</p>
         </div>
-
         <div class="flex flex-col gap-1 p-2">
           <button
             v-for="rol in roles"
@@ -143,8 +178,8 @@ const modulosOrdenados = computed(() => Object.keys(permisosPorModulo.value))
         </div>
       </div>
 
-      <!-- Permisos por módulo -->
-      <div class="lg:col-span-9">
+      <!-- Panel de permisos -->
+      <div class="lg:col-span-9 flex flex-col gap-6">
 
         <div v-if="!rolSeleccionado"
           class="rounded-xl border flex items-center justify-center h-48"
@@ -159,57 +194,72 @@ const modulosOrdenados = computed(() => Object.keys(permisosPorModulo.value))
         </div>
 
         <template v-else>
-          <div class="flex items-center justify-between mb-4 px-1">
+
+          <!-- Encabezado con botón guardar -->
+          <div class="flex items-center justify-between px-1">
             <div>
-              <p class="text-sm font-bold" style="color: var(--text-general);">{{ rolSeleccionado.name }}</p>
-              <p class="text-xs" style="color: var(--subtext-general);">{{ modulosOrdenados.length }} módulos</p>
+              <p class="text-sm font-bold" style="color: var(--text-general);">
+                {{ nombreRol[rolSeleccionado.name] ?? rolSeleccionado.name }}
+              </p>
+              <p class="text-xs" style="color: var(--subtext-general);">
+                Configura los permisos de acceso y visibilidad para este rol
+              </p>
             </div>
             <AppButton @click="guardar" :disabled="guardando">
               {{ guardando ? 'Guardando...' : 'Guardar Permisos' }}
             </AppButton>
           </div>
 
+          <!-- ═══════════════════════════════════════════════════ -->
+          <!-- SECCIÓN 1: PERMISOS DE ACCESO (CRUD)               -->
+          <!-- Controlan qué endpoints del servidor puede llamar  -->
+          <!-- ═══════════════════════════════════════════════════ -->
           <div class="rounded-xl border overflow-hidden"
             style="background: var(--card-bg); border-color: rgba(190,174,216,0.5);">
 
-            <!-- Encabezado columnas -->
+            <div class="px-4 py-3 border-b flex items-center gap-2"
+              style="background: var(--tabla-header-bg); border-color: rgba(190,174,216,0.3);">
+              <i class="fi fi-sr-lock text-xs" style="color: var(--subtext-general);"></i>
+              <div>
+                <p class="text-xs font-black uppercase tracking-wider" style="color: var(--tabla-header-text);">
+                  Permisos de Acceso
+                </p>
+                <p class="text-[10px] mt-0.5" style="color: var(--subtext-general);">
+                  Controlan qué operaciones puede realizar el rol en el servidor (API)
+                </p>
+              </div>
+            </div>
+
             <div class="flex items-center px-4 py-2 text-[10px] font-black uppercase tracking-wider border-b"
-              style="background: var(--tabla-header-bg); color: var(--tabla-header-text); border-color: rgba(190,174,216,0.3);">
+              style="color: var(--tabla-header-text); border-color: rgba(190,174,216,0.2); opacity: 0.8;">
               <div class="flex-1">Módulo</div>
               <div class="w-14 text-center">Todo</div>
-              <div class="w-14 text-center" v-for="accion in ['index','store','update','destroy']" :key="accion">
+              <div class="w-14 text-center" v-for="accion in accionesCRUD" :key="accion">
                 {{ nombreAccion[accion] }}
               </div>
             </div>
 
-            <!-- Fila por módulo -->
             <div
-              v-for="modulo in modulosOrdenados"
+              v-for="(permisos, modulo) in permisosCRUD"
               :key="modulo"
               class="flex items-center px-4 py-3 border-b"
-              style="border-color: rgba(190,174,216,0.15);"
+              style="border-color: rgba(190,174,216,0.12);"
             >
               <div class="flex-1 text-xs font-semibold" style="color: var(--text-general);">
-                {{ nombreModulo[modulo] ?? modulo }}
+                {{ nombreModuloCRUD[modulo] ?? modulo }}
               </div>
-
-              <!-- Toggle todo el módulo -->
               <div class="w-14 flex justify-center">
-                <input
-                  type="checkbox"
-                  :checked="moduloCompleto(modulo)"
-                  @change="toggleModulo(modulo)"
+                <input type="checkbox"
+                  :checked="moduloCRUDCompleto(modulo)"
+                  @change="toggleModuloCRUD(modulo)"
                   class="w-4 h-4 cursor-pointer accent-[#3f2a52]"
                 />
               </div>
-
-              <!-- Checkbox por acción -->
-              <template v-for="accion in ['index','store','update','destroy']" :key="accion">
+              <template v-for="accion in accionesCRUD" :key="accion">
                 <div class="w-14 flex justify-center">
-                  <template v-if="permisosPorModulo[modulo].find(p => p.name.endsWith('.' + accion))">
-                    <input
-                      type="checkbox"
-                      v-model="permisosPorModulo[modulo].find(p => p.name.endsWith('.' + accion)).assigned"
+                  <template v-if="buscarPermiso(modulo, accion)">
+                    <input type="checkbox"
+                      v-model="buscarPermiso(modulo, accion).assigned"
                       class="w-4 h-4 cursor-pointer accent-[#3f2a52]"
                     />
                   </template>
@@ -218,6 +268,63 @@ const modulosOrdenados = computed(() => Object.keys(permisosPorModulo.value))
               </template>
             </div>
           </div>
+
+          <!-- ═══════════════════════════════════════════════════ -->
+          <!-- SECCIÓN 2: PERMISOS DE VISIBILIDAD                 -->
+          <!-- Controlan qué secciones/botones aparecen en la UI  -->
+          <!-- ═══════════════════════════════════════════════════ -->
+          <div v-if="hayVisibilidad" class="rounded-xl border overflow-hidden"
+            style="background: var(--card-bg); border-color: rgba(190,174,216,0.5);">
+
+            <div class="px-4 py-3 border-b flex items-center gap-2"
+              style="background: var(--tabla-header-bg); border-color: rgba(190,174,216,0.3);">
+              <i class="fi fi-sr-eye text-xs" style="color: var(--subtext-general);"></i>
+              <div>
+                <p class="text-xs font-black uppercase tracking-wider" style="color: var(--tabla-header-text);">
+                  Permisos de Visibilidad
+                </p>
+                <p class="text-[10px] mt-0.5" style="color: var(--subtext-general);">
+                  Controlan qué secciones, botones o columnas puede ver el rol en la aplicación
+                </p>
+              </div>
+            </div>
+
+            <div
+              v-for="(permisos, modulo) in permisosVisibilidad"
+              :key="modulo"
+              class="border-b last:border-0"
+              style="border-color: rgba(190,174,216,0.15);"
+            >
+              <!-- Nombre del grupo -->
+              <div class="px-4 py-2" style="background: rgba(190,174,216,0.06);">
+                <p class="text-[10px] font-black uppercase tracking-wider" style="color: var(--subtext-general);">
+                  {{ nombreModuloVisibilidad[modulo] ?? modulo }}
+                </p>
+              </div>
+
+              <!-- Lista de permisos del grupo -->
+              <div class="px-4 py-3 grid grid-cols-1 md:grid-cols-2 gap-1">
+                <label
+                  v-for="permiso in permisos"
+                  :key="permiso.name"
+                  class="flex items-start gap-3 py-2 px-3 cursor-pointer rounded-lg transition-colors"
+                  :style="permiso.assigned ? 'background: rgba(63,42,82,0.08);' : ''"
+                >
+                  <input
+                    type="checkbox"
+                    v-model="permiso.assigned"
+                    class="mt-0.5 w-4 h-4 cursor-pointer accent-[#3f2a52] flex-shrink-0"
+                  />
+                  <div>
+                    <p class="text-xs font-semibold" style="color: var(--text-general);">
+                      {{ permiso.description ?? permiso.name }}
+                    </p>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+
         </template>
       </div>
     </div>

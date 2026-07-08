@@ -9,6 +9,7 @@ import AppButton from '@/components/ui/AppButton.vue'
 import AppInput from '@/components/ui/AppInput.vue'
 import AppSelect from '@/components/ui/AppSelect.vue'
 import FormField from '@/components/ui/FormField.vue'
+import FormContenedor from '@/components/ui/FormContenedor.vue'
 import EncabezadoPantalla from '@/components/EncabezadoPantalla.vue'
 
 const router = useRouter()
@@ -163,9 +164,10 @@ async function guardarEdicion() {
       </AppButton>
     </div>
 
-    <form
+    <FormContenedor>
+      <form
       @submit.prevent="guardarEdicion"
-      class="rounded-xl shadow-md border overflow-hidden max-w-4xl"
+      class="w-full rounded-xl shadow-md border overflow-hidden"
       style="background: var(--card-bg); border-color: rgba(190,174,216,0.5);"
     >
       <div class="p-4 border-b" style="background: var(--tabla-header-bg); border-color: rgba(190,174,216,0.3);">
@@ -236,7 +238,8 @@ async function guardarEdicion() {
           Guardar Cambios
         </AppButton>
       </div>
-    </form>
+      </form>
+    </FormContenedor>
   </div>
 
   <div v-else class="p-3 min-h-screen flex items-center justify-center">

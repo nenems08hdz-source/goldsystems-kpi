@@ -9,6 +9,7 @@ import AppButton          from '@/components/ui/AppButton.vue'
 import AppInput           from '@/components/ui/AppInput.vue'
 import AppSelect          from '@/components/ui/AppSelect.vue'
 import FormField          from '@/components/ui/FormField.vue'
+import FormContenedor from '@/components/ui/FormContenedor.vue'
 import EncabezadoPantalla from '@/components/EncabezadoPantalla.vue'
 
 const router   = useRouter()
@@ -221,9 +222,10 @@ const opcionesTipoMetrica  = [
       </AppButton>
     </div>
 
-    <form
+    <FormContenedor>
+      <form
       @submit.prevent="guardarKpi"
-      class="rounded-xl shadow-md border overflow-hidden max-w-4xl"
+      class="w-full rounded-xl shadow-md border overflow-hidden"
       style="background: var(--card-bg); border-color: rgba(190,174,216,0.5);"
     >
 
@@ -353,6 +355,7 @@ const opcionesTipoMetrica  = [
         </AppButton>
       </div>
 
-    </form>
+      </form>
+    </FormContenedor>
   </div>
 </template>

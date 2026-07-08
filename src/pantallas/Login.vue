@@ -50,7 +50,7 @@ const handleLogin = async () => {
   }
 
   // Guarda token, usuario y rol en el store y localStorage
-  auth.setAuth(data.token, data.user, data.role)
+  auth.setAuth(data.token, data.user, data.role, data.permisos ?? [])
 
   // Redirige al panel principal
   router.push('/')

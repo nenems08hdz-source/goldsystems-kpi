@@ -8,6 +8,7 @@ import EncabezadoPantalla from '@/components/EncabezadoPantalla.vue'
 import AppButton          from '@/components/ui/AppButton.vue'
 import AppInput           from '@/components/ui/AppInput.vue'
 import FormField          from '@/components/ui/FormField.vue'
+import FormContenedor from '@/components/ui/FormContenedor.vue'
 
 const router = useRouter()
 const store  = useOrgStore()
@@ -55,7 +56,8 @@ async function guardarEmpresa() {
       </AppButton>
     </div>
 
-    <form @submit.prevent="guardarEmpresa" class="flex flex-col gap-6 max-w-4xl">
+    <FormContenedor>
+      <form @submit.prevent="guardarEmpresa" class="flex flex-col gap-6 w-full">
 
       <div
         class="rounded-xl shadow-md border overflow-hidden"
@@ -144,6 +146,7 @@ async function guardarEmpresa() {
         </AppButton>
       </div>
 
-    </form>
+      </form>
+    </FormContenedor>
   </div>
 </template>

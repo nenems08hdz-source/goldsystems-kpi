@@ -11,12 +11,13 @@ import BotonAccion        from '../components/ui/BotonAccion.vue'
 import EtiquetaBadge      from '../components/ui/EtiquetaBadge.vue'
 import StatusBadge        from '../components/StatusBadge.vue'
 import { useAuthStore } from '../stores/authStore'
+import { usePermissions } from '../composables/usePermissions'
 import api from '../services/api'
-
 
 const store    = useOrgStore()
 const { proxy } = getCurrentInstance()
 const auth     = useAuthStore()
+const { can }  = usePermissions()
 
 // ── Datos de la API ───────────────────────────────────────────────────────────
 const usuarios     = ref([])
@@ -200,7 +201,7 @@ async function eliminarNodo() {
         titulo="Control Organizacional"
         descripcion="Estructura jerárquica de la empresa, control de acceso por roles y gestión de usuarios."
       />
-      <AppButton variant="secondary" class="flex-shrink-0" @click="$router.push('/roles')">
+      <AppButton v-if="can('roles.manage')" variant="secondary" class="flex-shrink-0" @click="$router.push('/roles')">
          Roles y permisos
       </AppButton>
     </div>
@@ -231,14 +232,14 @@ async function eliminarNodo() {
 
       <div class="flex items-end gap-2">
         <AppButton variant="secondary" class="flex-1" @click="limpiarFiltros">Limpiar</AppButton>
-        <AppButton class="flex-1" @click="$router.push('/organizacion/nuevo')">+ Nuevo</AppButton>
+        <AppButton v-if="can('users.store')" class="flex-1" @click="$router.push('/organizacion/nuevo')">+ Nuevo</AppButton>
       </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-4">
 
-      <!-- árbol organizacional -->
-      <div class="lg:col-span-4 rounded-xl shadow-md border border-[#beaed8]/90 mt-2 overflow-hidden flex flex-col"
+      <!-- árbol organizacional — solo visible con permiso org.view_tree -->
+      <div v-if="can('org.view_tree')" class="lg:col-span-4 rounded-xl shadow-md border border-[#beaed8]/90 mt-2 overflow-hidden flex flex-col"
         style="background: var(--card-bg);">
 
         <div class="p-4" style="border-bottom: 1px solid var(--tabla-borde); background: var(--tabla-header-bg);">
@@ -299,27 +300,36 @@ async function eliminarNodo() {
                   : 'background: var(--tabla-borde); color: var(--subtext-general);'"
               >{{ contarUsuarios(nodo) }}</span>
 
-              <BotonAccion v-if="nodo.tipo !== 'empresa'"
-                variante="trash"
-                titulo="Eliminar"
-                @click="confirmarEliminacionNodo(nodo)"
-              />
+              <template v-if="nodo.tipo !== 'empresa'">
+                <BotonAccion
+                  v-if="can(nodo.tipo === 'departamento' ? 'org.manage_departments' : 'org.manage_teams')"
+                  variante="edit"
+                  titulo="Editar"
+                  @click="$router.push(nodo.tipo === 'departamento' ? `/departamentos/editar/${nodo.id}` : `/equipos/editar/${nodo.id}`)"
+                />
+                <BotonAccion
+                  v-if="can(nodo.tipo === 'departamento' ? 'org.manage_departments' : 'org.manage_teams')"
+                  variante="trash"
+                  titulo="Eliminar"
+                  @click="confirmarEliminacionNodo(nodo)"
+                />
+              </template>
             </div>
           </div>
         </div>
 
         <div class="p-3 flex gap-2" style="border-top: 1px solid var(--tabla-borde);">
-          <AppButton variant="secondary" size="sm" class="flex-1 flex items-center justify-center gap-1" @click="$router.push('/FormularioDepartamento')">
+          <AppButton v-if="can('org.manage_departments')" variant="secondary" size="sm" class="flex-1 flex items-center justify-center gap-1" @click="$router.push('/FormularioDepartamento')">
             <span style="color: var(--color-kpi-morado);">+</span> Departamento
           </AppButton>
-          <AppButton variant="secondary" size="sm" class="flex-1 flex items-center justify-center gap-1" @click="$router.push('/FormularioEquipo')">
+          <AppButton v-if="can('org.manage_teams')" variant="secondary" size="sm" class="flex-1 flex items-center justify-center gap-1" @click="$router.push('/FormularioEquipo')">
             <span style="color: var(--color-kpi-morado);">+</span> Equipo
           </AppButton>
         </div>
       </div>
 
-      <!-- tabla usuarios -->
-      <div class="lg:col-span-8">
+      <!-- tabla usuarios — solo visible con permiso org.view_users_table -->
+      <div v-if="can('org.view_users_table')" class="lg:col-span-8">
         <div class="flex items-center justify-between mb-2 px-1">
           <p class="text-xs" style="color: var(--card-text-hint);">
             Mostrando <strong style="color: var(--card-text);">{{ usuariosPaginados.length }}</strong>

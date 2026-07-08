@@ -3,29 +3,39 @@ import { defineStore } from 'pinia'
 export const useAuthStore = defineStore('auth', {
 
   state: () => ({
-    token: localStorage.getItem('token') || null,
-    user:  JSON.parse(localStorage.getItem('user') || 'null'),
-    role:  localStorage.getItem('role') || null,
-  }),                                            // "state", son los datos que guardaste en tu store este revisa si ya habian datos guardados alli dentro
-                                                 // de no ser asi este este pone null
+    // Solo el token persiste en localStorage — es una llave sin valor sin el backend.
+    // user, role y permisos viven SOLO en memoria para que nadie pueda modificarlos
+    // desde las DevTools del navegador.
+    token:    localStorage.getItem('token') || null,
+    user:     null,
+    role:     null,
+    permisos: [],
+  }),
 
-  actions: {          
-    setAuth(token, user, role) {
-      this.token = token
-      this.user  = user
-      this.role  = role
+  actions: {
+    // Se llama al hacer login. Solo guarda el token en localStorage.
+    setAuth(token, user, role, permisos = []) {
+      this.token    = token
+      this.user     = user
+      this.role     = role
+      this.permisos = permisos
       localStorage.setItem('token', token)
-      localStorage.setItem('user',  JSON.stringify(user))
-      localStorage.setItem('role',  role)
-    },                                     // Guarda el token, usuario y rol en el store Y en localStorage (para que persistan al recargar).
+    },
+
+    // Se llama al recargar la página, después de consultar /api/me.
+    // Restaura los datos en memoria sin tocar localStorage.
+    setUserData(user, role, permisos = []) {
+      this.user     = user
+      this.role     = role
+      this.permisos = permisos
+    },
 
     logout() {
-      this.token = null
-      this.user  = null
-      this.role  = null
+      this.token    = null
+      this.user     = null
+      this.role     = null
+      this.permisos = []
       localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      localStorage.removeItem('role')
-    }                                 //Se ejecuta al cerrar sesión. Borra todo del store y del localStorage.
-  }
+    },
+  },
 })

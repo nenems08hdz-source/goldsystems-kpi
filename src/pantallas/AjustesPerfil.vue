@@ -69,7 +69,7 @@ const guardarPerfil = async () => { //"async" indica que la función tiene opera
       return
     }
 
-    auth.setAuth(auth.token, data.user, data.role) //actualiza el store y localStorage con los nuevos datos para que persistan al recargar
+    auth.setUserData(data.user, data.role, auth.permisos) // actualiza user/role en memoria sin tocar localStorage
     proxy.$notify.success('Perfil actualizado correctamente', 'Éxito')
 
   } catch (e) {
