@@ -201,7 +201,7 @@ async function eliminarNodo() {
         titulo="Control Organizacional"
         descripcion="Estructura jerárquica de la empresa, control de acceso por roles y gestión de usuarios."
       />
-      <AppButton v-if="can('roles.manage')" variant="secondary" class="flex-shrink-0" @click="$router.push('/roles')">
+      <AppButton v-if="can('roles.index')" variant="secondary" class="flex-shrink-0" @click="$router.push('/roles')">
          Roles y permisos
       </AppButton>
     </div>
@@ -328,8 +328,8 @@ async function eliminarNodo() {
         </div>
       </div>
 
-      <!-- tabla usuarios — solo visible con permiso org.view_users_table -->
-      <div v-if="can('org.view_users_table')" class="lg:col-span-8">
+      <!-- tabla usuarios — ocupa todo el ancho si el árbol no es visible -->
+      <div v-if="can('org.view_users_table')" :class="can('org.view_tree') ? 'lg:col-span-8' : 'lg:col-span-12'">
         <div class="flex items-center justify-between mb-2 px-1">
           <p class="text-xs" style="color: var(--card-text-hint);">
             Mostrando <strong style="color: var(--card-text);">{{ usuariosPaginados.length }}</strong>
@@ -344,7 +344,7 @@ async function eliminarNodo() {
           :titulo="tituloTabla"
           :encabezados="['Usuario', 'Rol', 'KPIs', 'Último Acceso', 'Estado']"
           :datos="usuariosPaginados"
-          :mostrarAcciones="true"
+          :mostrarAcciones="can('users.update') || can('users.destroy') || can('org.manage_departments')"
         >
           <!-- apartado donde todos los registros seran datos reales  -->
           <template #default="{ fila }"> 
@@ -391,9 +391,9 @@ async function eliminarNodo() {
           </template>
 
           <template #iconos-acciones="{ item }">
-            <BotonAccion variante="edit"  titulo="Editar Usuario"     @click="$router.push(`/organizacion/editar/${item.id}`)" />
-            <BotonAccion variante="stats" titulo="Ver KPIs Asignados" @click="abrirPanelKpis(item)" />
-            <BotonAccion variante="trash" titulo="Eliminar Usuario"   @click="confirmarEliminacion(item)" />
+            <BotonAccion v-if="can('users.update')"           variante="edit"  titulo="Editar Usuario"     @click="$router.push(`/organizacion/editar/${item.id}`)" />
+            <BotonAccion v-if="can('org.manage_departments')" variante="stats" titulo="Ver KPIs Asignados" @click="abrirPanelKpis(item)" />
+            <BotonAccion v-if="can('users.destroy')"          variante="trash" titulo="Eliminar Usuario"   @click="confirmarEliminacion(item)" />
           </template>
         </plantillatabla>
 

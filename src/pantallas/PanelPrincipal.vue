@@ -1,9 +1,11 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { useUiStore }    from '../stores/uiStore'
-import { useKpiStore }   from '../stores/kpiStore'
-import { useAuthStore }  from '../stores/authStore'
+import { useUiStore }      from '../stores/uiStore'
+import { useKpiStore }     from '../stores/kpiStore'
+import { usePermissions }  from '../composables/usePermissions'
 import api from '../services/api'
+
+const { can } = usePermissions()
 import EncabezadoPantalla     from '../components/EncabezadoPantalla.vue'
 import GraficaKpiEspecifica   from '../components/GraficaKpiEspecifica.vue'
 import MedidorKpi             from '../components/MedidorKpi.vue'
@@ -16,8 +18,8 @@ import AppButton              from '../components/ui/AppButton.vue'
 
 const store    = useUiStore()
 const kpiStore = useKpiStore()
-const auth = useAuthStore()
-const kpis = ref([])
+const kpis     = ref([])
+const misKpis  = ref([])
 
 const listoPararenderizar = ref(false)
 const IDS_ESPERADOS = ['tarjetas', 'graficas', 'criticos', 'detalle']
@@ -34,9 +36,25 @@ onMounted(async () => {
 
   // Cargar todos los KPIs desde la API al store
   await kpiStore.cargarIndicadores()
-
-  // Usar los KPIs del store directamente
   kpis.value = kpiStore.indicadores
+
+  // Si no tiene acceso avanzado, carga solo sus KPIs asignados
+  if (!can('dashboard.view_advanced')) {
+    const res = await api.get('/kpis/mine')
+    misKpis.value = res.data.map(k => {
+      const progreso = k.latest_record ? Number(k.latest_record.value) : 0
+      const { traffic_light, estado, estadoTipo } = kpiStore.calcularEstado(progreso)
+      return {
+        id:           k.id,
+        nombre:       k.name,
+        subtitulo:    k.subtitle ?? k.name,
+        meta:         k.goal ? `${parseFloat(k.goal)} ${k.unit ?? ''}`.trim() : '—',
+        progreso,
+        estado,
+        estadoTipo,
+      }
+    })
+  }
 
   setTimeout(() => { listoPararenderizar.value = true }, 50)
 })
@@ -129,7 +147,42 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
         </div>
       </template>
 
-      <template v-if="widgetId === 'criticos'">
+      <!-- Tabla de KPIs asignados — solo para quien no tiene acceso avanzado -->
+      <template v-if="widgetId === 'criticos' && !can('dashboard.view_advanced')">
+        <div class="mb-6">
+          <plantillatabla
+            titulo="Mis KPIs Asignados"
+            :encabezados="['KPI', 'Meta', 'Progreso', 'Estado']"
+            :datos="misKpis"
+            :mostrarAcciones="false"
+          >
+            <template #default="{ fila }">
+              <td class="p-4 align-middle">
+                <div class="font-bold text-sm" style="color: var(--text-general);">{{ fila.nombre }}</div>
+                <div class="text-xs mt-0.5" style="color: var(--subtext-general);">{{ fila.subtitulo }}</div>
+              </td>
+              <td class="p-4 align-middle text-center text-xs font-semibold" style="color: var(--subtext-general);">
+                {{ can('kpis.view_targets') ? fila.meta : '—' }}
+              </td>
+              <td class="p-4 align-middle">
+                <div class="flex items-center gap-3">
+                  <span class="font-bold text-sm w-12 text-right" style="color: var(--text-general);">
+                    {{ fila.progreso }}%
+                  </span>
+                  <div class="w-24 h-1.5 rounded-full overflow-hidden" style="background: var(--card-border);">
+                    <div class="h-full rounded-full bg-[#3f2a52]" :style="{ width: Math.min(fila.progreso, 100) + '%' }"></div>
+                  </div>
+                </div>
+              </td>
+              <td class="p-4 align-middle text-center">
+                <StatusBadge :tipo="fila.estadoTipo" :texto="fila.estado" />
+              </td>
+            </template>
+          </plantillatabla>
+        </div>
+      </template>
+
+      <template v-if="widgetId === 'criticos' && can('dashboard.view_advanced')">
         <div class="mb-6">
           <plantillatabla
             titulo="Resumen de KPIs Críticos y en Riesgo"
@@ -159,7 +212,7 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
       </template>
 
       <!-- métricas detalladas -->
-      <template v-if="widgetId === 'detalle'">
+      <template v-if="widgetId === 'detalle' && can('dashboard.view_advanced')">
         <plantillatabla
           titulo="Métricas Detalladas por Departamento"
           :encabezados="cabecerasDetalle"

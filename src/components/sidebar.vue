@@ -1,13 +1,14 @@
 <script setup>
-/*sidebar*/
 import { RouterLink } from 'vue-router'
 import { useLayoutStore } from '@/stores/layout'
-import { useAuthStore } from '../stores/authStore'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/authStore'
+import { usePermissions } from '../composables/usePermissions'
 
 const layout = useLayoutStore()
 const auth   = useAuthStore()
 const router = useRouter()
+const { can, canAny } = usePermissions()
 
 function cerrarSesion() {
   auth.logout()
@@ -16,13 +17,13 @@ function cerrarSesion() {
 </script>
 
 <template>
-  <aside 
+  <aside
     :class="[
       'h-full border-r flex flex-col justify-between p-4 transition-all duration-300',
       layout.isSidebarOpen ? 'w-64' : 'w-20'
     ]"
     style="
-      background-color: var(--sidebar-bg); 
+      background-color: var(--sidebar-bg);
       color: var(--sidebar-text);
       border-color: var(--sidebar-active-bg);
     "
@@ -31,51 +32,67 @@ function cerrarSesion() {
       <div class="h-16 flex items-center px-2 mb-6">
         <span class="text-xl font-bold tracking-wide whitespace-nowrap flex items-center gap-3"
           style="color: var(--sidebar-text);">
-          <i class="fi fi-sr-speedometer-kpi w-5 text-center"></i> 
+          <i class="fi fi-sr-speedometer-kpi w-5 text-center"></i>
           <span v-if="layout.isSidebarOpen">KPI360 Enterprise</span>
         </span>
       </div>
 
       <nav>
         <ul class="flex flex-col gap-1">
+
+          <!-- Panel Principal — todos los roles -->
           <li>
-            <RouterLink to="/" 
+            <RouterLink to="/"
               class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors font-medium sidebar-link"
               :class="{'justify-center': !layout.isSidebarOpen}">
-              <i class="fi fi-sr-apps w-5 text-center"></i> 
+              <i class="fi fi-sr-apps w-5 text-center"></i>
               <span v-if="layout.isSidebarOpen">Panel Principal</span>
             </RouterLink>
           </li>
-          
-          <li>
-            <RouterLink to="/kpis" 
+
+          <!-- Gestión de KPIs — todos los roles con kpis.index -->
+          <li v-if="can('kpis.index')">
+            <RouterLink to="/kpis"
               class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors font-medium sidebar-link"
               :class="{'justify-center': !layout.isSidebarOpen}">
-              <i class="fi fi-sr-chart-histogram w-5 text-center"></i> 
+              <i class="fi fi-sr-chart-histogram w-5 text-center"></i>
               <span v-if="layout.isSidebarOpen">Gestión de KPIs</span>
             </RouterLink>
           </li>
-          
-          <li>
-            <RouterLink to="/capturasmetricas" 
+
+          <!-- Captura de Métricas — quien pueda registrar métricas -->
+          <li v-if="can('kpi-records.store')">
+            <RouterLink to="/capturasmetricas"
               class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors font-medium sidebar-link"
               :class="{'justify-center': !layout.isSidebarOpen}">
-              <i class="fi fi-sr-document-signed w-5 text-center"></i> 
+              <i class="fi fi-sr-document-signed w-5 text-center"></i>
               <span v-if="layout.isSidebarOpen">Captura de Métricas</span>
             </RouterLink>
           </li>
-          
-          <li>
-            <RouterLink to="/auditoria" 
+
+          <!-- Auditoría — solo quien tiene audit.view_movements -->
+          <li v-if="can('audit.view_movements')">
+            <RouterLink to="/auditoria"
               class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors font-medium sidebar-link"
               :class="{'justify-center': !layout.isSidebarOpen}">
-              <i class="fi fi-sr-shield-check w-5 text-center"></i> 
+              <i class="fi fi-sr-shield-check w-5 text-center"></i>
               <span v-if="layout.isSidebarOpen">Auditoría y Resumen</span>
             </RouterLink>
           </li>
 
-          <li v-if="auth.role === 'developer'">
-            <RouterLink to="/GestionEmpresas" 
+          <!-- Control Empresarial — quien pueda ver árbol o tabla de usuarios -->
+          <li v-if="canAny(['org.view_tree', 'org.view_users_table'])">
+            <RouterLink to="/ControlOrganizacional"
+              class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors font-medium sidebar-link"
+              :class="{'justify-center': !layout.isSidebarOpen}">
+              <i class="fi fi-sr-building w-5 text-center"></i>
+              <span v-if="layout.isSidebarOpen">Control Empresarial</span>
+            </RouterLink>
+          </li>
+
+          <!-- Gestión de Empresas — solo developer (companies.store) -->
+          <li v-if="can('companies.store')">
+            <RouterLink to="/GestionEmpresas"
               class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors font-medium sidebar-link"
               :class="{'justify-center': !layout.isSidebarOpen}">
               <i class="fi fi-sr-globe w-5 text-center"></i>
@@ -83,31 +100,23 @@ function cerrarSesion() {
             </RouterLink>
           </li>
 
-          <li>
-            <RouterLink to="/ControlOrganizacional" 
-              class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors font-medium sidebar-link"
-              :class="{'justify-center': !layout.isSidebarOpen}">
-              <i class="fi fi-sr-building w-5 text-center"></i> 
-              <span v-if="layout.isSidebarOpen">Control Empresarial</span>
-            </RouterLink>
-          </li>
         </ul>
       </nav>
     </div>
 
     <div :class="{'flex flex-col items-center': !layout.isSidebarOpen}">
-      <RouterLink to="/Ajustes" 
+      <RouterLink to="/Ajustes"
         class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors font-medium sidebar-link mb-1"
         :class="{'justify-center': !layout.isSidebarOpen}">
-        <i class="fi fi-sr-settings w-5 text-center"></i> 
+        <i class="fi fi-sr-settings w-5 text-center"></i>
         <span v-if="layout.isSidebarOpen">Ajustes</span>
       </RouterLink>
-      
+
       <button @click="cerrarSesion"
-         class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-red-400 hover:bg-red-900/30 transition-colors font-medium w-full"
-         :class="{'justify-center': !layout.isSidebarOpen}">
-         <i class="fi fi-sr-exit w-5 text-center"></i>
-         <span v-if="layout.isSidebarOpen">Cerrar Sesión</span>
+        class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-red-400 hover:bg-red-900/30 transition-colors font-medium w-full"
+        :class="{'justify-center': !layout.isSidebarOpen}">
+        <i class="fi fi-sr-exit w-5 text-center"></i>
+        <span v-if="layout.isSidebarOpen">Cerrar Sesión</span>
       </button>
     </div>
   </aside>

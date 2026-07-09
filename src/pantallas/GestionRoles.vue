@@ -1,8 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, getCurrentInstance } from 'vue'
 import api from '../services/api'
+import { usePermissions } from '../composables/usePermissions'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
 import AppButton          from '../components/ui/AppButton.vue'
+
+const { can } = usePermissions()
 
 const { proxy } = getCurrentInstance()
 
@@ -87,6 +90,13 @@ const hayVisibilidad = computed(() => Object.keys(permisosVisibilidad.value).len
 
 // ── Acciones ───────────────────────────────────────────────────────────────
 
+// Solo developer ve el rol 'developer' en la lista
+const rolesVisibles = computed(() =>
+  can('roles.manage')
+    ? roles.value
+    : roles.value.filter(r => r.name !== 'developer')
+)
+
 onMounted(async () => {
   const res = await api.get('/roles')
   roles.value = res.data
@@ -164,7 +174,7 @@ async function guardar() {
         </div>
         <div class="flex flex-col gap-1 p-2">
           <button
-            v-for="rol in roles"
+            v-for="rol in rolesVisibles"
             :key="rol.id"
             @click="seleccionarRol(rol)"
             class="text-left px-4 py-3 rounded-lg transition-all text-sm font-medium"

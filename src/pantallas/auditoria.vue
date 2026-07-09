@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useAuthStore } from '../stores/authStore'
+import api               from '../services/api'
+import { usePermissions } from '../composables/usePermissions'
 import plantillatabla     from '../components/PlantillaTabla.vue'
 import tarjetasresumen    from '../components/TarjetasResumen.vue'
 import EncabezadoPantalla from '@/components/EncabezadoPantalla.vue'
@@ -9,14 +10,12 @@ import StatusBadge        from '../components/StatusBadge.vue'
 import AppButton          from '../components/ui/AppButton.vue'
 import BotonAccion        from '../components/ui/BotonAccion.vue'
 
-const auth      = useAuthStore()
+const { can } = usePermissions()
 const misEventos = ref([])
 
 onMounted(async () => {
-  const res  = await fetch('http://127.0.0.1:8000/api/audit-logs', {
-    headers: { 'Authorization': `Bearer ${auth.token}` }
-  })
-  const data = await res.json()
+  const res  = await api.get('/audit-logs')
+  const data = res.data
   const raw  = Array.isArray(data) ? data : (data.data ?? [])
 
   // Transformar campos de la API al formato que espera el template
@@ -42,7 +41,7 @@ onMounted(async () => {
         titulo="Centro de Auditoría"
         descripcion="Supervisión en tiempo real de la integridad del sistema y actividad del usuario."
       />
-      <div class="flex gap-3 flex-shrink-0">
+      <div v-if="can('audit.export')" class="flex gap-3 flex-shrink-0">
         <AppButton variant="primary" class="flex items-center gap-2">
           <i class="fi fi-sr-file-pdf"></i> Exportar PDF
         </AppButton>

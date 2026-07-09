@@ -3,12 +3,15 @@ import { ref, computed, onMounted, getCurrentInstance } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import api from '../services/api'
 import { useOrgStore } from '../stores/orgStore'
+import { usePermissions } from '../composables/usePermissions'
 import EncabezadoPantalla from '@/components/EncabezadoPantalla.vue'
 import AppButton          from '@/components/ui/AppButton.vue'
 import AppInput           from '@/components/ui/AppInput.vue'
 import AppSelect          from '@/components/ui/AppSelect.vue'
 import FormField          from '@/components/ui/FormField.vue'
 import FormContenedor from '@/components/ui/FormContenedor.vue'
+
+const { can } = usePermissions()
 
 const router = useRouter()
 const route  = useRoute()
@@ -251,6 +254,7 @@ async function guardar() {
           Información
         </button>
         <button
+          v-if="can('users.update')"
           @click="cambiarTab('permisos')"
           class="px-5 py-2 rounded-lg text-sm font-semibold transition-all"
           :style="tabActivo === 'permisos'

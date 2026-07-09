@@ -3,6 +3,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { getCurrentInstance } from 'vue'
 import { useKpiStore } from '../stores/kpiStore'
+import { usePermissions } from '../composables/usePermissions'
 import api from '../services/api'
 import plantillatabla     from '../components/PlantillaTabla.vue'
 import tarjetasestado     from '../components/TarjetasEstado.vue'
@@ -16,6 +17,15 @@ import EtiquetaBadge      from '../components/ui/EtiquetaBadge.vue'
 
 const { proxy } = getCurrentInstance()
 const store = useKpiStore()
+const { can } = usePermissions()
+
+// Encabezados de la tabla — la columna Meta solo aparece si tiene permiso
+const encabezados = computed(() => {
+  const cols = ['Nombre del KPI', 'Departamento', 'Tipo de Métrica', 'Responsable', 'Periodicidad', 'Valor Actual']
+  if (can('kpis.view_targets')) cols.push('Meta')
+  cols.push('Estado')
+  return cols
+})
 
 // ── Mapeos API → Display ──────────────────────────────────────────────────────
 // La API guarda los tipos en inglés (percentage, money...)
@@ -263,7 +273,7 @@ async function ejecutarEliminacion() {
 
       <div class="flex flex-wrap items-end gap-2 lg:col-span-6">
         <AppButton variant="secondary" @click="limpiarFiltros">Limpiar filtros</AppButton>
-        <AppButton class="ml-auto flex-shrink-0" @click="$router.push('/kpis/nuevo')">+ Nuevo KPI</AppButton>
+        <AppButton v-if="can('kpis.store')" class="ml-auto flex-shrink-0" @click="$router.push('/kpis/nuevo')">+ Nuevo KPI</AppButton>
       </div>
     </div>
 
@@ -285,7 +295,7 @@ async function ejecutarEliminacion() {
 
     <plantillatabla
       titulo="Listado Central de KPIs"
-      :encabezados="['Nombre del KPI', 'Departamento', 'Tipo de Métrica', 'Responsable', 'Periodicidad', 'Valor Actual', 'Meta', 'Estado']"
+      :encabezados="encabezados"
       :datos="indicadoresPaginados"
       :mostrarAcciones="true"
     >
@@ -316,7 +326,7 @@ async function ejecutarEliminacion() {
           </span>
         </td>
 
-        <td class="p-4 text-left">
+        <td v-if="can('kpis.view_targets')" class="p-4 text-left">
           <span class="text-xs font-semibold" style="color: var(--card-text-muted);">{{ fila.meta }}</span>
         </td>
 
@@ -328,8 +338,8 @@ async function ejecutarEliminacion() {
 
       <template #iconos-acciones="{ item }">
         <BotonAccion variante="eye"   titulo="Ver Detalles" @click="$router.push(`/kpis/detalle/${item.id}`)" />
-        <BotonAccion variante="edit"  titulo="Editar KPI" @click="$router.push(`/kpis/editar/${item.id}`)" />
-        <BotonAccion variante="trash" titulo="Eliminar KPI" @click="prepararEliminacion(item)" />
+        <BotonAccion v-if="can('kpis.update')"  variante="edit"  titulo="Editar KPI" @click="$router.push(`/kpis/editar/${item.id}`)" />
+        <BotonAccion v-if="can('kpis.destroy')" variante="trash" titulo="Eliminar KPI" @click="prepararEliminacion(item)" />
       </template>
     </plantillatabla>
 
