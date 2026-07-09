@@ -1,10 +1,18 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { useKpiStore } from './kpiStore'
+import { useKpiStore }  from './kpiStore'
+import { useAuthStore } from './authStore'
 
 export const useUiStore = defineStore('uiStore', () => {
 
-  const kpiStore = useKpiStore()
+  const kpiStore  = useKpiStore()
+  const authStore = useAuthStore()
+
+  // Clave única por usuario para que cada quien tenga sus propias preferencias
+  function claveUsuario(nombre) {
+    const uid = authStore.user?.id ?? 'guest'
+    return `${nombre}_${uid}`
+  }
 
   const widgets = ref([
      { id: 'tarjetas', nombre: 'Tarjetas KPI', descripcion: 'Resumen rápido de los KPIs activos' },
@@ -28,11 +36,11 @@ export const useUiStore = defineStore('uiStore', () => {
 
   function guardarOrden(nuevoOrden) {
     widgets.value = nuevoOrden
-    localStorage.setItem('panelWidgetsOrden', JSON.stringify(nuevoOrden))
+    localStorage.setItem(claveUsuario('panelWidgetsOrden'), JSON.stringify(nuevoOrden))
   }
 
   function cargarOrden() {
-    const guardado = localStorage.getItem('panelWidgetsOrden')
+    const guardado = localStorage.getItem(claveUsuario('panelWidgetsOrden'))
     if (guardado) widgets.value = JSON.parse(guardado)
   }
 
@@ -43,11 +51,11 @@ export const useUiStore = defineStore('uiStore', () => {
       kpiSeleccionadoGrafica: kpiSeleccionadoGrafica.value,
       tipoGraficaEspecifica:  tipoGraficaEspecifica.value,
     }
-    localStorage.setItem('panelPreferencias', JSON.stringify(p))
+    localStorage.setItem(claveUsuario('panelPreferencias'), JSON.stringify(p))
   }
 
   function cargarPreferencias() {
-    const guardado = localStorage.getItem('panelPreferencias')
+    const guardado = localStorage.getItem(claveUsuario('panelPreferencias'))
     if (guardado) {
       const p = JSON.parse(guardado)
       kpisActivos.value            = p.kpisActivos

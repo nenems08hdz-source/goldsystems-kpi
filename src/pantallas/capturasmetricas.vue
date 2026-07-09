@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, getCurrentInstance } from 'vue'
-import { useKpiStore } from '../stores/kpiStore'
+import { useKpiStore }    from '../stores/kpiStore'
+import { usePermissions } from '../composables/usePermissions'
 import api from '../services/api'
 import PlantillaTabla     from '../components/PlantillaTabla.vue'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
@@ -12,11 +13,13 @@ import StatusBadge        from '../components/StatusBadge.vue'
 import AppButton          from '../components/ui/AppButton.vue'
 
 const { proxy } = getCurrentInstance()
-const store = useKpiStore()
-const kpis  = ref([])
+const { can }   = usePermissions()
+const store     = useKpiStore()
+const kpis      = ref([])
 
 onMounted(async () => {
-  const res  = await api.get('/kpis')
+  // Esta pantalla siempre muestra solo los KPIs asignados al usuario actual
+  const res  = await api.get('/kpis/mine')
   const data = res.data
 
   const tipoMap = { percentage: 'Porcentaje', money: 'Monetario', time: 'Tiempo', absolute: 'Puntaje', custom: 'Puntaje' }
@@ -34,8 +37,8 @@ onMounted(async () => {
   }))
 })
 
-const vistaActual        = ref('tabla')     
-const kpiPreseleccionado = ref(null)       
+const vistaActual        = ref('tabla')
+const kpiPreseleccionado = ref(null)
 
 function abrirFormulario(kpi) {
   kpiPreseleccionado.value = kpi
@@ -112,7 +115,7 @@ function ejecutarEliminacion() {
 
             <td class="p-4 text-left min-w-[110px]">
               <div class="text-sm font-black" style="color: var(--text-general);">{{ fila.progreso }}</div>
-              <div class="text-[10px] mt-0.5" style="color: var(--card-text-muted);">Meta: {{ fila.meta }}</div>
+              <div v-if="can('kpis.view_targets')" class="text-[10px] mt-0.5" style="color: var(--card-text-muted);">Meta: {{ fila.meta }}</div>
             </td>
 
             <td class="p-4 text-center align-middle min-w-[130px]">
@@ -121,10 +124,10 @@ function ejecutarEliminacion() {
 
             <td class="p-4 min-w-[120px]">
               <div class="flex items-center gap-2">
-                <AppButton variant="primary" size="sm" class="flex items-center gap-1.5" @click="abrirFormulario(fila)">
+                <AppButton v-if="can('kpi-records.store')" variant="primary" size="sm" class="flex items-center gap-1.5" @click="abrirFormulario(fila)">
                   <i class="fi fi-sr-edit text-[10px]"></i> Registrar
                 </AppButton>
-                <BotonAccion variante="trash" titulo="Eliminar asignación" @click="prepararEliminacion(fila)" />
+                <BotonAccion v-if="can('kpi-assignments.destroy')" variante="trash" titulo="Eliminar asignación" @click="prepararEliminacion(fila)" />
               </div>
             </td>
 
