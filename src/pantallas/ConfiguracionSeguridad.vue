@@ -125,8 +125,8 @@ function ejecutarEliminacion() {
       <div class="flex flex-col gap-3 p-4 rounded-xl mb-4"
         style="background: var(--tabla-header-bg); border: 1px solid var(--tabla-borde);">
         <div>
-          <p class="text-sm font-bold" style="color: var(--text-general);">Doble Factor (2FA)</p>
-          <p class="text-xs" style="color: var(--subtext-general);">Protección extra para tu cuenta</p>
+          <p class="text-sm font-bold" style="color: var(--text-general);">Contraseña</p>
+          <p class="text-xs" style="color: var(--subtext-general);">Cambio de Contraseña</p>
         </div>
         <div>
           <AppButton variant="secondary" @click="editandoPassword = !editandoPassword">

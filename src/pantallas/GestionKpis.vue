@@ -13,9 +13,11 @@ import AppButton          from '../components/ui/AppButton.vue'
 import FormField          from '../components/ui/FormField.vue'
 import BotonAccion        from '../components/ui/BotonAccion.vue'
 import EtiquetaBadge      from '../components/ui/EtiquetaBadge.vue'
+import { useAuthStore } from '../stores/authStore'
 
 const { proxy } = getCurrentInstance()
 const store = useKpiStore()
+const auth = useAuthStore()
 
 // ── Mapeos API → Display ──────────────────────────────────────────────────────
 // La API guarda los tipos en inglés (percentage, money...)

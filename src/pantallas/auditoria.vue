@@ -29,6 +29,10 @@ onMounted(async () => {
     detalle: log.entity_type ? `${log.entity_type} #${log.entity_id}` : '—',
     fecha:   log.created_at ? new Date(log.created_at).toLocaleString('es-MX') : '—',
     estado:  'Exitosa',
+    empresa: log.company?.name ?? '—',
+    tipo_cambio: log.action ?? '—',
+    valor_anterior: log.old_data ? JSON.stringify(log.old_data).substring(0, 50) + '...' : '—',
+    valor_nuevo: log.new_data ? JSON.stringify(log.new_data).substring(0, 50) + '...' : '—',
   }))
 })
 
@@ -76,12 +80,11 @@ onMounted(async () => {
 
     <plantillatabla
       titulo="Registro Histórico"
-      :encabezados="['Usuario', 'Acción', 'Fecha / Hora', 'Departamento', 'Detalle', 'Estado', 'Acciones']"
-      :datos="misEventos"
+:encabezados="['Usuario', 'Acción', 'Fecha / Hora', 'Empresa', 'Tipo de Cambio', 'Valor Anterior', 'Valor Nuevo']"      :datos="misEventos"
     >
       <template #default="{ fila }">
 
-        <td class="p-4 align-middle md:w-3/12 min-w-[200px]">
+        <td class="p-4 text-left">
           <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded-full bg-[#3f2a52] text-white flex-shrink-0 flex items-center justify-center font-bold text-xs uppercase">
               {{ fila.usuario.charAt(0) }}
@@ -117,10 +120,6 @@ onMounted(async () => {
             :tipo="fila.estado === 'Exitosa' ? 'exitosa' : 'revision'"
             :texto="fila.estado"
           />
-        </td>
-
-        <td class="p-4 align-middle text-center md:w-1/12 min-w-[70px]">
-          <BotonAccion variante="menu" titulo="Opciones" />
         </td>
       </template>
     </plantillatabla>
@@ -182,4 +181,4 @@ onMounted(async () => {
 
     </div>
   </div>
-</template>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+</template>
