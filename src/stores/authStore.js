@@ -14,12 +14,6 @@ export const useAuthStore = defineStore('auth', {
   }),
 
   actions: {
-    /**
-     * Inicializa la sesión leyendo /api/me desde el backend.
-     * El router llama esto antes de cada navegación para garantizar
-     * que los permisos estén cargados antes de decidir acceso.
-     * Es idempotente: solo ejecuta una vez por sesión.
-     */
     async init() {
       if (this.initialized) return
 
@@ -30,7 +24,6 @@ export const useAuthStore = defineStore('auth', {
           this.role     = res.data.role
           this.permisos = res.data.permisos ?? []
         } catch {
-          // Token inválido o expirado
           this.logout()
         }
       }
@@ -38,11 +31,6 @@ export const useAuthStore = defineStore('auth', {
       this.initialized = true
     },
 
-    /**
-     * Llamado al hacer login exitoso.
-     * Guarda el token en localStorage y los datos en memoria.
-     * Marca como initialized para no llamar /me de nuevo.
-     */
     setAuth(token, user, role, permisos = []) {
       this.token       = token
       this.user        = user
@@ -52,10 +40,6 @@ export const useAuthStore = defineStore('auth', {
       localStorage.setItem('token', token)
     },
 
-    /**
-     * Actualiza datos del usuario en memoria (sin tocar el token).
-     * Usado en AjustesPerfil al guardar cambios del perfil.
-     */
     setUserData(user, role, permisos = []) {
       this.user     = user
       this.role     = role

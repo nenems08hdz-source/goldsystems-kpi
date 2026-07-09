@@ -42,7 +42,7 @@ defineProps({
 
         <tbody>
           <tr v-for="(item, index) in datos" :key="index"
-            class="transition-colors duration-200"
+            class="transition-colors duration-200 h-16"
             style="border-bottom: 1px solid var(--tabla-borde);"
             @mouseover="$event.currentTarget.style.background = 'var(--tabla-hover)'"
             @mouseleave="$event.currentTarget.style.background = 'transparent'">
