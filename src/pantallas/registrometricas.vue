@@ -50,11 +50,9 @@ const textoAyudaFecha = computed(() => {
 })
 // ← EDICIÓN: Función para editar un registro existente
 function editarRegistro(captura) {
-  console.log('✏️ Editando captura:', captura) // DEBUG
   registroEditando.value = captura.id
-  console.log('registroEditando ahora es:', registroEditando.value) // DEBUG
 
-  // ← EDICIÓN: Convertir fecha ISO a formato yyyy-MM-dd
+  // Convertir fecha ISO a formato yyyy-MM-dd
   const fecha = new Date(captura.period_start)
   const año = fecha.getFullYear()
   const mes = String(fecha.getMonth() + 1).padStart(2, '0')
@@ -79,7 +77,6 @@ function cancelarEdicion() {
 
 // ← EDICIÓN: Guardar detecta si es CREAR (POST) o EDITAR (PUT)
 async function guardarMetrica() {
-  console.log('💾 Guardando. registroEditando.value =', registroEditando.value) // DEBUG
   if (!form.value.period_start) {
     errorMensaje.value = 'La fecha de corte es obligatoria.'
     return
@@ -91,8 +88,7 @@ async function guardarMetrica() {
 
   try {
     if (registroEditando.value) {
-      console.log('🔄 EDITANDO ID:', registroEditando.value) // DEBUG
-      // ← EDICIÓN: EDITAR (PUT)
+      // EDITAR (PUT)
       const res = await api.put(`/kpi-records/${registroEditando.value}`, {
         value:        Number(form.value.value),
         period_start: form.value.period_start,
@@ -103,7 +99,7 @@ async function guardarMetrica() {
       proxy.$notify.success(`Métrica actualizada para "${props.kpi.nombre}"`, 'Actualizado')
       cancelarEdicion()
     } else {
-      // ← EDICIÓN: CREAR (POST)
+      // CREAR (POST)
       const res = await api.post('/kpi-records', {
         kpi_id:       props.kpi.id,
         captured_by:  auth.user.id,
