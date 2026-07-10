@@ -112,7 +112,7 @@ const routes = [
     path: '/auditoria',
     name: 'centro-auditoria',
     component: Auditoria,
-    meta: { permission: 'audit.view_movements' },
+    meta: { permission: 'audit-logs.index' },
   },
 
   // ── Control organizacional (árbol o tabla de usuarios) ───────────────────────
@@ -120,7 +120,7 @@ const routes = [
     path: '/ControlOrganizacional',
     name: 'control-organizacional',
     component: ControlOrganizacional,
-    meta: { anyPermission: ['org.view_tree', 'org.view_users_table'] },
+    meta: { permission: 'users.index' },
   },
   {
     path: '/organizacion/nuevo',

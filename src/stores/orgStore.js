@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import api from '../services/api'
+import { useAuthStore } from './authStore'
 
 export const useOrgStore = defineStore('orgStore', () => {
 
@@ -57,24 +58,40 @@ export const useOrgStore = defineStore('orgStore', () => {
 
   // ── Actions (llamadas al API) ─────────────────────────
 
+  function tienePermiso(perm) {
+    return useAuthStore().permisos.includes(perm)
+  }
+
   async function cargarEmpresas() {
-    const res = await api.get('/companies')
-    empresas.value = res.data
+    if (!tienePermiso('companies.index')) return
+    try {
+      const res = await api.get('/companies')
+      empresas.value = res.data
+    } catch { empresas.value = [] }
   }
 
   async function cargarUsuarios() {
-    const res = await api.get('/users')
-    usuarios.value = res.data
+    if (!tienePermiso('users.index')) return
+    try {
+      const res = await api.get('/users')
+      usuarios.value = res.data
+    } catch { usuarios.value = [] }
   }
 
   async function cargarDepartamentos() {
-    const res = await api.get('/departments')
-    departamentos.value = res.data
+    if (!tienePermiso('departments.index')) return
+    try {
+      const res = await api.get('/departments')
+      departamentos.value = res.data
+    } catch { departamentos.value = [] }
   }
 
   async function cargarEquipos() {
-    const res = await api.get('/teams')
-    equipos.value = res.data
+    if (!tienePermiso('teams.index')) return
+    try {
+      const res = await api.get('/teams')
+      equipos.value = res.data
+    } catch { equipos.value = [] }
   }
 
   // Carga todo a la vez (para usarlo al entrar a una pantalla)

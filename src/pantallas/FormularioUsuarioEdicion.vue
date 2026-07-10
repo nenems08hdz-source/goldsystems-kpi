@@ -63,78 +63,132 @@ const permisosPorModulo = ref({})
 const cargandoPermisos  = ref(false)
 const guardandoPermisos = ref(false)
 
-const nombreModuloCRUD = {
-  'companies':         'Empresas',
-  'users':             'Usuarios',
-  'departments':       'Departamentos',
-  'teams':             'Equipos',
-  'roles':             'Roles',
-  'permissions':       'Permisos',
-  'kpis':              'KPIs',
-  'kpi-assignments':   'Asignaciones KPI',
-  'kpi-records':       'Registros KPI',
-  'kpi-results':       'Resultados KPI',
-  'dashboards':        'Dashboards',
-  'dashboard-widgets': 'Widgets',
-  'notifications':     'Notificaciones',
-  'audit-logs':        'Auditoría',
+// ── Estructura por pantalla ───────────────────────────────────────────────────
+// crud: acciones disponibles en esa pantalla (Ver/Crear/Editar/Eliminar)
+// accesoPermiso: el permiso "Ver" que desbloquea los extras
+// extras: permisos de visibilidad dentro de la pantalla
+const pantallas = [
+  {
+    nombre: 'Panel Principal',
+    icono:  'fi-sr-apps',
+    crud:   [],
+    accesoPermiso: null,
+    extras: ['dashboard.view_advanced'],
+  },
+  {
+    nombre: 'Gestión de KPIs',
+    icono:  'fi-sr-chart-histogram',
+    crud: [
+      { etiqueta: 'Ver',      nombre: 'kpis.index' },
+      { etiqueta: 'Crear',    nombre: 'kpis.store' },
+      { etiqueta: 'Editar',   nombre: 'kpis.update' },
+      { etiqueta: 'Eliminar', nombre: 'kpis.destroy' },
+    ],
+    accesoPermiso: 'kpis.index',
+    extras: ['kpis.view_all', 'kpis.view_targets', 'kpis.assign'],
+  },
+  {
+    nombre: 'Captura de Métricas',
+    icono:  'fi-sr-document-signed',
+    crud: [
+      { etiqueta: 'Ver',       nombre: 'kpi-records.index' },
+      { etiqueta: 'Registrar', nombre: 'kpi-records.store' },
+      { etiqueta: 'Editar',    nombre: 'kpi-records.update' },
+      { etiqueta: 'Eliminar',  nombre: 'kpi-records.destroy' },
+    ],
+    accesoPermiso: 'kpi-records.index',
+    extras: [],
+  },
+  {
+    nombre: 'Auditoría',
+    icono:  'fi-sr-shield-check',
+    crud: [
+      { etiqueta: 'Ver', nombre: 'audit-logs.index' },
+    ],
+    accesoPermiso: 'audit-logs.index',
+    extras: ['audit.view_movements', 'audit.export'],
+  },
+  {
+    nombre: 'Control Organizacional',
+    icono:  'fi-sr-building',
+    crud: [
+      { etiqueta: 'Ver',      nombre: 'users.index' },
+      { etiqueta: 'Crear',    nombre: 'users.store' },
+      { etiqueta: 'Editar',   nombre: 'users.update' },
+      { etiqueta: 'Eliminar', nombre: 'users.destroy' },
+    ],
+    accesoPermiso: 'users.index',
+    extras: ['org.view_tree', 'org.view_users_table', 'org.manage_departments', 'org.manage_teams'],
+  },
+  {
+    nombre: 'Roles y Permisos',
+    icono:  'fi-sr-lock',
+    crud: [
+      { etiqueta: 'Ver', nombre: 'roles.index' },
+    ],
+    accesoPermiso: 'roles.index',
+    extras: ['roles.manage'],
+  },
+  {
+    nombre: 'Gestión de Empresas',
+    icono:  'fi-sr-globe',
+    crud: [
+      { etiqueta: 'Ver',      nombre: 'companies.index' },
+      { etiqueta: 'Crear',    nombre: 'companies.store' },
+      { etiqueta: 'Editar',   nombre: 'companies.update' },
+      { etiqueta: 'Eliminar', nombre: 'companies.destroy' },
+    ],
+    accesoPermiso: 'companies.index',
+    extras: [],
+  },
+]
+
+const etiquetaExtra = {
+  'kpis.view_all':           'Ver todos los KPIs (no solo los asignados)',
+  'kpis.view_targets':       'Ver metas y objetivos',
+  'kpis.assign':             'Asignar KPIs a usuarios',
+  'audit.view_movements':    'Ver movimientos detallados',
+  'audit.export':            'Exportar datos de auditoría',
+  'org.view_tree':           'Ver árbol organizacional',
+  'org.view_users_table':    'Ver tabla de usuarios',
+  'org.manage_departments':  'Gestionar departamentos',
+  'org.manage_teams':        'Gestionar equipos',
+  'roles.manage':            'Administrar roles del sistema',
+  'dashboard.view_advanced': 'Vista avanzada del dashboard',
 }
 
-const nombreModuloVisibilidad = {
-  'org':       'Control Organizacional',
-  'roles':     'Roles y Permisos',
-  'kpis':      'KPIs',
-  'audit':     'Auditoría',
-  'dashboard': 'Dashboard',
-}
-
-const nombreAccion = {
-  'index':   'Ver',
-  'store':   'Crear',
-  'update':  'Editar',
-  'destroy': 'Eliminar',
-}
-
-const accionesCRUD = ['index', 'store', 'update', 'destroy']
-function esCRUD(nombre) {
-  return accionesCRUD.some(a => nombre.endsWith('.' + a))
-}
-
-// Permisos CRUD agrupados por módulo
-const permisosCRUD = computed(() => {
-  const r = {}
-  for (const [mod, perms] of Object.entries(permisosPorModulo.value)) {
-    const crud = perms.filter(p => esCRUD(p.name))
-    if (crud.length) r[mod] = crud
+// Busca un permiso por nombre en el mapa plano de permisosPorModulo
+function getPermiso(nombre) {
+  for (const perms of Object.values(permisosPorModulo.value)) {
+    const p = perms.find(p => p.name === nombre)
+    if (p) return p
   }
-  return r
-})
-
-// Permisos de visibilidad agrupados por módulo
-const permisosVisibilidad = computed(() => {
-  const r = {}
-  for (const [mod, perms] of Object.entries(permisosPorModulo.value)) {
-    const vis = perms.filter(p => !esCRUD(p.name))
-    if (vis.length) r[mod] = vis
-  }
-  return r
-})
-
-const hayVisibilidad = computed(() => Object.keys(permisosVisibilidad.value).length > 0)
-
-function moduloCompleto(modulo) {
-  return permisosCRUD.value[modulo]?.every(p => p.from_role || p.direct) ?? false
+  return null
 }
 
-function toggleModulo(modulo) {
-  const todos = moduloCompleto(modulo)
-  permisosCRUD.value[modulo].forEach(p => {
-    if (!p.from_role) p.direct = !todos
+// Todos los CRUD de la pantalla están marcados
+function crudCompleto(pantalla) {
+  if (!pantalla.crud.length) return false
+  return pantalla.crud.every(c => {
+    const p = getPermiso(c.nombre)
+    return p && (p.from_role || p.direct)
   })
 }
 
-function buscarPermiso(modulo, accion) {
-  return permisosCRUD.value[modulo]?.find(p => p.name.endsWith('.' + accion))
+// Activa/desactiva todos los CRUD de la pantalla
+function toggleCrud(pantalla) {
+  const todos = crudCompleto(pantalla)
+  pantalla.crud.forEach(c => {
+    const p = getPermiso(c.nombre)
+    if (p && !p.from_role) p.direct = !todos
+  })
+}
+
+// Los extras se habilitan si "Ver" está activo (del rol o directo)
+function extrasHabilitados(pantalla) {
+  if (!pantalla.accesoPermiso) return true
+  const p = getPermiso(pantalla.accesoPermiso)
+  return p && (p.from_role || p.direct)
 }
 
 async function cargarPermisos() {
@@ -348,10 +402,11 @@ async function guardar() {
 
         <template v-else>
 
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 px-1">
+          <!-- Leyenda + botón guardar -->
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5 px-1">
             <div class="flex items-center gap-4 text-xs" style="color: var(--subtext-general);">
               <span class="flex items-center gap-1.5">
-                <span class="inline-block w-3 h-3 rounded opacity-40" style="background: var(--sidebar-active-bg);"></span>
+                <span class="inline-block w-3 h-3 rounded opacity-35" style="background: var(--sidebar-active-bg);"></span>
                 Viene del rol (no editable)
               </span>
               <span class="flex items-center gap-1.5">
@@ -364,98 +419,112 @@ async function guardar() {
             </AppButton>
           </div>
 
-          <!-- ═══════════════════════════════════════════════ -->
-          <!-- SECCIÓN 1: PERMISOS DE ACCESO (CRUD)         -->
-          <!-- ═══════════════════════════════════════════════ -->
-          <div class="rounded-xl border overflow-hidden mb-6"
-            style="background: var(--card-bg); border-color: rgba(190,174,216,0.5);">
+          <!-- Tarjetas por pantalla -->
+          <div class="grid grid-cols-1 gap-4">
+            <div v-for="pantalla in pantallas" :key="pantalla.nombre"
+              class="rounded-xl border overflow-hidden"
+              style="background: var(--card-bg); border-color: rgba(190,174,216,0.4);">
 
-            <div class="px-4 py-3 border-b flex items-center gap-2"
-              style="background: var(--tabla-header-bg); border-color: rgba(190,174,216,0.3);">
-              <i class="fi fi-sr-lock text-xs" style="color: var(--subtext-general);"></i>
-              <div>
-                <p class="text-xs font-black uppercase tracking-wider" style="color: var(--tabla-header-text);">Permisos de Acceso</p>
-                <p class="text-[10px] mt-0.5" style="color: var(--subtext-general);">Los sombreados vienen del rol y no se pueden quitar</p>
-              </div>
-            </div>
-
-            <div class="flex items-center px-4 py-2 text-[10px] font-black uppercase tracking-wider border-b"
-              style="color: var(--tabla-header-text); border-color: rgba(190,174,216,0.2); opacity:0.8;">
-              <div class="flex-1">Módulo</div>
-              <div class="w-14 text-center">Todo</div>
-              <div class="w-14 text-center" v-for="a in accionesCRUD" :key="a">{{ nombreAccion[a] }}</div>
-            </div>
-
-            <div v-for="(permisos, modulo) in permisosCRUD" :key="modulo"
-              class="flex items-center px-4 py-3 border-b"
-              style="border-color: rgba(190,174,216,0.12);">
-              <div class="flex-1 text-xs font-semibold" style="color: var(--text-general);">
-                {{ nombreModuloCRUD[modulo] ?? modulo }}
-              </div>
-              <div class="w-14 flex justify-center">
-                <input type="checkbox" :checked="moduloCompleto(modulo)"
-                  @change="toggleModulo(modulo)" class="w-4 h-4 cursor-pointer accent-[#3f2a52]" />
-              </div>
-              <template v-for="accion in accionesCRUD" :key="accion">
-                <div class="w-14 flex justify-center">
-                  <template v-if="buscarPermiso(modulo, accion)">
-                    <input type="checkbox"
-                      :checked="buscarPermiso(modulo, accion).from_role || buscarPermiso(modulo, accion).direct"
-                      :disabled="buscarPermiso(modulo, accion).from_role"
-                      @change="(e) => { const p = buscarPermiso(modulo, accion); if (p && !p.from_role) p.direct = e.target.checked }"
-                      class="w-4 h-4 accent-[#3f2a52]"
-                      :class="buscarPermiso(modulo, accion).from_role ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'"
-                    />
-                  </template>
-                  <span v-else class="text-[10px]" style="color: var(--subtext-general);">—</span>
-                </div>
-              </template>
-            </div>
-          </div>
-
-          <!-- ═══════════════════════════════════════════════ -->
-          <!-- SECCIÓN 2: PERMISOS DE VISIBILIDAD             -->
-          <!-- ═══════════════════════════════════════════════ -->
-          <div v-if="hayVisibilidad" class="rounded-xl border overflow-hidden"
-            style="background: var(--card-bg); border-color: rgba(190,174,216,0.5);">
-
-            <div class="px-4 py-3 border-b flex items-center gap-2"
-              style="background: var(--tabla-header-bg); border-color: rgba(190,174,216,0.3);">
-              <i class="fi fi-sr-eye text-xs" style="color: var(--subtext-general);"></i>
-              <div>
-                <p class="text-xs font-black uppercase tracking-wider" style="color: var(--tabla-header-text);">Permisos de Visibilidad</p>
-                <p class="text-[10px] mt-0.5" style="color: var(--subtext-general);">Permisos extras para este usuario independientes de su rol</p>
-              </div>
-            </div>
-
-            <div v-for="(permisos, modulo) in permisosVisibilidad" :key="modulo"
-              class="border-b last:border-0" style="border-color: rgba(190,174,216,0.15);">
-              <div class="px-4 py-2" style="background: rgba(190,174,216,0.06);">
-                <p class="text-[10px] font-black uppercase tracking-wider" style="color: var(--subtext-general);">
-                  {{ nombreModuloVisibilidad[modulo] ?? modulo }}
+              <!-- Encabezado -->
+              <div class="px-4 py-3 flex items-center gap-2 border-b"
+                style="background: var(--tabla-header-bg); border-color: rgba(190,174,216,0.3);">
+                <i :class="['fi', pantalla.icono, 'text-sm']" style="color: var(--subtext-general);"></i>
+                <p class="text-xs font-black uppercase tracking-wider" style="color: var(--tabla-header-text);">
+                  {{ pantalla.nombre }}
                 </p>
               </div>
-              <div class="px-4 py-3 grid grid-cols-1 md:grid-cols-2 gap-1">
-                <label v-for="permiso in permisos" :key="permiso.name"
-                  class="flex items-start gap-3 py-2 px-3 rounded-lg transition-colors"
-                  :class="permiso.from_role || permiso.direct ? 'cursor-default' : 'cursor-pointer'"
-                  :style="(permiso.from_role || permiso.direct) ? 'background: rgba(63,42,82,0.08);' : ''">
-                  <input type="checkbox"
-                    :checked="permiso.from_role || permiso.direct"
-                    :disabled="permiso.from_role"
-                    @change="(e) => { if (!permiso.from_role) permiso.direct = e.target.checked }"
-                    class="mt-0.5 w-4 h-4 accent-[#3f2a52] flex-shrink-0"
-                    :class="permiso.from_role ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'"
-                  />
-                  <div>
-                    <p class="text-xs font-semibold" style="color: var(--text-general);">
-                      {{ permiso.description ?? permiso.name }}
-                    </p>
-                    <p v-if="permiso.from_role" class="text-[10px] mt-0.5" style="color: var(--subtext-general);">
-                      Viene del rol
-                    </p>
+
+              <div class="px-4 py-3 flex flex-col gap-3">
+
+                <!-- ── Tabla CRUD ── -->
+                <template v-if="pantalla.crud.length">
+                  <!-- Cabecera de columnas -->
+                  <div class="flex items-center gap-2">
+                    <div class="flex-1 text-[10px] font-black uppercase tracking-wider" style="color: var(--subtext-general);">Acción</div>
+                    <!-- "Todo" solo si hay algún permiso editable -->
+                    <div v-if="pantalla.crud.some(c => { const p = getPermiso(c.nombre); return p && !p.from_role })"
+                      class="w-14 text-center text-[10px] font-black uppercase tracking-wider"
+                      style="color: var(--subtext-general);">Todo</div>
+                    <div v-for="c in pantalla.crud" :key="c.nombre"
+                      class="w-16 text-center text-[10px] font-black uppercase tracking-wider"
+                      style="color: var(--subtext-general);">{{ c.etiqueta }}</div>
                   </div>
-                </label>
+
+                  <!-- Fila única de checkboxes -->
+                  <div class="flex items-center gap-2 py-2 px-3 rounded-lg"
+                    style="background: rgba(190,174,216,0.06);">
+                    <div class="flex-1 text-xs font-semibold" style="color: var(--text-general);">{{ pantalla.nombre }}</div>
+                    <!-- Toggle todo -->
+                    <div v-if="pantalla.crud.some(c => { const p = getPermiso(c.nombre); return p && !p.from_role })"
+                      class="w-14 flex justify-center">
+                      <input type="checkbox"
+                        :checked="crudCompleto(pantalla)"
+                        @change="toggleCrud(pantalla)"
+                        class="w-4 h-4 cursor-pointer accent-[#3f2a52]"
+                      />
+                    </div>
+                    <!-- Cada acción -->
+                    <div v-for="c in pantalla.crud" :key="c.nombre" class="w-16 flex justify-center">
+                      <template v-if="getPermiso(c.nombre)">
+                        <input type="checkbox"
+                          :checked="getPermiso(c.nombre).from_role || getPermiso(c.nombre).direct"
+                          :disabled="getPermiso(c.nombre).from_role"
+                          @change="(e) => { const p = getPermiso(c.nombre); if (p && !p.from_role) p.direct = e.target.checked }"
+                          class="w-4 h-4 accent-[#3f2a52]"
+                          :class="getPermiso(c.nombre).from_role ? 'opacity-35 cursor-not-allowed' : 'cursor-pointer'"
+                          :title="getPermiso(c.nombre).from_role ? 'Viene del rol' : ''"
+                        />
+                      </template>
+                      <span v-else class="text-[10px]" style="color: var(--subtext-general);">—</span>
+                    </div>
+                  </div>
+                </template>
+                <p v-else class="text-xs py-1" style="color: var(--subtext-general);">
+                  Accesible para todos los usuarios autenticados.
+                </p>
+
+                <!-- ── Funciones extra ── -->
+                <template v-if="pantalla.extras.length && pantalla.extras.some(n => getPermiso(n))">
+                  <div class="border-t pt-3" style="border-color: rgba(190,174,216,0.2);">
+                    <div class="flex items-center gap-2 mb-2">
+                      <p class="text-[10px] font-black uppercase tracking-wider" style="color: var(--subtext-general);">
+                        Funciones extra
+                      </p>
+                      <span v-if="!extrasHabilitados(pantalla)"
+                        class="text-[10px] px-2 py-0.5 rounded-full"
+                        style="background: rgba(190,174,216,0.15); color: var(--subtext-general);">
+                        Requiere "Ver" activo
+                      </span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-1"
+                      :class="{ 'opacity-40 pointer-events-none': !extrasHabilitados(pantalla) }">
+                      <template v-for="nombre in pantalla.extras" :key="nombre">
+                        <template v-if="getPermiso(nombre)">
+                          <label
+                            class="flex items-center gap-2.5 py-2 px-3 rounded-lg transition-colors cursor-pointer"
+                            :style="(getPermiso(nombre).from_role || getPermiso(nombre).direct) ? 'background: rgba(63,42,82,0.07);' : ''">
+                            <input type="checkbox"
+                              :checked="getPermiso(nombre).from_role || getPermiso(nombre).direct"
+                              :disabled="getPermiso(nombre).from_role"
+                              @change="(e) => { const p = getPermiso(nombre); if (p && !p.from_role) p.direct = e.target.checked }"
+                              class="w-4 h-4 flex-shrink-0 accent-[#3f2a52]"
+                              :class="getPermiso(nombre).from_role ? 'opacity-35 cursor-not-allowed' : 'cursor-pointer'"
+                            />
+                            <div>
+                              <p class="text-xs font-medium leading-tight" style="color: var(--text-general);">
+                                {{ etiquetaExtra[nombre] ?? nombre }}
+                              </p>
+                              <p v-if="getPermiso(nombre).from_role" class="text-[10px]" style="color: var(--subtext-general);">
+                                Viene del rol
+                              </p>
+                            </div>
+                          </label>
+                        </template>
+                      </template>
+                    </div>
+                  </div>
+                </template>
+
               </div>
             </div>
           </div>

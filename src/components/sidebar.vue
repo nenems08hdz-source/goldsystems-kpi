@@ -70,8 +70,8 @@ function cerrarSesion() {
             </RouterLink>
           </li>
 
-          <!-- Auditoría — solo quien tiene audit.view_movements -->
-          <li v-if="can('audit.view_movements')">
+          <!-- Auditoría — quien tenga acceso al módulo de auditoría -->
+          <li v-if="can('audit-logs.index')">
             <RouterLink to="/auditoria"
               class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors font-medium sidebar-link"
               :class="{'justify-center': !layout.isSidebarOpen}">
@@ -80,8 +80,8 @@ function cerrarSesion() {
             </RouterLink>
           </li>
 
-          <!-- Control Empresarial — quien pueda ver árbol o tabla de usuarios -->
-          <li v-if="canAny(['org.view_tree', 'org.view_users_table'])">
+          <!-- Control Empresarial — quien pueda ver usuarios -->
+          <li v-if="can('users.index')">
             <RouterLink to="/ControlOrganizacional"
               class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors font-medium sidebar-link"
               :class="{'justify-center': !layout.isSidebarOpen}">

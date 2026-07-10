@@ -6,7 +6,7 @@ export const useAuthStore = defineStore('auth', {
   state: () => ({
     // Solo el token persiste en localStorage.
     // user, role y permisos viven solo en memoria.
-    token:       localStorage.getItem('token') || null,
+    token:       sessionStorage.getItem('token') || null,
     user:        null,
     role:        null,
     permisos:    [],
@@ -37,7 +37,7 @@ export const useAuthStore = defineStore('auth', {
       this.role        = role
       this.permisos    = permisos
       this.initialized = true
-      localStorage.setItem('token', token)
+      sessionStorage.setItem('token', token)
     },
 
     setUserData(user, role, permisos = []) {
@@ -52,7 +52,7 @@ export const useAuthStore = defineStore('auth', {
       this.role        = null
       this.permisos    = []
       this.initialized = false
-      localStorage.removeItem('token')
+      sessionStorage.removeItem('token')
     },
   },
 })

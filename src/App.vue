@@ -60,17 +60,17 @@ onUnmounted(() => {
 
 <style>
 .slide-fade-enter-active {
-  transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 .slide-fade-leave-active {
-  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 .slide-fade-enter-from {
-  transform: translateY(15px);
   opacity: 0;
+  transform: translateY(12px);
 }
 .slide-fade-leave-to {
-  transform: translateY(-8px);
   opacity: 0;
+  transform: translateY(-6px);
 }
 </style>

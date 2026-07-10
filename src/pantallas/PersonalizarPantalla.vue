@@ -2,14 +2,16 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import draggable from 'vuedraggable'
-import { useUiStore }  from '../stores/uiStore'
-import { useKpiStore } from '../stores/kpiStore'
+import { useUiStore }     from '../stores/uiStore'
+import { useKpiStore }    from '../stores/kpiStore'
+import { usePermissions } from '../composables/usePermissions'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
 import AppButton          from '../components/ui/AppButton.vue'
 
 const router = useRouter()
 const store    = useUiStore()
 const kpiStore = useKpiStore()
+const { can }  = usePermissions()
 
 const listaLocal          = ref([])
 const kpisActivosLocal    = ref([])
@@ -23,7 +25,10 @@ onMounted(async () => {
   await kpiStore.cargarIndicadores()
   store.cargarOrden()
   store.cargarPreferencias()
-  listaLocal.value = JSON.parse(JSON.stringify(store.widgets))
+  const todosWidgets = JSON.parse(JSON.stringify(store.widgets))
+  listaLocal.value = can('dashboard.view_advanced')
+    ? todosWidgets
+    : todosWidgets.filter(w => w.id !== 'detalle')
 
   // Filtra IDs guardados que ya no existen en la BD (evita slots fantasma)
   const idsValidos = kpiStore.indicadores.map(i => i.id)
@@ -102,10 +107,14 @@ function guardarCambios() {
             <span class="text-xs font-bold w-4 text-center" style="color: var(--subtext-general);">{{ index + 1 }}</span>
             <span class="drag-handle cursor-grab active:cursor-grabbing text-lg transition-colors"
               style="color: var(--subtext-general);">⠿⠿</span>
-            <span class="text-2xl w-8 text-center">{{ element.icono }}</span>
+            <i :class="`fi ${element.icono} text-lg w-8 text-center`" style="color: var(--color-kpi-morado);"></i>
             <div class="flex flex-col flex-1 min-w-0">
-              <span class="text-sm font-bold" style="color: var(--sidebar-text);">{{ element.nombre }}</span>
-              <span class="text-xs mt-0.5" style="color: var(--card-text-hint);">{{ element.descripcion }}</span>
+              <span class="text-sm font-bold" style="color: var(--sidebar-text);">
+                {{ element.id === 'criticos' && !can('dashboard.view_advanced') ? 'KPIs Asignados' : element.nombre }}
+              </span>
+              <span class="text-xs mt-0.5" style="color: var(--card-text-hint);">
+                {{ element.id === 'criticos' && !can('dashboard.view_advanced') ? 'Lista de tus KPIs asignados con estado y progreso' : element.descripcion }}
+              </span>
             </div>
             <span class="table-badge flex-shrink-0">Posición {{ index + 1 }}</span>
           </div>
@@ -173,6 +182,12 @@ function guardarCambios() {
                 'bg-rose-500':    ind.estadoTipo === 'danger',
               }"></span>
           </div>
+          <p v-if="indicadoresFiltrados.length === 0" class="text-[11px] text-center py-3" style="color: var(--subtext-general);">
+            No se encontraron KPIs
+            <template v-if="filtroEstado !== 'todos'">
+              en estado <strong>{{ filtroEstado === 'success' ? 'saludable' : filtroEstado === 'warning' ? 'en riesgo' : 'crítico' }}</strong>
+            </template>
+          </p>
         </div>
 
         <p v-if="kpisActivosLocal.length >= 4"
@@ -182,7 +197,7 @@ function guardarCambios() {
         </p>
       </div>
 
-      <div class="p-4">
+      <div v-if="can('dashboard.view_advanced')" class="p-4">
         <p class="text-xs font-bold uppercase tracking-wider mb-3" style="color: var(--tabla-header-text);">
           Gráficas del Panel
         </p>

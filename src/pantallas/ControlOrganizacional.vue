@@ -19,21 +19,25 @@ const { proxy } = getCurrentInstance()
 const auth     = useAuthStore()
 const { can }  = usePermissions()
 
+const apiBase = import.meta.env.VITE_API_URL.replace('/api', '')
+
 // ── Datos de la API ───────────────────────────────────────────────────────────
 const usuarios     = ref([])
 const assignments  = ref([])  // todos los assignments para contar por usuario
 const roles        = ref([])
 
 onMounted(async () => {
-  store.cargarTodo()
-  const [resUsers, resAssignments, resRoles] = await Promise.all([
+  await store.cargarTodo()
+
+  const [resUsers, resAssignments, resRoles] = await Promise.allSettled([
     api.get('/users'),
     api.get('/kpi-assignments'),
     api.get('/roles'),
   ])
-  usuarios.value    = resUsers.data
-  assignments.value = resAssignments.data
-  roles.value       = resRoles.data
+
+  if (resUsers.status === 'fulfilled')       usuarios.value    = resUsers.value.data
+  if (resAssignments.status === 'fulfilled') assignments.value = resAssignments.value.data
+  if (resRoles.status === 'fulfilled')       roles.value       = resRoles.value.data
 })
 
 function contarKpisUsuario(userId) {
@@ -351,8 +355,16 @@ async function eliminarNodo() {
 
             <td class="p-4 align-middle text-left">
               <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-[#3f2a52] text-white flex items-center justify-center text-[10px] font-bold shadow-sm flex-shrink-0">
-                  {{ fila.name?.charAt(0) }}{{ fila.paternal?.charAt(0) }}
+                <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 shadow-sm">
+                  <img
+                    v-if="fila.profile_photo"
+                    :src="`${apiBase}/storage/${fila.profile_photo}`"
+                    :alt="`${fila.name} ${fila.paternal}`"
+                    class="w-full h-full object-cover"
+                  />
+                  <div v-else class="w-full h-full bg-[#3f2a52] text-white flex items-center justify-center text-[10px] font-bold">
+                    {{ fila.name?.charAt(0) }}{{ fila.paternal?.charAt(0) }}
+                  </div>
                 </div>
                 <div>
                     <div class="font-bold text-xs leading-none" style="color: var(--text-general);">

@@ -198,6 +198,14 @@ const handleLogin = async () => {
   font-size: 1rem;
 }
 
+.input-group input:-webkit-autofill,
+.input-group input:-webkit-autofill:hover,
+.input-group input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px #120e1a inset;
+  -webkit-text-fill-color: white;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 /* Botón estilizado */
 .glow-btn {
   width: 100%;
