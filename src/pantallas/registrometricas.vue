@@ -27,6 +27,7 @@ const form = ref({
 })
 
 const errorMensaje = ref('')
+const registroEditando = ref(null) // ← EDICIÓN: Detectar si está editando un registro
 
 const labelValor = computed(() => {
   const unidades = {
@@ -47,9 +48,38 @@ const textoAyudaFecha = computed(() => {
   }
   return textos[props.kpi.periodicidad] ?? 'Selecciona la fecha de corte del registro.'
 })
- //funcion para guardar los datos en la base real 
- 
+// ← EDICIÓN: Función para editar un registro existente
+function editarRegistro(captura) {
+  console.log('✏️ Editando captura:', captura) // DEBUG
+  registroEditando.value = captura.id
+  console.log('registroEditando ahora es:', registroEditando.value) // DEBUG
+
+  // ← EDICIÓN: Convertir fecha ISO a formato yyyy-MM-dd
+  const fecha = new Date(captura.period_start)
+  const año = fecha.getFullYear()
+  const mes = String(fecha.getMonth() + 1).padStart(2, '0')
+  const día = String(fecha.getDate()).padStart(2, '0')
+  const fechaHTML = `${año}-${mes}-${día}`
+
+  form.value = {
+    period_start: fechaHTML,
+    value:        String(captura.value),
+    notes:        captura.notes || '',
+  }
+  console.log('Formulario cargado con fecha:', fechaHTML) // DEBUG
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+// ← EDICIÓN: Función para cancelar edición
+function cancelarEdicion() {
+  registroEditando.value = null
+  form.value = { period_start: '', value: '', notes: '' }
+  errorMensaje.value = ''
+}
+
+// ← EDICIÓN: Guardar detecta si es CREAR (POST) o EDITAR (PUT)
 async function guardarMetrica() {
+  console.log('💾 Guardando. registroEditando.value =', registroEditando.value) // DEBUG
   if (!form.value.period_start) {
     errorMensaje.value = 'La fecha de corte es obligatoria.'
     return
@@ -60,17 +90,32 @@ async function guardarMetrica() {
   }
 
   try {
-    const res = await api.post('/kpi-records', {
-      kpi_id:       props.kpi.id,
-      captured_by:  auth.user.id,
-      value:        Number(form.value.value),
-      period_start: form.value.period_start,
-      notes:        form.value.notes || null,
-    })
-    capturas.value.unshift(res.data)
-    proxy.$notify.success(`Métrica registrada para "${props.kpi.nombre}"`, 'Guardado')
-    form.value = { period_start: '', value: '', notes: '' }
-    errorMensaje.value = ''
+    if (registroEditando.value) {
+      console.log('🔄 EDITANDO ID:', registroEditando.value) // DEBUG
+      // ← EDICIÓN: EDITAR (PUT)
+      const res = await api.put(`/kpi-records/${registroEditando.value}`, {
+        value:        Number(form.value.value),
+        period_start: form.value.period_start,
+        notes:        form.value.notes || null,
+      })
+      const indice = capturas.value.findIndex(c => c.id === registroEditando.value)
+      if (indice >= 0) capturas.value[indice] = res.data
+      proxy.$notify.success(`Métrica actualizada para "${props.kpi.nombre}"`, 'Actualizado')
+      cancelarEdicion()
+    } else {
+      // ← EDICIÓN: CREAR (POST)
+      const res = await api.post('/kpi-records', {
+        kpi_id:       props.kpi.id,
+        captured_by:  auth.user.id,
+        value:        Number(form.value.value),
+        period_start: form.value.period_start,
+        notes:        form.value.notes || null,
+      })
+      capturas.value.unshift(res.data)
+      proxy.$notify.success(`Métrica registrada para "${props.kpi.nombre}"`, 'Guardado')
+      form.value = { period_start: '', value: '', notes: '' }
+      errorMensaje.value = ''
+    }
     emit('guardado')
   } catch {
     errorMensaje.value = 'Error al guardar. Intenta de nuevo.'
@@ -88,11 +133,16 @@ async function guardarMetrica() {
     <div class="rounded-xl shadow-md overflow-hidden"
       style="background: var(--card-bg); border: 1px solid var(--tabla-borde);">
 
+      <!-- ← EDICIÓN: Título dinámico según si está editando o creando -->
       <div class="p-4 flex items-center justify-between"
         style="background: var(--tabla-header-bg); border-bottom: 1px solid var(--tabla-borde);">
         <div>
-          <h2 class="text-sm font-bold uppercase tracking-wider" style="color: var(--tabla-header-text);">Registrar Métrica</h2>
-          <p class="text-[10px] mt-0.5" style="color: var(--card-text-hint);">Captura el valor medido para el periodo correspondiente</p>
+          <h2 class="text-sm font-bold uppercase tracking-wider" style="color: var(--tabla-header-text);">
+            {{ registroEditando ? 'Editar Métrica' : 'Registrar Métrica' }}
+          </h2>
+          <p class="text-[10px] mt-0.5" style="color: var(--card-text-hint);">
+            {{ registroEditando ? 'Actualiza el valor y fecha del registro' : 'Captura el valor medido para el periodo correspondiente' }}
+          </p>
         </div>
         <BotonAccion variante="close" titulo="Cerrar" @click="emit('cancelar')" />
       </div>
@@ -175,9 +225,21 @@ async function guardarMetrica() {
             {{ errorMensaje }}
           </div>
 
+          <!-- ← EDICIÓN: Botones dinámicos según si está editando o creando -->
           <div class="flex justify-end gap-3 pt-4" style="border-top: 1px solid var(--tabla-borde);">
-            <AppButton variant="ghost" type="button" @click="emit('cancelar')">Cancelar</AppButton>
-            <AppButton variant="primary" type="submit">Guardar Registro</AppButton>
+            <AppButton
+              variant="ghost"
+              type="button"
+              @click="registroEditando ? cancelarEdicion() : emit('cancelar')"
+            >
+              Cancelar
+            </AppButton>
+            <AppButton
+              variant="primary"
+              type="submit"
+            >
+              {{ registroEditando ? 'Actualizar Registro' : 'Guardar Registro' }}
+            </AppButton>
           </div>
 
         </form>
@@ -192,14 +254,16 @@ async function guardarMetrica() {
           Capturas anteriores de este KPI
         </h3>
       </div>
+      <!-- ← EDICIÓN: Historial de capturas - clickeable para editar -->
       <div>
         <div
           v-for="captura in capturas"
           :key="captura.id"
-          class="flex items-center justify-between px-4 py-3 transition-colors"
+          class="flex items-center justify-between px-4 py-3 transition-colors cursor-pointer"
           style="border-bottom: 1px solid var(--tabla-borde);"
           @mouseover="$event.currentTarget.style.background='var(--tabla-hover)'"
           @mouseleave="$event.currentTarget.style.background='transparent'"
+          @click="editarRegistro(captura)"
         >
           <div>
             <p class="text-xs font-bold" style="color: var(--text-general);">{{ captura.period_start }}</p>
