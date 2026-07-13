@@ -1,18 +1,41 @@
 <script setup>
+import api from '@/services/api'
 import { useRoute } from 'vue-router'
 import { useLayoutStore } from '@/stores/layout'
 import FiltrosPrincipal from './FiltrosPrincipal.vue'
 import { useAuthStore } from '@/stores/authStore' //para acceder a los datos del usuario logueado (foto, nombre, apellido)
 import { useRouter }    from 'vue-router' //nos permite navegar a otra pantalla al hacer click sobre ello
+import LoadingSpinner from './LoadingSpinner.vue' // ← EDICIÓN: Componente personalizado
+import { ref } from 'vue'
+
+const isLoading = ref(false)
 
 const route       = useRoute()
 const layout      = useLayoutStore()
 const auth        = useAuthStore()
 const router      = useRouter()  //instancias de cada uno para usarlos en el template
 const STORAGE_URL = (import.meta.env.VITE_API_URL ?? '').replace('/api', '/storage')
+
+async function cargarDatos() {
+  // Mostrar loading SOLO si tarda más de 500ms
+  const timeout = setTimeout(() => {
+    isLoading.value = true
+  }, 500) // milisegundos
+  
+  try {
+    const res = await api.get('/datos')
+    // Procesar datos
+  } finally {
+    clearTimeout(timeout) // Cancelar el timeout
+    isLoading.value = false
+  }
+}
 </script>
 
 <template>
+  <!-- ← EDICIÓN: Modo esquina (no fullPage) -->
+  <LoadingSpinner :isActive="isLoading" :fullPage="false" />
+
   <header
     class="h-16 border-b px-6 flex items-center justify-between shadow-sm"
     style="background-color: var(--navbar-bg); border-color: var(--navbar-border)"

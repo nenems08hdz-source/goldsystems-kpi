@@ -11,15 +11,19 @@ import EtiquetaBadge      from '../components/ui/EtiquetaBadge.vue'
 import BotonAccion        from '../components/ui/BotonAccion.vue'
 import StatusBadge        from '../components/StatusBadge.vue'
 import AppButton          from '../components/ui/AppButton.vue'
+import { useLoading } from '@/composables/useLoading' // ← EDICIÓN
+import LoadingSpinner from '../components/LoadingSpinner.vue' // ← EDICIÓN: Componente personalizado
 
 const { proxy } = getCurrentInstance()
 const { can }   = usePermissions()
 const store     = useKpiStore()
 const kpis      = ref([])
+const { isLoading, cargarConDelay } = useLoading() // ← EDICIÓN
 
 onMounted(async () => {
+  // ← EDICIÓN: Usar cargarConDelay
   // Esta pantalla siempre muestra solo los KPIs asignados al usuario actual
-  const res  = await api.get('/kpis/mine')
+  const res = await cargarConDelay(() => api.get('/kpis/mine'))
   const data = res.data
 
   const tipoMap = { percentage: 'Porcentaje', money: 'Monetario', time: 'Tiempo', absolute: 'Puntaje', custom: 'Puntaje' }
@@ -73,6 +77,9 @@ function ejecutarEliminacion() {
 </script>
 
 <template>
+  <!-- ← EDICIÓN: Componente personalizado -->
+  <LoadingSpinner :isActive="isLoading" text="Cargando mis KPIs..." />
+
   <div class="p-3 min-h-screen">
     <div class="w-full">
 

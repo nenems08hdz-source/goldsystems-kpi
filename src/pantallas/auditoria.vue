@@ -9,8 +9,11 @@ import EtiquetaBadge      from '../components/ui/EtiquetaBadge.vue'
 import StatusBadge        from '../components/StatusBadge.vue'
 import AppButton          from '../components/ui/AppButton.vue'
 import BotonAccion        from '../components/ui/BotonAccion.vue'
+import { useLoading } from '@/composables/useLoading' // ← EDICIÓN: Composable de loading
+import LoadingSpinner from '../components/LoadingSpinner.vue' // ← EDICIÓN: Componente personalizado
 
 const { can } = usePermissions()
+const { isLoading, cargarConDelay } = useLoading() // ← EDICIÓN: Usar loading
 const misEventos = ref([])
 // ← EDICIÓN: Variables reactivas para tarjetas
 const totalEventos = ref(0)
@@ -36,7 +39,8 @@ function obtenerValorNuevo(oldData, newData) {
 }
 
 onMounted(async () => {
-  const res  = await api.get('/audit-logs')
+  // ← EDICIÓN: Usar cargarConDelay para mostrar loading
+  const res = await cargarConDelay(() => api.get('/audit-logs'))
   const data = res.data
   const raw  = Array.isArray(data) ? data : (data.data ?? [])
 
@@ -80,6 +84,9 @@ onMounted(async () => {
 </script>
 
 <template>
+  <!-- ← EDICIÓN: Componente personalizado -->
+  <LoadingSpinner :isActive="isLoading" text="Cargando auditoría..." />
+
   <div class="p-3 min-h-screen" style="background: transparent;">
 
     <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-6">

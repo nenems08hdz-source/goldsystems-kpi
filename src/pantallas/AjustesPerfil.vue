@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, getCurrentInstance } from 'vue'
+import { ref, onMounted, watch, getCurrentInstance } from 'vue' // ← EDICIÓN: Importar watch
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
 import AppButton          from '../components/ui/AppButton.vue'
 import { useAuthStore }   from '../stores/authStore'
@@ -43,6 +43,11 @@ onMounted(() => {  //todo lo de adentro se ejecuta automáticamente cuando la pa
   if (preferencias) {
     alertasConfig.value = JSON.parse(preferencias)  //convierte el texto del localStorage de vuelta a un objeto JavaScript que Vue pueda usar
   }
+})
+
+// ← EDICIÓN: Watcher para actualizar rol automáticamente cuando cambie
+watch(() => auth.role, (nuevoRol) => {
+  usuario.value.cargo = nuevoRol || ''
 })
 
 const guardarPerfil = async () => { //"async" indica que la función tiene operaciones que tardan, como llamar a la API
@@ -164,9 +169,14 @@ const guardarPreferencias = () => {
             <input v-model="usuario.correo" type="email" placeholder="Ej. a.rivera@devmetrics.io" class="app-input" />
           </div>
 
+          <!-- ← EDICIÓN: Rol solo lectura, se actualiza automáticamente -->
           <div class="flex flex-col gap-1.5 sm:col-span-2">
             <label class="text-[9px] font-black uppercase tracking-wider" style="color: var(--subtext-general);">Cargo / Rol</label>
-            <input v-model="usuario.cargo" type="text" placeholder="Ej. Lead Technical Architect" class="app-input" />
+            <div class="px-3 py-2 rounded-lg text-sm font-medium"
+              style="background: var(--tabla-header-bg); color: var(--text-general); border: 1px solid var(--tabla-borde);">
+              {{ usuario.cargo || 'Sin rol asignado' }}
+            </div>
+            <p class="text-[8px]" style="color: var(--card-text-hint);">Este campo es administrado por un administrador. Cambios se reflejarán automáticamente.</p>
           </div>
           
           <div class="flex flex-col gap-1.5">

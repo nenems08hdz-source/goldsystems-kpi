@@ -2,6 +2,8 @@
 import { ref, computed, onMounted, getCurrentInstance } from 'vue'
 import { useAuthStore } from '../stores/authStore'
 import api from '../services/api'
+import { useLoading } from '@/composables/useLoading' // ← EDICIÓN
+import LoadingSpinner from '../components/LoadingSpinner.vue' // ← EDICIÓN: Componente personalizado
 import EtiquetaBadge from '../components/ui/EtiquetaBadge.vue'
 import AppButton     from '../components/ui/AppButton.vue'
 import BotonAccion   from '../components/ui/BotonAccion.vue'
@@ -14,9 +16,11 @@ const emit = defineEmits(['guardado', 'cancelar'])
 const { proxy } = getCurrentInstance()
 const auth     = useAuthStore()
 const capturas = ref([])
+const { isLoading, cargarConDelay } = useLoading() // ← EDICIÓN
 
 onMounted(async () => {
-  const res = await api.get(`/kpi-records?kpi_id=${props.kpi.id}`)
+  // ← EDICIÓN: Usar cargarConDelay
+  const res = await cargarConDelay(() => api.get(`/kpi-records?kpi_id=${props.kpi.id}`))
   capturas.value = res.data
 })
 
@@ -120,6 +124,9 @@ async function guardarMetrica() {
 </script>
 
 <template>
+  <!-- ← EDICIÓN: Componente personalizado -->
+  <LoadingSpinner :isActive="isLoading" text="Cargando registros..." />
+
   <div class="w-full mt-6">
 
     <AppButton variant="secondary" class="mb-4 flex items-center gap-2" @click="emit('cancelar')">
