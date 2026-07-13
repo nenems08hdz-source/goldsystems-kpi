@@ -151,10 +151,12 @@ const nombresCampo   = {
   minimum: 'Mínimo', maximum: 'Máximo', weight: 'Peso', status: 'Estado',
   value: 'Valor', notes: 'Observaciones',
   period_start: 'Inicio período', period_end: 'Fin período',
+  kpi_id: 'KPI', captured_by: 'Capturado por',
   email: 'Email', phone: 'Teléfono', address: 'Dirección',
   legal_name: 'Razón social', tax_id: 'RFC',
   company_id: 'Empresa', department_id: 'Departamento',
-  permissions: 'Permisos',
+  permissions: 'Permisos', formula: 'Fórmula',
+  role_id: 'Rol', user_id: 'Usuario',
 }
 
 function calcularDiff(old_data, new_data) {
