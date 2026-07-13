@@ -6,6 +6,7 @@ import EncabezadoPantalla from '@/components/EncabezadoPantalla.vue'
 import EtiquetaBadge      from '../components/ui/EtiquetaBadge.vue'
 import AppButton          from '../components/ui/AppButton.vue'
 import tarjetasresumen    from '../components/TarjetasResumen.vue'
+import LoadingSpinner     from '../components/LoadingSpinner.vue'
 
 const { can } = usePermissions()
 
@@ -179,6 +180,11 @@ onMounted(cargar)
 </script>
 
 <template>
+  <!-- ← EDICIÓN: Componente personalizado -->
+  <LoadingSpinner :isActive="isLoading" text="Cargando auditoría..." />
+
+  <LoadingSpinner :isActive="cargando" text="Cargando auditoría..." />
+
   <div class="p-3 min-h-screen" style="background: transparent;">
 
     <!-- Encabezado -->

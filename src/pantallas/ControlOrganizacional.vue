@@ -202,7 +202,7 @@ async function eliminarNodo() {
 
     <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-2">
       <EncabezadoPantalla
-        titulo="Control Organizacional"
+        titulo="Control Empresarial"
         descripcion="Estructura jerárquica de la empresa, control de acceso por roles y gestión de usuarios."
       />
       <AppButton v-if="can('roles.index')" variant="secondary" class="flex-shrink-0" @click="$router.push('/roles')">
