@@ -6,7 +6,7 @@ import api from '../services/api'
 import PlantillaTabla     from '../components/PlantillaTabla.vue'
 import EncabezadoPantalla from '../components/EncabezadoPantalla.vue'
 import ModalConfirmacion  from '../components/ModalConfirmacion.vue'
-import RegistroMetricas   from './Registrometricas.vue'
+import RegistroMetricas   from './RegistroMetricas.vue'
 import EtiquetaBadge      from '../components/ui/EtiquetaBadge.vue'
 import BotonAccion        from '../components/ui/BotonAccion.vue'
 import StatusBadge        from '../components/StatusBadge.vue'
@@ -87,10 +87,12 @@ function ejecutarEliminacion() {
         </div>
         <div
           v-if="misKpis.length === 0"
-          class="bg-amber-50 border border-amber-200 rounded-xl p-6 text-center"
+          class="rounded-xl p-6 text-center"
+          style="background: var(--card-bg); border: 1px solid var(--tabla-borde);"
         >
-          <p class="text-sm font-bold text-amber-700">No tienes KPIs asignados.</p>
-          <p class="text-xs text-amber-600 mt-1">Contacta a tu administrador para que te asigne indicadores.</p>
+          <i class="fi fi-sr-exclamation text-2xl mb-2 block" style="color: var(--color-kpi-morado);"></i>
+          <p class="text-sm font-bold" style="color: var(--text-general);">No tienes KPIs asignados.</p>
+          <p class="text-xs mt-1" style="color: var(--subtext-general);">Contacta a tu administrador para que te asigne indicadores.</p>
         </div>
 
         <PlantillaTabla

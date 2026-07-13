@@ -16,37 +16,46 @@ const cargando = ref(false)
 const kpi      = computed(() => store.indicadores.find(i => i.id === idKpi))
 
 onMounted(async () => {
+  cargando.value = true
   if (!store.indicadores.length) {
-    cargando.value = true
     await store.cargarIndicadores()
-    cargando.value = false
   }
+  await store.cargarCapturasPorKpi(idKpi)
+  cargando.value = false
 })
 const tipoSeleccionado = ref(kpi.value?.graficasCompatibles?.[0] ?? 'linea')
 
-const eventosBase = ref([
-  { id: 'ev-1', tipo: 'evento', titulo: 'Actualización de Meta SLA',   desc: 'El umbral de Óptimo se elevó al nivel actual.',  fecha: '2024-01-15', autor: 'Carlos M.' },
-  { id: 'ev-2', tipo: 'evento', titulo: 'Nuevo Responsable',           desc: 'Asignación del equipo SRE-A al indicador.',      fecha: '2024-02-20', autor: 'Admin'     },
-  { id: 'ev-3', tipo: 'evento', titulo: 'Ajuste de Fórmula',           desc: 'Se corrigió el cálculo base del indicador.',     fecha: '2024-03-25', autor: 'Usuario'   },
-  { id: 'ev-4', tipo: 'evento', titulo: 'Cambio de Periodicidad',      desc: 'Se ajustó la frecuencia de medición.',           fecha: '2024-06-01', autor: 'Admin'     },
-])
+function soloFecha(iso) {
+  return (iso ?? '').split('T')[0]
+}
+
+function formatearFecha(iso) {
+  const fecha = new Date((iso ?? '').split('T')[0] + 'T00:00:00')
+  return fecha.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })
+}
 
 const capturasReales = computed(() =>
-  store.capturasPorKpi(idKpi).map(c => ({
-    id:     `cap-${c.id}`,
-    tipo:   'captura',
-    titulo: 'Medición registrada',
-    desc:   `Valor: ${c.value} — ${c.notes || 'Sin observaciones'}`,
-    fecha:  c.period_start,
-    autor:  `Usuario #${c.captured_by}`,
-    valor:  c.value,
-  }))
+  store.capturasPorKpi(idKpi).map(c => {
+    const cb = c.captured_by
+    const autor = cb && typeof cb === 'object'
+      ? `${cb.name} ${cb.paternal ?? ''}`.trim()
+      : '—'
+    return {
+      id:     `cap-${c.id}`,
+      tipo:   'captura',
+      titulo: 'Medición registrada',
+      desc:   `Valor: ${parseFloat(c.value)} — ${c.notes || 'Sin observaciones'}`,
+      fecha:  soloFecha(c.period_start),
+      fechaFormato: formatearFecha(c.period_start),
+      autor,
+      valor:  parseFloat(c.value),
+    }
+  })
 )
 
-const registrosCombinados = computed(() => {
-  const todos = [...eventosBase.value, ...capturasReales.value]
-  return todos.sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
-})
+const registrosCombinados = computed(() =>
+  [...capturasReales.value].sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
+)
 
 const opcionesFiltro = computed(() => {
   if (!kpi.value) return []
@@ -225,7 +234,7 @@ const registrosFiltrados = computed(() => {
               </div>
               <span class="text-[10px] font-bold px-2 py-1 rounded whitespace-nowrap"
                 style="background: var(--tabla-header-bg); color: var(--subtext-general);">
-                {{ r.fecha }}
+                {{ r.fechaFormato ?? r.fecha }}
               </span>
             </div>
           </div>

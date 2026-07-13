@@ -170,6 +170,36 @@ export const useKpiStore = defineStore('kpiStore', () => {
   const departamentos  = computed(() => [...new Set(indicadores.value.map(i => i.departamento))])
   const periodicidades = computed(() => [...new Set(indicadores.value.map(i => i.periodicidad))])
 
+  async function cargarCapturasPorKpi(kpiId) {
+    try {
+      const api = (await import('../services/api')).default
+      const res = await api.get(`/kpi-records?kpi_id=${kpiId}`)
+      const registros = res.data // ya vienen ordenados por period_start asc
+
+      // Reemplaza capturas de este KPI en el store
+      capturas.value = capturas.value.filter(c => c.kpi_id !== kpiId)
+      capturas.value.push(...registros)
+
+      // Actualiza historial y etiquetas de la gráfica
+      const kpi = indicadores.value.find(k => k.id === kpiId)
+      if (kpi && registros.length > 0) {
+        const soloFecha = s => (s ?? '').split('T')[0]
+        kpi.historial          = registros.map(r => Number(r.value))
+        kpi.etiquetasHistorial = registros.map(r => etiquetaCaptura(kpi.periodicidad, soloFecha(r.period_start)))
+
+        const ultimo = registros[registros.length - 1]
+        kpi.progreso = Number(ultimo.value)
+        const estado = calcularEstado(kpi.progreso)
+        kpi.estadoTipo    = estado.estadoTipo
+        kpi.estado        = estado.estado
+        kpi.traffic_light = estado.traffic_light
+        kpi.ultimaActualizacion = ultimo.period_start
+      }
+    } catch (e) {
+      console.error('Error cargando capturas del KPI:', e)
+    }
+  }
+
   async function cargarIndicadores() {
   try {
     const res = await import('../services/api').then(m => m.default.get('/kpis'))
@@ -181,8 +211,9 @@ export const useKpiStore = defineStore('kpiStore', () => {
         nombre: kpi.name,
         subtitulo: kpi.subtitle,
         departamento: kpi.department?.name || '',
-        responsable: kpi.created_by_user?.name || '',
+        responsable: kpi.creator ? `${kpi.creator.name} ${kpi.creator.paternal ?? ''}`.trim() : '—',
         progreso: progreso,
+        meta: kpi.goal ? `${parseFloat(kpi.goal)} ${kpi.unit ?? ''}`.trim() : '—',
         goal: kpi.goal,
         unit: kpi.unit,
         estadoTipo: estado.estadoTipo,
@@ -192,8 +223,18 @@ export const useKpiStore = defineStore('kpiStore', () => {
         etiquetasHistorial: ['Hoy'],
         ultimaActualizacion: new Date().toISOString().split('T')[0],
         graficasCompatibles: ['linea', 'barras'],
-        periodicidad: kpi.frequency,
-        tipoMetrica: kpi.type,
+        periodicidad: {
+          daily: 'Diario', weekly: 'Semanal', biweekly: 'Quincenal',
+          monthly: 'Mensual', bimonthly: 'Bimestral', quarterly: 'Trimestral',
+          semiannual: 'Semestral', annual: 'Anual'
+        }[kpi.frequency] ?? kpi.frequency,
+        tipoMetrica: {
+          percentage: 'Porcentaje',
+          money:      'Monetario',
+          time:       'Tiempo',
+          absolute:   'Absoluto',
+          custom:     'Personalizado',
+        }[kpi.type] ?? kpi.type,
       }
     })
   } catch (error) {
@@ -217,5 +258,6 @@ export const useKpiStore = defineStore('kpiStore', () => {
     etiquetaCaptura,
     calcularEstado,
     cargarIndicadores,
+    cargarCapturasPorKpi,
   }
 })

@@ -237,6 +237,9 @@ function guardarCambios() {
               {{ kpiStore.indicadores.find(i => i.id === id)?.nombre }}
             </option>
           </select>
+          <p v-if="kpisActivosLocal.length === 0" class="text-[10px] mt-1" style="color: var(--subtext-general);">
+            Primero fija al menos un KPI arriba.
+          </p>
 
           <p class="text-[10px] font-bold uppercase tracking-wider mt-1" style="color: var(--subtext-general);">Tipo de gráfica</p>
           <div class="flex flex-col gap-1">
@@ -251,8 +254,8 @@ function guardarCambios() {
               @mouseover="tipoGraficaLocal !== tipo && ($event.currentTarget.style.background='var(--tabla-hover)')"
               @mouseleave="tipoGraficaLocal !== tipo && ($event.currentTarget.style.background='transparent')"
             >
-              <span>{{ tipo === 'linea' ? '📉' : tipo === 'barras' ? '📊' : tipo === 'area' ? '🏔️' : '🎯' }}</span>
-              <span>{{ tipo }}</span>
+              <i :class="`fi ${ tipo === 'linea' ? 'fi-sr-stats' : tipo === 'barras' ? 'fi-sr-chart-histogram' : tipo === 'area' ? 'fi-sr-signal-alt-2' : 'fi-sr-target' } text-sm`" style="color: var(--color-kpi-morado);"></i>
+              <span class="capitalize">{{ tipo }}</span>
               <span v-if="tipoGraficaLocal === tipo" class="ml-auto text-[10px]">✓</span>
             </div>
           </div>

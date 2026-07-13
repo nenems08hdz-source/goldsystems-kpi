@@ -16,9 +16,9 @@ export const useUiStore = defineStore('uiStore', () => {
 
   const widgets = ref([
      { id: 'tarjetas', nombre: 'Tarjetas KPI',              icono: 'fi-sr-apps',            descripcion: 'Resumen rápido de los KPIs activos' },
-     { id: 'graficas', nombre: 'Medidor y Progreso',         icono: 'fi-sr-chart-histogram', descripcion: 'Gráfica circular y barras de progreso' },
-     { id: 'criticos', nombre: 'KPIs Críticos y en Riesgo', icono: 'fi-sr-bolt',            descripcion: 'Lista de indicadores que necesitan atención' },
-     { id: 'detalle',  nombre: 'Métricas Detalladas',        icono: 'fi-sr-stats',           descripcion: 'Tabla completa por departamento' },
+     { id: 'graficas', nombre: 'Medidor y Progreso',         icono: 'fi-sr-stats',           descripcion: 'Gráfica circular y barras de progreso' },
+     { id: 'criticos', nombre: 'KPIs Críticos y en Riesgo', icono: 'fi-sr-exclamation',     descripcion: 'Lista de indicadores que necesitan atención' },
+     { id: 'detalle',  nombre: 'Métricas Detalladas',        icono: 'fi-sr-document-signed', descripcion: 'Tabla completa por departamento' },
   ])
 
   const kpisActivos = ref([])
@@ -42,7 +42,7 @@ export const useUiStore = defineStore('uiStore', () => {
   function cargarOrden() {
     const guardado = localStorage.getItem(claveUsuario('panelWidgetsOrden'))
     if (guardado) {
-      const base = { tarjetas: 'fi-sr-apps', graficas: 'fi-sr-chart-histogram', criticos: 'fi-sr-bolt', detalle: 'fi-sr-stats' }
+      const base = { tarjetas: 'fi-sr-apps', graficas: 'fi-sr-stats', criticos: 'fi-sr-exclamation', detalle: 'fi-sr-document-signed' }
       widgets.value = JSON.parse(guardado).map(w => ({ ...w, icono: base[w.id] ?? w.icono }))
     }
   }

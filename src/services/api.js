@@ -26,7 +26,7 @@ api.interceptors.request.use(config => {
     return config
 })
 
-// Si el servidor responde 401, la sesión expiró → redirigir al login
+// Si el servidor responde 401, la sesión expiró →  redirigir al login
 api.interceptors.response.use(
     response => response,
     error => {

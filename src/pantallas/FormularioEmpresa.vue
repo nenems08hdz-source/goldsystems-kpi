@@ -25,20 +25,28 @@ const nuevaEmpresa = ref({
   admin_email: '',
 })
 
+const errores = ref({})
+
 async function guardarEmpresa() {
+  errores.value = {}
   try {
     const res = await api.post('/companies', {
       name:       nuevaEmpresa.value.name,
-      legal_name: nuevaEmpresa.value.legal_name,
-      tax_id:     nuevaEmpresa.value.tax_id,
-      email:      nuevaEmpresa.value.email,
-      phone:      nuevaEmpresa.value.phone,
+      legal_name: nuevaEmpresa.value.legal_name || null,
+      tax_id:     nuevaEmpresa.value.tax_id     || null,
+      email:      nuevaEmpresa.value.email       || null,
+      phone:      nuevaEmpresa.value.phone       || null,
     })
     store.empresas.push(res.data)
     proxy.$notify.success('Empresa registrada correctamente', 'Éxito')
     router.push('/GestionEmpresas')
   } catch (e) {
-    proxy.$notify.error('Error al registrar empresa', 'Error')
+    if (e.response?.status === 422) {
+      errores.value = e.response.data.errors ?? {}
+      proxy.$notify.error('Revisa los campos marcados', 'Error de validación')
+    } else {
+      proxy.$notify.error('Error al registrar empresa', 'Error')
+    }
   }
 }
 </script>
@@ -76,14 +84,17 @@ async function guardarEmpresa() {
 
           <FormField label="Nombre Comercial" required>
             <AppInput v-model="nuevaEmpresa.name" placeholder="Ej. TechSol SA" required />
+            <p v-if="errores.name" class="text-xs text-rose-500 mt-1">{{ errores.name[0] }}</p>
           </FormField>
 
           <FormField label="Razón Social" required>
             <AppInput v-model="nuevaEmpresa.legal_name" placeholder="Ej. TechSol Soluciones S.A." required />
+            <p v-if="errores.legal_name" class="text-xs text-rose-500 mt-1">{{ errores.legal_name[0] }}</p>
           </FormField>
 
-          <FormField label="RFC" required>
-            <AppInput v-model="nuevaEmpresa.tax_id" placeholder="Ej. TSO2024010101" required />
+          <FormField label="RFC" hint="máx. 13 caracteres" required>
+            <AppInput v-model="nuevaEmpresa.tax_id" placeholder="Ej. TSO2024010101" maxlength="13" required />
+            <p v-if="errores.tax_id" class="text-xs text-rose-500 mt-1">{{ errores.tax_id[0] }}</p>
           </FormField>
 
           <FormField label="Email Corporativo" required>
@@ -93,10 +104,12 @@ async function guardarEmpresa() {
               placeholder="contacto@empresa.com"
               required
             />
+            <p v-if="errores.email" class="text-xs text-rose-500 mt-1">{{ errores.email[0] }}</p>
           </FormField>
 
           <FormField label="Teléfono" hint="opcional">
             <AppInput v-model="nuevaEmpresa.phone" type="tel" placeholder="+52 999 000 0000" />
+            <p v-if="errores.phone" class="text-xs text-rose-500 mt-1">{{ errores.phone[0] }}</p>
           </FormField>
 
         </div>
