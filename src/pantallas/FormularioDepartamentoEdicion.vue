@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, getCurrentInstance } from 'vue'
+import { ref, onMounted, getCurrentInstance, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import api from '../services/api'
 import { useOrgStore } from '../stores/orgStore'
@@ -21,6 +21,18 @@ const form = ref({
   name:       '',
   description: '',
   manager_id:  null,
+})
+
+const usuariosFiltrados = computed(() => {
+  if (!store.usuarios || store.usuarios.length === 0) return []
+  
+  return store.usuarios.filter(u => {
+    const roles = u.roles?.map(r => r.name || r) || []
+    const rolesString = roles.map(r => String(r).toLowerCase())
+    
+    console.log(`${u.name}: roles =`, rolesString) // ← VE QUÉ ROLES TIENE
+    
+  return rolesString.includes('admin') || rolesString.includes('developer')  })
 })
 
 onMounted(async () => {
@@ -94,9 +106,9 @@ async function guardar() {
         <FormField label="Responsable" hint="opcional">
           <select v-model="form.manager_id" class="app-select">
             <option :value="null">Sin responsable</option>
-            <option v-for="u in store.usuarios" :key="u.id" :value="u.id">
+           <option v-for="u in usuariosFiltrados" :key="u.id" :value="u.id">
               {{ u.name }} {{ u.paternal }}
-            </option>
+           </option>
           </select>
         </FormField>
 

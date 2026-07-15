@@ -14,6 +14,7 @@ import AppButton          from '../components/ui/AppButton.vue'
 import FormField          from '../components/ui/FormField.vue'
 import BotonAccion        from '../components/ui/BotonAccion.vue'
 import EtiquetaBadge      from '../components/ui/EtiquetaBadge.vue'
+
 const { proxy } = getCurrentInstance()
 const store = useKpiStore()
 const { can } = usePermissions()
@@ -215,7 +216,6 @@ async function ejecutarEliminacion() {
   }
   showModal.value = false
 }
-
 </script>
 
 <template>
@@ -336,7 +336,7 @@ async function ejecutarEliminacion() {
       </template>
 
       <template #iconos-acciones="{ item }">
-        <BotonAccion variante="eye"   titulo="Ver Detalles" @click="$router.push(`/kpis/detalle/${item.id}`)" />
+        <BotonAccion variante="eye" titulo="Ver Detalles" @click="$router.push(`/kpis/detalle/${item.id}`)" />
         <BotonAccion v-if="can('kpis.update')"  variante="edit"  titulo="Editar KPI" @click="$router.push(`/kpis/editar/${item.id}`)" />
         <BotonAccion v-if="can('kpis.destroy')" variante="trash" titulo="Eliminar KPI" @click="prepararEliminacion(item)" />
       </template>
@@ -400,4 +400,25 @@ async function ejecutarEliminacion() {
       @cancelar="showModal = false"
     />
   </div>
+
+  <!-- Panel lateral con gráfica -->
+<div v-if="mostrarPanel"
+  class="fixed inset-0 z-40 flex justify-end"
+  style="background: rgba(0,0,0,0.4);"
+  @click="mostrarPanel = false">
+  <div class="w-full max-w-2xl h-full shadow-2xl flex flex-col p-6 animate-slideLeft"
+    style="background: var(--card-bg); border-left: 1px solid var(--tabla-borde);"
+    @click.stop>
+    
+    <div class="flex justify-between items-start pb-4 mb-6" style="border-bottom: 1px solid var(--tabla-borde);">
+      <div>
+        <h3 class="text-lg font-bold" style="color: var(--text-encabezado);">{{ kpiSeleccionado?.nombre }}</h3>
+        <p class="text-xs mt-0.5" style="color: var(--subtext-general);">{{ kpiSeleccionado?.formula }}</p>
+      </div>
+      <button @click="mostrarPanel = false" class="text-2xl" style="color: var(--subtext-general);">✕</button>
+    </div>
+
+    <GraficoKpiProgreso :kpi="kpiSeleccionado" />
+  </div>
+</div>
 </template>

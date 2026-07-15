@@ -112,6 +112,7 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
       <template v-if="widgetId === 'graficas'">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 
+          <!-- Modo General -->
           <template v-if="store.modoGrafica === 'general'">
             <div v-if="listoPararenderizar && kpisResumen.length > 0"
               class="border border-[#beaed8]/70 rounded-2xl p-5 shadow-sm h-60 flex flex-col justify-between"
@@ -131,7 +132,8 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
             </div>
           </template>
 
-          <template v-else>
+          <!-- Modo Específica -->
+          <template v-else-if="store.modoGrafica === 'especifica'">
             <div v-if="listoPararenderizar && store.kpiParaGrafica"
               class="bg-[#3f2a52] border border-[#beaed8]/70 rounded-2xl p-5 shadow-sm h-60 flex flex-col justify-between lg:col-span-2">
               <div class="flex-1 flex items-center justify-center overflow-hidden">
@@ -143,6 +145,7 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
               </div>
             </div>
           </template>
+
 
         </div>
       </template>

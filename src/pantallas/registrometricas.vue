@@ -31,6 +31,7 @@ const form = ref({
 })
 
 const errorMensaje = ref('')
+
 const registroEditando = ref(null) // ← EDICIÓN: Detectar si está editando un registro
 
 const labelValor = computed(() => {
@@ -53,25 +54,13 @@ const textoAyudaFecha = computed(() => {
   return textos[props.kpi.periodicidad] ?? 'Selecciona la fecha de corte del registro.'
 })
 // ← EDICIÓN: Función para editar un registro existente
-function editarRegistro(captura) {
-  registroEditando.value = captura.id
+const fecha = new Date(captura.period_start) // ← ¿Qué valor tiene aquí?
+const año = fecha.getFullYear()
+const mes = String(fecha.getMonth() + 1).padStart(2, '0')
+const día = String(fecha.getDate()).padStart(2, '0')
+const fechaHTML = `${año}-${mes}-${día}`
 
-  // Convertir fecha ISO a formato yyyy-MM-dd
-  const fecha = new Date(captura.period_start)
-  const año = fecha.getFullYear()
-  const mes = String(fecha.getMonth() + 1).padStart(2, '0')
-  const día = String(fecha.getDate()).padStart(2, '0')
-  const fechaHTML = `${año}-${mes}-${día}`
-
-  form.value = {
-    period_start: fechaHTML,
-    value:        String(captura.value),
-    notes:        captura.notes || '',
-  }
-  console.log('Formulario cargado con fecha:', fechaHTML) // DEBUG
-  window.scrollTo({ top: 0, behavior: 'smooth' })
-}
-
+console.log('Fecha convertida:', fechaHTML) // ← Agrega esto para debug
 // ← EDICIÓN: Función para cancelar edición
 function cancelarEdicion() {
   registroEditando.value = null

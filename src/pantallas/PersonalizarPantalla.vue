@@ -204,10 +204,9 @@ function guardarCambios() {
 
         <div
           v-for="(opt, i) in [
-            { val: 'general',   label: 'Resumen general',              desc: 'Medidor de salud global y barras de progreso de todos los KPIs' },
-            { val: 'especifica', label: 'Gráfica específica de un KPI', desc: 'Elige un KPI y el tipo de gráfica para ver su historial' }
-          ]"
-          :key="opt.val"
+          { val: 'general',   label: 'Resumen general',              desc: 'Medidor de salud global y barras de progreso de todos los KPIs' },
+          { val: 'especifica', label: 'Gráfica específica de un KPI', desc: 'Elige un KPI y el tipo de gráfica para ver su historial' }
+        ]"
           @click="modoGraficaLocal = opt.val"
           class="flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-all mb-2"
           :style="modoGraficaLocal === opt.val

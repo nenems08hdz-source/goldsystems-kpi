@@ -29,6 +29,19 @@ const departamentosDisponibles = computed(() =>
   store.departamentos.map(d => ({ value: d.id, label: d.name }))
 )
 
+const usuariosFiltrados = computed(() => {
+  if (!store.usuarios || store.usuarios.length === 0) return []
+  
+  return store.usuarios.filter(u => {
+    const roles = u.roles?.map(r => r.name || r) || []
+    const rolesString = roles.map(r => String(r).toLowerCase())
+    
+    return rolesString.includes('manager') || 
+           rolesString.includes('team_leader') || 
+           rolesString.includes('developer')
+  })
+})
+
 onMounted(async () => {
   try {
     await store.cargarTodo()
@@ -102,8 +115,7 @@ async function guardar() {
         <FormField label="Líder del Equipo" hint="opcional">
           <select v-model="form.leader_id" class="app-select">
             <option :value="null">Sin líder</option>
-            <option v-for="u in store.usuarios" :key="u.id" :value="u.id">
-              {{ u.name }} {{ u.paternal }}
+            <option v-for="u in usuariosFiltrados" :key="u.id" :value="u.id">              {{ u.name }} {{ u.paternal }}
             </option>
           </select>
         </FormField>
