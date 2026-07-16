@@ -200,6 +200,17 @@ export const useKpiStore = defineStore('kpiStore', () => {
     }
   }
 
+  // ← NUEVA FUNCIÓN: Carga historiales de TODOS los KPIs
+async function cargarTodosLosHistoriales() {
+  try {
+    for (const kpi of indicadores.value) {
+      await cargarCapturasPorKpi(kpi.id)
+    }
+  } catch (e) {
+    console.error('Error cargando todos los historiales:', e)
+  }
+}
+
   async function cargarIndicadores() {
   try {
     const res = await import('../services/api').then(m => m.default.get('/kpis'))
@@ -259,5 +270,6 @@ export const useKpiStore = defineStore('kpiStore', () => {
     calcularEstado,
     cargarIndicadores,
     cargarCapturasPorKpi,
+    cargarTodosLosHistoriales,
   }
 })

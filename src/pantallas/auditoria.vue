@@ -6,7 +6,7 @@ import EncabezadoPantalla from '@/components/EncabezadoPantalla.vue'
 import EtiquetaBadge      from '../components/ui/EtiquetaBadge.vue'
 import AppButton          from '../components/ui/AppButton.vue'
 import tarjetasresumen    from '../components/TarjetasResumen.vue'
-import LoadingSpinner     from '../components/LoadingSpinner.vue'
+import auditExportService from '../services/auditExportService'
 
 const { can } = usePermissions()
 
@@ -22,6 +22,7 @@ const filtroAccion    = ref('')
 const filtroDesde     = ref('')
 const filtroHasta     = ref('')
 const paginaActual    = ref(1)
+const exportando = ref(false)
 
 const modulos  = ['KPIs', 'Capturas de Métricas', 'Usuarios', 'Empresas', 'Departamentos', 'Roles', 'Asignaciones KPI', 'Autenticación']
 const acciones = ['Crear', 'Editar', 'Eliminar', 'Editar permisos', 'Inicio de sesión', 'Cierre de sesión', 'Cambio de contraseña']
@@ -177,13 +178,41 @@ function calcularDiff(old_data, new_data) {
 }
 
 onMounted(cargar)
+async function handleExportarExcel() {
+  exportando.value = true
+  try {
+    await auditExportService.exportToExcel({
+      module: filtroModulo.value,
+      action: filtroAccion.value,
+      date_from: filtroDesde.value,
+      date_to: filtroHasta.value,
+    })
+  } catch (error) {
+    console.error('Error:', error)
+  } finally {
+    exportando.value = false
+  }
+}
+
+async function handleExportarPdf() {
+  exportando.value = true
+  try {
+    await auditExportService.exportToPdf({
+      module: filtroModulo.value,
+      action: filtroAccion.value,
+      date_from: filtroDesde.value,
+      date_to: filtroHasta.value,
+    })
+  } catch (error) {
+    console.error('Error:', error)
+  } finally {
+    exportando.value = false
+  }
+}
 </script>
 
 <template>
   <!-- ← EDICIÓN: Componente personalizado -->
-  <LoadingSpinner :isActive="isLoading" text="Cargando auditoría..." />
-
-  <LoadingSpinner :isActive="cargando" text="Cargando auditoría..." />
 
   <div class="p-3 min-h-screen" style="background: transparent;">
 
@@ -193,13 +222,27 @@ onMounted(cargar)
         titulo="Centro de Auditoría"
         descripcion="Supervisión de la actividad del sistema — quién hizo qué, cuándo y desde dónde."
       />
+
       <div v-if="can('audit.export')" class="flex gap-3 flex-shrink-0">
-        <AppButton variant="primary" class="flex items-center gap-2">
-          <i class="fi fi-sr-file-pdf"></i> Exportar PDF
+        <AppButton
+            variant="primary"
+            class="flex items-center gap-2"
+            :disabled="exportando"
+            @click="handleExportarPdf"
+  >
+            <i :class="['fi', exportando ? 'fi-sr-spinner animate-spin' : 'fi-sr-file-pdf']"></i>
+              {{ exportando ? 'Descargando...' : 'Exportar PDF' }}
         </AppButton>
-        <AppButton variant="primary" class="flex items-center gap-2">
-          <i class="fi fi-sr-file-excel"></i> Exportar Excel
-        </AppButton>
+
+        <AppButton
+            variant="primary"
+            class="flex items-center gap-2"
+            :disabled="exportando"
+            @click="handleExportarExcel"
+            >
+          <i :class="['fi', exportando ? 'fi-sr-spinner animate-spin' : 'fi-sr-file-excel']"></i>
+          {{ exportando ? 'Descargando...' : 'Exportar Excel' }}
+       </AppButton>
       </div>
     </div>
 

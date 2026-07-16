@@ -38,6 +38,9 @@ onMounted(async () => {
   await kpiStore.cargarIndicadores()
   kpis.value = kpiStore.indicadores
 
+  // Cargar historiales de TODOS los KPIs
+  await kpiStore.cargarTodosLosHistoriales()
+
   // Si no tiene acceso avanzado, carga solo sus KPIs asignados
   if (!can('dashboard.view_advanced')) {
     const res = await api.get('/kpis/mine')
@@ -119,16 +122,14 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
               style="background: var(--grafics-bg);">
               <p class="text-[11px] font-bold text-[#beaed8] uppercase tracking-wider">Resumen de KPIs</p>
               <div class="flex-1 flex items-center justify-center">
-                <MedidorKpi :kpis="kpisResumen" />
-              </div>
+                  <MedidorKpi :kpisData="kpisResumen" />              </div>
             </div>
             <div v-if="listoPararenderizar && kpisResumen.length > 0 "
               class="border border-[#beaed8]/70 rounded-2xl p-5 shadow-sm h-60 flex flex-col justify-between"
               style="background: var(--grafics-bg);">
               <p class="text-[11px] font-bold text-[#beaed8] uppercase tracking-wider">Progreso General</p>
               <div class="flex-1 flex items-center justify-center overflow-hidden">
-                 <ProgresoKpi :kpis="kpisResumen" />
-              </div>
+                  <ProgresoKpi :kpisData="kpisResumen" />              </div>
             </div>
           </template>
 

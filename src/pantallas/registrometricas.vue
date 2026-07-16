@@ -53,15 +53,7 @@ const textoAyudaFecha = computed(() => {
   }
   return textos[props.kpi.periodicidad] ?? 'Selecciona la fecha de corte del registro.'
 })
-// ← EDICIÓN: Función para editar un registro existente
-const fecha = new Date(captura.period_start) // ← ¿Qué valor tiene aquí?
-const año = fecha.getFullYear()
-const mes = String(fecha.getMonth() + 1).padStart(2, '0')
-const día = String(fecha.getDate()).padStart(2, '0')
-const fechaHTML = `${año}-${mes}-${día}`
 
-console.log('Fecha convertida:', fechaHTML) // ← Agrega esto para debug
-// ← EDICIÓN: Función para cancelar edición
 function cancelarEdicion() {
   registroEditando.value = null
   form.value = { period_start: '', value: '', notes: '' }
