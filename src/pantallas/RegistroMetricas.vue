@@ -2,8 +2,8 @@
 import { ref, computed, onMounted, getCurrentInstance } from 'vue'
 import { useAuthStore } from '../stores/authStore'
 import api from '../services/api'
-import { useLoading } from '@/composables/useLoading' // ← EDICIÓN
-import LoadingSpinner from '../components/LoadingSpinner.vue' // ← EDICIÓN: Componente personalizado
+import { useLoading } from '@/composables/useLoading' 
+import LoadingSpinner from '../components/LoadingSpinner.vue' 
 import EtiquetaBadge from '../components/ui/EtiquetaBadge.vue'
 import AppButton     from '../components/ui/AppButton.vue'
 import BotonAccion   from '../components/ui/BotonAccion.vue'
@@ -22,10 +22,10 @@ const emit = defineEmits(['guardado', 'cancelar'])
 const { proxy } = getCurrentInstance()
 const auth     = useAuthStore()
 const capturas = ref([])
-const { isLoading, cargarConDelay } = useLoading() // ← EDICIÓN
+const { isLoading, cargarConDelay } = useLoading() 
 
 onMounted(async () => {
-  // ← EDICIÓN: Usar cargarConDelay
+  // Usar cargarConDelay
   const res = await cargarConDelay(() => api.get(`/kpi-records?kpi_id=${props.kpi.id}`))
   capturas.value = res.data
 })
@@ -37,6 +37,7 @@ const form = ref({
 })
 
 const errorMensaje = ref('')
+
 const registroEditando = ref(null) // ← EDICIÓN: Detectar si está editando un registro
 
 const labelValor = computed(() => {
@@ -62,7 +63,7 @@ const textoAyudaFecha = computed(() => {
 function editarRegistro(captura) {
   registroEditando.value = captura.id
 
-  // Convertir fecha ISO a formato yyyy-MM-dd (tomar solo la parte de fecha para evitar desfase de zona horaria)
+  // Convertir fecha ISO a formato yyyy-MM-dd 
   const fechaHTML = captura.period_start.split('T')[0]
 
   form.value = {
@@ -73,6 +74,7 @@ function editarRegistro(captura) {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
+console.log('Fecha convertida:', fechaHTML) // ← Agrega esto para debug
 // ← EDICIÓN: Función para cancelar edición
 function cancelarEdicion() {
   registroEditando.value = null

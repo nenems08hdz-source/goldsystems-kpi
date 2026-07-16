@@ -204,12 +204,12 @@ onMounted(() => {
         <div class="px-4 py-3 flex items-center gap-4"
           style="border-top: 1px solid var(--tabla-borde);">
           <div class="text-center">
-            <p class="text-base font-black" style="color: var(--text-encabezado);"> - </p>
+            <p class="text-base font-black" style="color: var(--text-encabezado);">{{ empresa.users_count ?? 0 }}</p>
             <p class="text-[9px] uppercase tracking-wide" style="color: var(--subtext-general);">Usuarios</p>
           </div>
 
           <div class="text-center">
-            <p class="text-base font-black" style="color: var(--text-encabezado);"> - </p>
+            <p class="text-base font-black" style="color: var(--text-encabezado);">{{ empresa.kpis_count ?? 0 }}</p>
             <p class="text-[9px] uppercase tracking-wide" style="color: var(--subtext-general);">KPIs</p>
           </div>
 
