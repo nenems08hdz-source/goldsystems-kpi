@@ -5,10 +5,14 @@ import { useKpiStore } from "../stores/kpiStore"
 
 const store = useKpiStore()
 
+const props = defineProps({
+  kpisData: { type: Array, required: true }
+})
+
 const series = computed(() => [
   {
     name: 'Progreso',
-    data: store.datosParaGraficaBarras.valores
+    data: props.kpisData.map(i => i.progreso)
   }
 ])
 
@@ -16,9 +20,13 @@ const chartOptions = computed(() => ({
   chart: {
     type: 'bar',
     toolbar: { show: false },
-    background: 'transparent' 
+    background: 'transparent'
   },
-  colors: ['#beaed8'],
+  colors: props.kpisData.map(i => {
+    if (i.estadoTipo === 'success') return '#10b981'
+    if (i.estadoTipo === 'warning') return '#f59e0b'
+    return '#f43f5e'
+  }),
   plotOptions: {
     bar: {
       borderRadius: 4,
@@ -27,17 +35,11 @@ const chartOptions = computed(() => ({
       columnWidth: '60%',
     }
   },
-  
-  colors: store.indicadores.map(i => {
-    if (i.estadoTipo === 'success') return '#10b981' 
-    if (i.estadoTipo === 'warning') return '#f59e0b' 
-    return '#f43f5e'                                
-  }),
   dataLabels: {
     enabled: false
   },
   xaxis: {
-    categories: store.datosParaGraficaBarras.categorias,
+    categories: props.kpisData.map(i => i.departamento.split(' ')[0]),
     labels: {
       style: {
         colors: '#94a3b8',

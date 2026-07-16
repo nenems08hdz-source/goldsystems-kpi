@@ -5,7 +5,14 @@ import { useKpiStore } from '../stores/kpiStore'
 
 const store = useKpiStore()
 
-const series = computed(() => [store.promedioSaludKpis])
+const props = defineProps({
+  kpisData: { type: Array, required: true }
+})
+
+const series = computed(() => {
+  const saludables = props.kpisData.filter(i => i.estadoTipo === 'success').length
+  return [Math.round((saludables / props.kpisData.length) * 100 * 10) / 10]
+})
 
 const chartOptions = {
   chart: {

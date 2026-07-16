@@ -74,8 +74,6 @@ function editarRegistro(captura) {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
-console.log('Fecha convertida:', fechaHTML) // ← Agrega esto para debug
-// ← EDICIÓN: Función para cancelar edición
 function cancelarEdicion() {
   registroEditando.value = null
   form.value = { period_start: '', value: '', notes: '' }
