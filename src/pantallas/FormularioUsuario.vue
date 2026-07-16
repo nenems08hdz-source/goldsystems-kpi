@@ -87,6 +87,7 @@ async function guardarUsuario() {
     <FormContenedor>
       <form
       @submit.prevent="guardarUsuario"
+      autocomplete="off"
       class="w-full rounded-xl shadow-md border overflow-hidden"
       style="background: var(--card-bg); border-color: rgba(190,174,216,0.9);"
     >
@@ -105,7 +106,7 @@ async function guardarUsuario() {
         </FormField>
 
         <FormField label="Correo Corporativo" required>
-          <AppInput v-model="nuevoUsuario.email" type="email" placeholder="juan.perez@empresa.com" required />
+          <AppInput v-model="nuevoUsuario.email" type="email" placeholder="juan.perez@empresa.com" autocomplete="username" required />
         </FormField>
 
         <FormField label="Teléfono" hint="opcional">

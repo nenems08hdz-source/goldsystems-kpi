@@ -228,12 +228,13 @@ export const useKpiStore = defineStore('kpiStore', () => {
           monthly: 'Mensual', bimonthly: 'Bimestral', quarterly: 'Trimestral',
           semiannual: 'Semestral', annual: 'Anual'
         }[kpi.frequency] ?? kpi.frequency,
+        tipo: kpi.type,
         tipoMetrica: {
           percentage: 'Porcentaje',
           money:      'Monetario',
           time:       'Tiempo',
-          absolute:   'Absoluto',
-          custom:     'Personalizado',
+          absolute:   'Puntaje',
+          custom:     'Puntaje',
         }[kpi.type] ?? kpi.type,
       }
     })

@@ -10,6 +10,7 @@ import FormField          from '../components/ui/FormField.vue'
 import BotonAccion        from '../components/ui/BotonAccion.vue'
 import EtiquetaBadge      from '../components/ui/EtiquetaBadge.vue'
 import StatusBadge        from '../components/StatusBadge.vue'
+import EmptyState         from '../components/ui/EmptyState.vue'
 import { useAuthStore } from '../stores/authStore'
 import { usePermissions } from '../composables/usePermissions'
 import api from '../services/api'
@@ -25,6 +26,7 @@ const apiBase = import.meta.env.VITE_API_URL.replace('/api', '')
 const usuarios     = ref([])
 const assignments  = ref([])  // todos los assignments para contar por usuario
 const roles        = ref([])
+const cargando     = ref(true)
 
 onMounted(async () => {
   await store.cargarTodo()
@@ -38,6 +40,7 @@ onMounted(async () => {
   if (resUsers.status === 'fulfilled')       usuarios.value    = resUsers.value.data
   if (resAssignments.status === 'fulfilled') assignments.value = resAssignments.value.data
   if (resRoles.status === 'fulfilled')       roles.value       = resRoles.value.data
+  cargando.value = false
 })
 
 function contarKpisUsuario(userId) {
@@ -243,7 +246,7 @@ async function eliminarNodo() {
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-4">
 
       <!-- árbol organizacional — solo visible con permiso org.view_tree -->
-      <div v-if="can('org.view_tree')" class="lg:col-span-4 rounded-xl shadow-md border border-[#beaed8]/90 mt-2 overflow-hidden flex flex-col"
+      <div v-if="can('org.view_tree')" class="lg:col-span-4 rounded-xl shadow-md border border-[#beaed8]/90 mt-2 overflow-hidden self-start"
         style="background: var(--card-bg);">
 
         <div class="p-4" style="border-bottom: 1px solid var(--tabla-borde); background: var(--tabla-header-bg);">
@@ -344,7 +347,25 @@ async function eliminarNodo() {
           </p>
         </div>
 
+        <EmptyState
+          v-if="!cargando && usuarios.length === 0"
+          icono="fi-sr-users-alt"
+          titulo="No hay colaboradores registrados"
+          subtexto="Esta empresa aún no tiene usuarios en el sistema."
+          botonTexto="Registrar Colaborador"
+          botonIcono="fi-sr-user-add"
+          @accion="$router.push('/FormularioUsuario')"
+        />
+
+        <EmptyState
+          v-else-if="!cargando && usuariosFiltrados.length === 0"
+          icono="fi-sr-search"
+          titulo="Sin resultados"
+          subtexto="Ningún colaborador coincide con los filtros aplicados."
+        />
+
         <plantillatabla
+          v-else
           :titulo="tituloTabla"
           :encabezados="['Usuario', 'Rol', 'KPIs', 'Último Acceso', 'Estado']"
           :datos="usuariosPaginados"
@@ -353,7 +374,7 @@ async function eliminarNodo() {
           <!-- apartado donde todos los registros seran datos reales  -->
           <template #default="{ fila }"> 
 
-            <td class="p-4 align-middle text-left">
+            <td class="p-4 align-middle">
               <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 shadow-sm">
                   <img
@@ -379,24 +400,25 @@ async function eliminarNodo() {
             </td>
 
          <!--Apartado de roles -->
-            <td class="p-4 align-middle text-center">
+            <td class="p-4 align-middle">
               <EtiquetaBadge
-                :texto="store.rolesDisponibles.find(r => r.codigo === fila.roles?.[0]?.name)?.nombre ?? fila.roles?.[0]?.name"
+                :texto="store.rolesDisponibles.find(r => r.codigo === fila.roles?.[0]?.name)?.nombre ?? { developer: 'Desarrollador', admin: 'Administrador', manager: 'Gerente', employee: 'Empleado', auditor: 'Auditor', 'team-leader': 'Líder de Equipo' }[fila.roles?.[0]?.name] ?? fila.roles?.[0]?.name ?? 'Sin rol'"
                 :clase="store.colorPorRol(fila.roles?.[0]?.name)"
-/>
+              />
             </td>
 
-            <td class="p-4 align-middle text-center">
+            <td class="p-4 align-middle">
               <span class="font-semibold text-sm" style="color: var(--text-general);">
                 {{ contarKpisUsuario(fila.id) }}
               </span>
             </td>
 
-            <td class="p-4 align-middle text-left">
-<span class="text-xs" style="color: var(--subtext-general);">{{ fila.last_login ? fila.last_login.slice(0, 10) : '—' }}</span>            </td>
+            <td class="p-4 align-middle">
+              <span class="text-xs" style="color: var(--subtext-general);">{{ fila.last_login ? fila.last_login.slice(0, 10) : '—' }}</span>
+            </td>
 
           <!--apartado del estado -->
-            <td class="p-4 align-middle text-center">
+            <td class="p-4 align-middle">
               <StatusBadge :tipo="fila.status" />
             </td>
 

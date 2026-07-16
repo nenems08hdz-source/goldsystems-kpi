@@ -14,6 +14,7 @@ import AppButton          from '../components/ui/AppButton.vue'
 import FormField          from '../components/ui/FormField.vue'
 import BotonAccion        from '../components/ui/BotonAccion.vue'
 import EtiquetaBadge      from '../components/ui/EtiquetaBadge.vue'
+import EmptyState         from '../components/ui/EmptyState.vue'
 const { proxy } = getCurrentInstance()
 const store = useKpiStore()
 const { can } = usePermissions()
@@ -48,7 +49,8 @@ const frecuenciaMap = {
 
 // ── Variable reactiva principal ───────────────────────────────────────────────
 // Aquí se guardarán los KPIs que vengan de la API
-const kpis = ref([])
+const kpis     = ref([])
+const cargando = ref(true)
 
 // ── Carga de datos al abrir la pantalla ──────────────────────────────────────
 onMounted(async () => {
@@ -83,6 +85,7 @@ onMounted(async () => {
       ultimaActualizacion: ultimoRecord?.period_start ?? '—',
     }
   })
+  cargando.value = false
 })
 
 // Observa cambios en el store y actualiza la tabla
@@ -189,9 +192,12 @@ function limpiarFiltros() {
 }
 
 // Devuelve la unidad según el tipo de métrica
-function unidadPorTipo(tipoMetrica) {
-  const unidades = { 'Porcentaje': '%', 'Monetario': '$', 'Tiempo': 'ms', 'Puntaje': 'pts' }
-  return unidades[tipoMetrica] ?? ''
+function formatearValor(valor, tipo) {
+  const n = Number(valor)
+  if (tipo === 'Monetario')  return '$' + n.toFixed(0)
+  if (tipo === 'Porcentaje') return n.toFixed(1) + '%'
+  if (tipo === 'Tiempo')     return n.toFixed(0) + ' ms'
+  return n.toFixed(1) + ' pts'
 }
 
 // ── Eliminar KPI ──────────────────────────────────────────────────────────────
@@ -287,12 +293,29 @@ async function ejecutarEliminacion() {
           ({{ kpis.length }} en total)
         </span>
       </p>
-      <p v-if="indicadoresFiltrados.length === 0" class="text-xs text-amber-500 font-semibold">
-        Sin resultados para los filtros aplicados
-      </p>
     </div>
 
+    <!-- Sin KPIs en absoluto -->
+    <EmptyState
+      v-if="!cargando && kpis.length === 0"
+      icono="fi-sr-chart-histogram"
+      titulo="No hay KPIs registrados"
+      subtexto="Esta empresa aún no tiene indicadores creados. Comienza registrando el primero."
+      botonTexto="Crear KPI"
+      botonIcono="fi-sr-plus"
+      @accion="$router.push('/kpis/nuevo')"
+    />
+
+    <!-- Hay KPIs pero los filtros no muestran ninguno -->
+    <EmptyState
+      v-else-if="!cargando && indicadoresFiltrados.length === 0"
+      icono="fi-sr-search"
+      titulo="Sin resultados"
+      subtexto="Ningún KPI coincide con los filtros aplicados. Intenta con otros criterios."
+    />
+
     <plantillatabla
+      v-else
       titulo="Listado Central de KPIs"
       :encabezados="encabezados"
       :datos="indicadoresPaginados"
@@ -300,36 +323,36 @@ async function ejecutarEliminacion() {
     >
       <template #default="{ fila }">
 
-        <td class="p-4 text-left">
+        <td class="p-4 align-middle text-left">
           <div class="font-bold text-sm" style="color: var(--text-general);">{{ fila.nombre }}</div>
-          <div class="text-xs mt-0.5" style="color: var(--text-general);">{{ fila.formula }}</div>
+          <div class="text-xs mt-0.5" style="color: var(--subtext-general);">{{ fila.formula }}</div>
         </td>
 
-        <td class="p-4 align-middle text-center">
+        <td class="p-4 align-middle text-left">
           <EtiquetaBadge :texto="fila.departamento" />
         </td>
 
-        <td class="p-4 align-middle text-center">
+        <td class="p-4 align-middle text-left">
           <EtiquetaBadge :texto="fila.tipoMetrica" />
         </td>
 
-        <td class="p-4 text-xs text-left" style="color: var(--card-text-muted);">{{ fila.responsable }}</td>
+        <td class="p-4 align-middle text-left text-xs" style="color: var(--card-text-muted);">{{ fila.responsable }}</td>
 
-        <td class="p-4 text-center">
+        <td class="p-4 align-middle text-left">
           <EtiquetaBadge :texto="fila.periodicidad" />
         </td>
 
-        <td class="p-4 text-left">
+        <td class="p-4 align-middle text-left">
           <span class="text-sm font-bold" style="color: var(--text-general);">
-            {{ fila.progreso }} {{ unidadPorTipo(fila.tipoMetrica) }}
+            {{ formatearValor(fila.progreso, fila.tipoMetrica) }}
           </span>
         </td>
 
-        <td v-if="can('kpis.view_targets')" class="p-4 text-left">
+        <td v-if="can('kpis.view_targets')" class="p-4 align-middle text-left">
           <span class="text-xs font-semibold" style="color: var(--card-text-muted);">{{ fila.meta }}</span>
         </td>
 
-        <td class="p-4 text-center align-middle">
+        <td class="p-4 align-middle text-left">
           <StatusBadge :tipo="fila.estadoTipo" :texto="fila.estado" />
         </td>
 

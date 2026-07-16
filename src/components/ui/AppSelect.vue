@@ -21,7 +21,7 @@ function normalizar(opt) {
     :value="modelValue"
     :required="required"
     :disabled="disabled"
-    @change="$emit('update:modelValue', $event.target.value)"
+    @change="$emit('update:modelValue', $event.target.value === '' || $event.target.value === 'null' ? null : $event.target.value)"
   >
     <option value="" disabled>{{ placeholder }}</option>
     <option

@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { getCurrentInstance } from 'vue'
 import { useKpiStore } from '../stores/kpiStore'
 import { useAuthStore } from '../stores/authStore'
+import { useOrgStore }  from '../stores/orgStore'
 import api from '../services/api'
 import AppButton          from '@/components/ui/AppButton.vue'
 import AppInput           from '@/components/ui/AppInput.vue'
@@ -16,6 +17,7 @@ const router   = useRouter()
 const store    = useKpiStore()
 const { proxy } = getCurrentInstance()
 const auth = useAuthStore()
+const org  = useOrgStore()
 const departamentosApi = ref([])
 const equiposApi       = ref([])
 const usuariosApi      = ref([])
@@ -128,7 +130,7 @@ async function guardarKpi() {
     unit:          nuevoKpi.value.unit,
     weight:        Number(nuevoKpi.value.weight),
     status:        'active',
-    company_id:    auth.user.company_id,
+    company_id:    org.empresaActiva?.id ?? auth.user.company_id,
     department_id: nuevoKpi.value.departamento_id ? Number(nuevoKpi.value.departamento_id) : null,
     created_by:    nuevoKpi.value.usuario_id ? Number(nuevoKpi.value.usuario_id) : auth.user.id,
   }
@@ -291,8 +293,8 @@ const opcionesTipoMetrica  = [
         </FormField>
 
         <FormField
-          label="Descripción corta"
-          hint="aparece en las tarjetas del panel"
+          label="Subtítulo"
+          hint="texto corto que aparece debajo del nombre en las tarjetas"
           :col-span="2"
         >
           <AppInput

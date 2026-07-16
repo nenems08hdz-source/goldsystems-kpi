@@ -11,6 +11,12 @@ import BotonAccion   from '../components/ui/BotonAccion.vue'
 const props = defineProps({
   kpi: { type: Object, required: true },
 })
+
+function formatearFecha(iso) {
+  if (!iso) return '—'
+  const fecha = new Date(iso.split('T')[0] + 'T00:00:00')
+  return fecha.toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })
+}
 const emit = defineEmits(['guardado', 'cancelar'])
 
 const { proxy } = getCurrentInstance()
@@ -56,19 +62,14 @@ const textoAyudaFecha = computed(() => {
 function editarRegistro(captura) {
   registroEditando.value = captura.id
 
-  // Convertir fecha ISO a formato yyyy-MM-dd
-  const fecha = new Date(captura.period_start)
-  const año = fecha.getFullYear()
-  const mes = String(fecha.getMonth() + 1).padStart(2, '0')
-  const día = String(fecha.getDate()).padStart(2, '0')
-  const fechaHTML = `${año}-${mes}-${día}`
+  // Convertir fecha ISO a formato yyyy-MM-dd (tomar solo la parte de fecha para evitar desfase de zona horaria)
+  const fechaHTML = captura.period_start.split('T')[0]
 
   form.value = {
     period_start: fechaHTML,
     value:        String(captura.value),
     notes:        captura.notes || '',
   }
-  console.log('Formulario cargado con fecha:', fechaHTML) // DEBUG
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
@@ -269,7 +270,7 @@ async function guardarMetrica() {
           @click="editarRegistro(captura)"
         >
           <div>
-            <p class="text-xs font-bold" style="color: var(--text-general);">{{ captura.period_start }}</p>
+            <p class="text-xs font-bold" style="color: var(--text-general);">{{ formatearFecha(captura.period_start) }}</p>
             <p class="text-[10px]" style="color: var(--subtext-general);">{{ captura.notes || 'Sin observaciones' }}</p>
           </div>
           <div class="text-right">

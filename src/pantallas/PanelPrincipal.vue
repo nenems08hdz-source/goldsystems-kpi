@@ -15,6 +15,7 @@ import TarjetasKpi            from '../components/TarjetasKpi.vue'
 import StatusBadge            from '../components/StatusBadge.vue'
 import EtiquetaBadge          from '../components/ui/EtiquetaBadge.vue'
 import AppButton              from '../components/ui/AppButton.vue'
+import EmptyState             from '../components/ui/EmptyState.vue'
 
 const store    = useUiStore()
 const kpiStore = useKpiStore()
@@ -47,7 +48,8 @@ onMounted(async () => {
       return {
         id:           k.id,
         nombre:       k.name,
-        subtitulo:    k.subtitle ?? k.name,
+        subtitulo:    k.subtitle ?? '',
+        tipo:         k.type,
         meta:         k.goal ? `${parseFloat(k.goal)} ${k.unit ?? ''}`.trim() : '—',
         progreso,
         estado,
@@ -94,17 +96,26 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
       <!-- tarjetas KPI -->
       <template v-if="widgetId === 'tarjetas'">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <TarjetasKpi
-            v-for="item in kpisResumen"
-            :key="item.id"
-            :nombre="item.subtitulo"
-            :departamento="item.departamento"
-            :responsable="item.responsable"
-            :valor="`${item.progreso}%`"
-            :periodicidad="item.periodicidad"
-            :estado="item.estadoTipo === 'success' ? 'saludable' : item.estadoTipo === 'warning' ? 'en riesgo' : 'critico'"
-            :progreso="item.progreso"
-          />
+          <template v-if="kpisResumen.length > 0">
+            <TarjetasKpi
+              v-for="item in kpisResumen"
+              :key="item.id"
+              :nombre="item.nombre"
+              :departamento="item.departamento"
+              :responsable="item.responsable"
+              :valor="item.tipo === 'percentage' ? item.progreso + '%' : item.tipo === 'money' ? '$' + item.progreso : item.tipo === 'time' ? item.progreso + ' hrs' : item.progreso + ' pts'"
+              :periodicidad="item.periodicidad"
+              :estado="item.estadoTipo === 'success' ? 'saludable' : item.estadoTipo === 'warning' ? 'en riesgo' : 'critico'"
+              :progreso="item.progreso"
+            />
+          </template>
+          <div v-else-if="listoPararenderizar" class="lg:col-span-4">
+            <EmptyState
+              icono="fi-sr-chart-histogram"
+              titulo="Sin indicadores activos"
+              subtexto="No hay KPIs configurados para esta empresa aún."
+            />
+          </div>
         </div>
       </template>
 
@@ -150,7 +161,14 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
       <!-- Tabla de KPIs asignados — solo para quien no tiene acceso avanzado -->
       <template v-if="widgetId === 'criticos' && !can('dashboard.view_advanced')">
         <div class="mb-6">
+          <EmptyState
+            v-if="listoPararenderizar && misKpis.length === 0"
+            icono="fi-sr-list-check"
+            titulo="Sin KPIs asignados"
+            subtexto="Aún no tienes indicadores asignados. Cuando te asignen uno, aparecerá aquí."
+          />
           <plantillatabla
+            v-else
             titulo="Mis KPIs Asignados"
             :encabezados="['KPI', 'Meta', 'Progreso', 'Estado']"
             :datos="misKpis"
@@ -167,10 +185,10 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
               <td class="p-4 align-middle">
                 <div class="flex items-center gap-3">
                   <span class="font-bold text-sm w-12 text-right" style="color: var(--text-general);">
-                    {{ fila.progreso }}%
+                    {{ fila.tipo === 'percentage' ? fila.progreso + '%' : fila.tipo === 'money' ? '$' + fila.progreso : fila.tipo === 'time' ? fila.progreso + ' hrs' : fila.progreso + ' pts' }}
                   </span>
                   <div class="w-24 h-1.5 rounded-full overflow-hidden" style="background: var(--card-border);">
-                    <div class="h-full rounded-full bg-[#3f2a52]" :style="{ width: Math.min(fila.progreso, 100) + '%' }"></div>
+                    <div class="h-full rounded-full bg-[#beaed8]" :style="{ width: Math.min(fila.progreso, 100) + '%' }"></div>
                   </div>
                 </div>
               </td>
@@ -184,7 +202,14 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
 
       <template v-if="widgetId === 'criticos' && can('dashboard.view_advanced')">
         <div class="mb-6">
+          <EmptyState
+            v-if="listoPararenderizar && kpisCriticas.length === 0"
+            icono="fi-sr-shield-check"
+            titulo="Todo en orden"
+            subtexto="No hay KPIs críticos ni en riesgo en este momento."
+          />
           <plantillatabla
+            v-else
             titulo="Resumen de KPIs Críticos y en Riesgo"
             :encabezados="cabecerasCriticos"
             :datos="kpisCriticas"
@@ -195,7 +220,7 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
               <td class="p-4 align-middle w-full">
                 <div class="flex justify-between items-center w-full">
                   <div class="text-sm font-medium tracking-wide">
-                    <span class="font-bold " style="color: var(--text-general);">
+                    <span class="font-bold" style="color: var(--text-general);">
                       {{ fila.departamento }}
                     </span>
                     <span class="mx-2" style="color: var(--card-text-hint);">—</span>
@@ -213,16 +238,24 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
 
       <!-- métricas detalladas -->
       <template v-if="widgetId === 'detalle' && can('dashboard.view_advanced')">
+        <EmptyState
+          v-if="listoPararenderizar && kpisDetalle.length === 0"
+          icono="fi-sr-stats"
+          titulo="Sin métricas registradas"
+          subtexto="Aún no hay KPIs creados para mostrar métricas detalladas."
+          class="mb-6"
+        />
         <plantillatabla
+          v-else
           titulo="Métricas Detalladas por Departamento"
           :encabezados="cabecerasDetalle"
           :datos="kpisDetalle"
-          :mostrarAcciones="true"
+          :mostrarAcciones="false"
           class="mb-6"
         >
           <template #default="{ fila }">
 
-            <td class="p-4 align-middle w-2/5">
+            <td class="p-4 align-middle">
               <div class="flex flex-col">
                 <span class="text-sm font-bold tracking-wide" style="color: var(--text-general);">
                   {{ fila.departamento }}
@@ -233,26 +266,26 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
               </div>
             </td>
 
-            <td class="p-4 align-middle text-center">
+            <td class="p-4 align-middle">
               <EtiquetaBadge :texto="fila.periodicidad" />
             </td>
 
-            <td class="p-4 align-middle text-center font-bold text-sm" style="color: var(--text-general);">
-              {{ fila.objetivo }}
+            <td class="p-4 align-middle font-bold text-sm" style="color: var(--text-general);">
+              {{ fila.tipo === 'percentage' ? Number(fila.goal).toFixed(1) + '%' : fila.tipo === 'money' ? '$' + Number(fila.goal).toFixed(0) : fila.meta }}
             </td>
 
             <td class="p-4 align-middle">
-              <div class="flex items-center justify-center gap-3">
-                <span class="font-bold text-sm w-12 text-right" style="color: var(--text-general);">
-                  {{ fila.progreso }}%
+              <div class="flex items-center gap-3">
+                <span class="font-bold text-sm" style="color: var(--text-general);">
+                  {{ fila.tipo === 'percentage' ? Number(fila.progreso).toFixed(1) + '%' : fila.tipo === 'money' ? '$' + Number(fila.progreso).toFixed(0) : fila.tipo === 'time' ? Number(fila.progreso).toFixed(0) + ' ms' : Number(fila.progreso).toFixed(1) + ' pts' }}
                 </span>
                 <div class="w-20 h-1.5 rounded-full overflow-hidden" style="background: var(--card-border);">
-                  <div class="h-full rounded-full bg-[#3f2a52]" :style="{ width: fila.progreso + '%' }"></div>
+                  <div class="h-full rounded-full bg-[#beaed8]" :style="{ width: Math.min(fila.progreso, 100) + '%' }"></div>
                 </div>
               </div>
             </td>
 
-            <td class="p-4 align-middle text-center">
+            <td class="p-4 align-middle">
               <StatusBadge :tipo="fila.estadoTipo" :texto="fila.estado" />
             </td>
 

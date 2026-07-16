@@ -35,7 +35,7 @@ onMounted(() => {  //todo lo de adentro se ejecuta automáticamente cuando la pa
     usuario.value.apellidoPaterno = u.paternal || ''
     usuario.value.apellidoMaterno = u.maternal || ''
     usuario.value.correo          = u.email    || ''
-    usuario.value.cargo           = auth.role  || ''
+    usuario.value.cargo           = traducirRol(auth.role)
     usuario.value.telefono        = u.phone    || ''
   }
 
@@ -45,9 +45,19 @@ onMounted(() => {  //todo lo de adentro se ejecuta automáticamente cuando la pa
   }
 })
 
+const rolesEspanol = {
+  developer: 'Desarrollador',
+  admin:     'Administrador',
+  manager:   'Gerente',
+  employee:  'Empleado',
+}
+function traducirRol(rol) {
+  return rolesEspanol[rol] ?? rol ?? 'Sin rol asignado'
+}
+
 // ← EDICIÓN: Watcher para actualizar rol automáticamente cuando cambie
 watch(() => auth.role, (nuevoRol) => {
-  usuario.value.cargo = nuevoRol || ''
+  usuario.value.cargo = traducirRol(nuevoRol)
 })
 
 const guardarPerfil = async () => { //"async" indica que la función tiene operaciones que tardan, como llamar a la API

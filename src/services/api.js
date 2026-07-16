@@ -17,12 +17,20 @@ const api = axios.create({
     },
 })
 
-// Antes de cada petición, agrega el token si existe
+// Antes de cada petición, agrega el token y la empresa activa si existen
 api.interceptors.request.use(config => {
     const token = sessionStorage.getItem('token')
     if (token) {
         config.headers.Authorization = `Bearer ${token}`
     }
+
+    // Si el developer tiene una empresa seleccionada, se manda en cada petición
+    // El backend lo usa para filtrar datos de esa empresa específica
+    const companyId = sessionStorage.getItem('active_company_id')
+    if (companyId) {
+        config.headers['X-Company-Id'] = companyId
+    }
+
     return config
 })
 

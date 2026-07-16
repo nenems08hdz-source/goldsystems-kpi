@@ -17,6 +17,20 @@ const router      = useRouter()
 const store       = useOrgStore()
 const { proxy }   = getCurrentInstance()
 
+// ── Selección / fijación de empresa ──────────────────────────────────────────
+function entrarEmpresa(empresa) {
+  store.seleccionarEmpresa(empresa)
+  router.push('/')
+}
+
+function toggleFijar(empresa) {
+  if (store.empresaFijadaId === empresa.id) {
+    store.quitarFijacion()
+  } else {
+    store.fijarEmpresa(empresa)
+  }
+}
+
 onMounted(() => {
   store.cargarEmpresas()
 })
@@ -135,8 +149,16 @@ onMounted(() => {
         v-for="empresa in empresasFiltradas"
         :key="empresa.id"
         class="rounded-xl shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col"
-        style="background: var(--card-bg); border: 1px solid var(--tabla-borde);"
+        :style="`background: var(--card-bg); border: 1px solid ${store.empresaActiva?.id === empresa.id ? '#3f2a52' : 'var(--tabla-borde)'};`"
       >
+        <!-- Banda superior: empresa activa / fijada -->
+        <div v-if="store.empresaActiva?.id === empresa.id || store.empresaFijadaId === empresa.id"
+          class="flex items-center gap-2 px-4 py-1.5 text-[10px] font-bold"
+          style="background: #3f2a52; color: #fff;">
+          <i v-if="store.empresaFijadaId === empresa.id" class="fi fi-sr-thumbtack"></i>
+          <i v-else class="fi fi-sr-check-circle"></i>
+          {{ store.empresaFijadaId === empresa.id ? 'Empresa fijada' : 'Empresa activa' }}
+        </div>
 
        <div class="p-4 flex justify-between items-start"
            style="border-bottom: 1px solid var(--tabla-borde);">
@@ -197,6 +219,26 @@ onMounted(() => {
           </div>
 
           <div class="ml-auto flex items-center gap-2">
+            <!-- Fijar / quitar fijación -->
+            <button
+              @click="toggleFijar(empresa)"
+              :title="store.empresaFijadaId === empresa.id ? 'Quitar fijación' : 'Fijar empresa (carga automática)'"
+              class="w-7 h-7 rounded-lg flex items-center justify-center transition-colors text-xs"
+              :style="store.empresaFijadaId === empresa.id
+                ? 'background: #3f2a52; color: #fff;'
+                : 'background: var(--tabla-header-bg); color: var(--subtext-general); border: 1px solid var(--tabla-borde);'"
+            >
+              <i class="fi fi-sr-thumbtack"></i>
+            </button>
+            <!-- Entrar a la empresa -->
+            <button
+              @click="entrarEmpresa(empresa)"
+              class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-colors"
+              style="background: #3f2a52; color: #fff;"
+            >
+              <i class="fi fi-sr-enter text-[10px]"></i>
+              Entrar
+            </button>
             <BotonAccion variante="edit" titulo="Editar empresa" @click="router.push(`/GestionEmpresas/editar/${empresa.id}`)" />
             <BotonAccion variante="trash" titulo="Eliminar empresa" @click="confirmarEliminacion(empresa)" />
           </div>

@@ -3,12 +3,19 @@ import { RouterLink } from 'vue-router'
 import { useLayoutStore } from '@/stores/layout'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
+import { useOrgStore }  from '../stores/orgStore'
 import { usePermissions } from '../composables/usePermissions'
 
 const layout = useLayoutStore()
 const auth   = useAuthStore()
+const org    = useOrgStore()
 const router = useRouter()
 const { can, canAny } = usePermissions()
+
+function salirDeEmpresa() {
+  org.salirDeEmpresa()
+  router.push('/GestionEmpresas')
+}
 
 function cerrarSesion() {
   auth.logout()
@@ -29,12 +36,45 @@ function cerrarSesion() {
     "
   >
     <div class="overflow-hidden">
-      <div class="h-16 flex items-center px-2 mb-6">
+      <div class="h-16 flex items-center px-2 mb-2">
         <span class="text-xl font-bold tracking-wide whitespace-nowrap flex items-center gap-3"
           style="color: var(--sidebar-text);">
           <i class="fi fi-sr-speedometer-kpi w-5 text-center"></i>
           <span v-if="layout.isSidebarOpen">KPI360 Enterprise</span>
         </span>
+      </div>
+
+      <!-- Chip de empresa activa — solo visible para developer con empresa seleccionada -->
+      <div v-if="org.empresaActiva && can('companies.store')"
+        class="mx-2 mb-4 rounded-lg overflow-hidden"
+        style="border: 1px solid rgba(255,255,255,0.15);">
+
+        <!-- Sidebar abierto: muestra nombre + botón salir -->
+        <div v-if="layout.isSidebarOpen"
+          class="flex items-center justify-between px-3 py-2 gap-2">
+          <div class="flex items-center gap-2 min-w-0">
+            <i class="fi fi-sr-building text-xs flex-shrink-0" style="color: #beaed8;"></i>
+            <span class="text-[11px] font-bold truncate" style="color: #fff;">
+              {{ org.empresaActiva.name }}
+            </span>
+            <i v-if="org.empresaFijadaId === org.empresaActiva.id"
+              class="fi fi-sr-thumbtack text-[9px] flex-shrink-0" style="color: #beaed8;" title="Fijada"></i>
+          </div>
+          <button @click="salirDeEmpresa"
+            class="flex-shrink-0 text-[10px] px-2 py-0.5 rounded font-bold transition-colors"
+            style="background: rgba(255,255,255,0.1); color: #beaed8;"
+            title="Salir de esta empresa">
+            Salir
+          </button>
+        </div>
+
+        <!-- Sidebar cerrado: solo ícono con punto indicador -->
+        <div v-else class="flex justify-center py-2">
+          <div class="relative">
+            <i class="fi fi-sr-building text-sm" style="color: #beaed8;"></i>
+            <span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400"></span>
+          </div>
+        </div>
       </div>
 
       <nav>

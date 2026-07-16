@@ -5,7 +5,7 @@ import { useAuthStore } from './authStore'
 
 export const useOrgStore = defineStore('orgStore', () => {
 
-  // ── Estado vacío (se llena desde el API) ─────────────
+  // ── Estado ────────────────────────────────────────────
   const empresas      = ref([])
   const usuarios      = ref([])
   const departamentos = ref([])
@@ -14,18 +14,60 @@ export const useOrgStore = defineStore('orgStore', () => {
 
   // Los roles son fijos del sistema, no necesitan API
   const rolesDisponibles = ref([
-    { codigo: 'developer',   nombre: 'Developer'    },
-    { codigo: 'admin',       nombre: 'Adminstrador'        },
-    { codigo: 'manager',     nombre: 'Gerente'      },
-    { codigo: 'team_leader', nombre: 'Lider de Equipo'  },
-    { codigo: 'employee',    nombre: 'Empleado'     },
-    { codigo: 'auditor',     nombre: 'Auditor'      },
+    { codigo: 'developer',   nombre: 'Developer'       },
+    { codigo: 'admin',       nombre: 'Administrador'   },
+    { codigo: 'manager',     nombre: 'Gerente'         },
+    { codigo: 'team_leader', nombre: 'Lider de Equipo' },
+    { codigo: 'employee',    nombre: 'Empleado'        },
+    { codigo: 'auditor',     nombre: 'Auditor'         },
   ])
 
-  // Primera empresa activa (la que está usando el sistema)
-  const empresaActiva = computed(() => empresas.value[0] ?? null)
+  // ── Empresa activa (multiempresa para developer) ──────
+  // Es un ref writable — cualquier parte de la app puede leerlo.
+  // Los demás roles siempre tienen null aquí porque el backend filtra por su propio company_id.
+  const empresaActiva = ref(null)
 
-  // Árbol organizacional construido desde los datos reales
+  // ID de la empresa fijada (persiste en localStorage entre sesiones)
+  const empresaFijadaId = ref(null)
+
+  /**
+   * Selecciona una empresa como activa.
+   * Guarda el ID en sessionStorage para que api.js lo lea en cada petición.
+   */
+  function seleccionarEmpresa(empresa) {
+    empresaActiva.value = empresa
+    sessionStorage.setItem('active_company_id', empresa.id)
+  }
+
+  /**
+   * Fija una empresa para que cargue automáticamente al iniciar sesión.
+   * También la selecciona como activa de inmediato.
+   */
+  function fijarEmpresa(empresa) {
+    empresaFijadaId.value = empresa.id
+    localStorage.setItem('empresa_fijada_id', String(empresa.id))
+    seleccionarEmpresa(empresa)
+  }
+
+  /**
+   * Quita la fijación de la empresa actual.
+   * No desactiva la empresa activa — solo deja de cargarla automáticamente.
+   */
+  function quitarFijacion() {
+    empresaFijadaId.value = null
+    localStorage.removeItem('empresa_fijada_id')
+  }
+
+  /**
+   * Sale de la empresa activa y limpia el contexto.
+   * El developer vuelve a ver datos sin filtro de empresa.
+   */
+  function salirDeEmpresa() {
+    empresaActiva.value = null
+    sessionStorage.removeItem('active_company_id')
+  }
+
+  // ── Árbol organizacional ──────────────────────────────
   const estructuraOrganizacional = computed(() => {
     const nodos = []
     departamentos.value.forEach(dep => {
@@ -67,6 +109,16 @@ export const useOrgStore = defineStore('orgStore', () => {
     try {
       const res = await api.get('/companies')
       empresas.value = res.data
+
+      // Si hay una empresa fijada en localStorage, restaurarla como activa
+      const fijadaId = localStorage.getItem('empresa_fijada_id')
+      if (fijadaId && !empresaActiva.value) {
+        const empresa = res.data.find(e => e.id === parseInt(fijadaId))
+        if (empresa) {
+          empresaFijadaId.value = empresa.id
+          seleccionarEmpresa(empresa)
+        }
+      }
     } catch { empresas.value = [] }
   }
 
@@ -94,7 +146,6 @@ export const useOrgStore = defineStore('orgStore', () => {
     } catch { equipos.value = [] }
   }
 
-  // Carga todo a la vez (para usarlo al entrar a una pantalla)
   async function cargarTodo() {
     cargando.value = true
     try {
@@ -130,12 +181,17 @@ export const useOrgStore = defineStore('orgStore', () => {
   return {
     empresas,
     empresaActiva,
+    empresaFijadaId,
     usuarios,
     departamentos,
     equipos,
     rolesDisponibles,
     estructuraOrganizacional,
     cargando,
+    seleccionarEmpresa,
+    fijarEmpresa,
+    quitarFijacion,
+    salirDeEmpresa,
     cargarEmpresas,
     cargarUsuarios,
     cargarDepartamentos,
