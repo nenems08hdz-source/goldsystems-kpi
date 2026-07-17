@@ -1,8 +1,7 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted, getCurrentInstance } from 'vue'
 import api from '../services/api'
 import { useRouter } from 'vue-router'
-import { getCurrentInstance } from 'vue'
 import { useOrgStore } from "../stores/orgStore"
 import EncabezadoPantalla from '@/components/EncabezadoPantalla.vue'
 import AppButton          from '@/components/ui/AppButton.vue'
@@ -20,6 +19,18 @@ const nuevoDepartamento = ref({
   manager_id: '',
 })
 
+const usuariosApi = ref([])
+
+onMounted(async () => {
+  const res = await api.get('/users')
+  usuariosApi.value = res.data
+})
+
+const usuariosFiltrrados = computed(() =>
+  usuariosApi.value
+    .filter(u => u.role === 'administrador' || u.role === 'gerente')
+    .map(u => ({ value: u.id, label: `${u.name} ${u.paternal ?? ''}`.trim() }))
+)
 async function guardarDepartamento() {
   try {
     const res = await api.post('/departments', {
@@ -79,8 +90,8 @@ async function guardarDepartamento() {
         <FormField label="Responsable" hint="opcional">
         <select v-model="nuevoDepartamento.manager_id" class="app-select">
           <option :value="null">Sin responsable</option>
-          <option v-for="u in store.usuarios" :key="u.id" :value="u.id">
-            {{ u.name }} {{ u.paternal }}
+          <option v-for="u in usuariosFiltrrados" :key="u.id" :value="u.value">
+            {{ u.label }}
           </option>
         </select>
       </FormField>

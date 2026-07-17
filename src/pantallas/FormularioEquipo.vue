@@ -1,6 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
-import api from '../services/api'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getCurrentInstance } from 'vue'
 import { useOrgStore } from "../stores/orgStore"
@@ -10,10 +9,27 @@ import AppInput           from '@/components/ui/AppInput.vue'
 import AppSelect          from '@/components/ui/AppSelect.vue'
 import FormField          from '@/components/ui/FormField.vue'
 import FormContenedor from '@/components/ui/FormContenedor.vue'
+import api from '../services/api'
 
 const router = useRouter()
 const store  = useOrgStore()
 const { proxy } = getCurrentInstance()
+const usuariosApi = ref([])
+
+onMounted(async () => {
+  const res = await api.get('/users')
+  usuariosApi.value = res.data
+})
+
+const usuariosFiltrrados = computed(() =>
+  usuariosApi.value
+    .filter(u => u.role === 'administrador' || u.role === 'gerente' || u.role === 'lider')
+    .map(u => ({ value: u.id, label: `${u.name} ${u.paternal ?? ''}`.trim() }))
+)
+
+const departamentosDisponibles = computed(() =>
+  store.departamentos.map(d => ({ value: d.id, label: d.name }))
+)
 
 const nuevoEquipo = ref({
   name:          '',
@@ -22,22 +38,19 @@ const nuevoEquipo = ref({
   description:   '',
 })
 
-const departamentosDisponibles = computed(() =>
-  store.departamentos.map(d => ({ value: d.id, label: d.name }))
-)
-
 async function guardarEquipo() {
   try {
     const res = await api.post('/teams', {
       name:          nuevoEquipo.value.name,
-      description:   nuevoEquipo.value.description,
+      description:   nuevoEquipo.value.description || null,
       department_id: nuevoEquipo.value.department_id,
       leader_id:     nuevoEquipo.value.leader_id || null,
     })
     store.equipos.push(res.data)
     proxy.$notify.success('Equipo registrado correctamente', 'Éxito')
-    router.push('/ControlOrganizacional')
+    setTimeout(() => router.push('/ControlOrganizacional'), 500)
   } catch (e) {
+    console.error('Error:', e)
     proxy.$notify.error('Error al registrar equipo', 'Error')
   }
 }
@@ -85,8 +98,8 @@ async function guardarEquipo() {
         <FormField label="Líder del Equipo" hint="opcional">
         <select v-model="nuevoEquipo.leader_id" class="app-select">
           <option :value="null">Sin líder</option>
-          <option v-for="u in store.usuarios" :key="u.id" :value="u.id">
-            {{ u.name }} {{ u.paternal }}
+          <option v-for="u in usuariosFiltrrados" :key="u.id" :value="u.value">
+            {{ u.label }}
           </option>
         </select>
       </FormField>

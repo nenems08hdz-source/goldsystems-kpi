@@ -354,7 +354,7 @@ async function eliminarNodo() {
           subtexto="Esta empresa aún no tiene usuarios en el sistema."
           botonTexto="Registrar Colaborador"
           botonIcono="fi-sr-user-add"
-          @accion="$router.push('/FormularioUsuario')"
+          @accion="$router.push('/organizacion/nuevo')"
         />
 
         <EmptyState

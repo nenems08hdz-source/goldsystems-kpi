@@ -15,6 +15,7 @@ import FormField          from '../components/ui/FormField.vue'
 import BotonAccion        from '../components/ui/BotonAccion.vue'
 import EtiquetaBadge      from '../components/ui/EtiquetaBadge.vue'
 import EmptyState         from '../components/ui/EmptyState.vue'
+import { useAuthStore } from '../stores/authStore'
 const { proxy } = getCurrentInstance()
 const store = useKpiStore()
 const { can } = usePermissions()
@@ -54,7 +55,14 @@ const cargando = ref(true)
 
 // ── Carga de datos al abrir la pantalla ──────────────────────────────────────
 onMounted(async () => {
-  const res  = await api.get('/kpis')
+  const auth = useAuthStore() // ← AGREGAR ESTO
+  
+  // Si es lider, filtra KPIs del equipo; si no, carga todos
+  const url = auth.user?.role === 'lider' && auth.user?.team_id
+    ? `/kpis?team_id=${auth.user.team_id}`
+    : '/kpis'
+  
+  const res  = await api.get(url)
   const data = res.data
 
   // Transformamos cada KPI de la API al formato que usa el template
