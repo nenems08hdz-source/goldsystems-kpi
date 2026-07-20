@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
+import { useOrgStore }  from '../stores/orgStore'
 
 // ── Imports de pantallas ───────────────────────────────────────────────────────
 import Ajustes                  from '../components/Ajustes.vue'
@@ -203,11 +204,17 @@ const router = createRouter({
 // 3. Sin token → login
 // 4. Verificar permission o anyPermission de la ruta
 //
+// Rutas que requieren empresa activa para el developer
+const RUTAS_CON_EMPRESA = ['principal', 'gestion-kpis', 'nuevo-kpi', 'EditarKpi', 'detalles-kpi',
+  'capturas', 'registroMetricas', 'control-organizacional', 'nuevo-usuario', 'editar-usuario',
+  'FormularioDepartamento', 'editar-departamento', 'FormularioEquipo', 'editar-equipo',
+  'gestion-roles', 'personalizar']
+
 router.beforeEach(async (to) => {
   const auth = useAuthStore()
+  const org  = useOrgStore()
 
   // 1. Cargar user/role/permisos desde el backend si aún no se ha hecho.
-  //    init() es idempotente: solo ejecuta la petición la primera vez.
   await auth.init()
 
   // 2. Ruta pública (login)
@@ -216,16 +223,26 @@ router.beforeEach(async (to) => {
   }
 
   // 3. No autenticado
-  if (!auth.token) {
-    return { name: 'Login' }
+  if (!auth.token) return { name: 'Login' }
+
+  // 4. Si es developer, cargar empresas y restaurar la fijada (solo la primera vez)
+  const esDeveloper = auth.permisos.includes('companies.store')
+  if (esDeveloper && org.empresas.length === 0) {
+    await org.cargarEmpresas()
+    org.restaurarEmpresaInicial()
   }
 
-  // 4. Verificar permiso único requerido
+  // 5. Si es developer sin empresa activa intentando entrar a ruta con empresa → redirigir
+  if (esDeveloper && !org.empresaActiva && RUTAS_CON_EMPRESA.includes(to.name)) {
+    return { name: 'GestionEmpresas' }
+  }
+
+  // 6. Verificar permiso único requerido
   if (to.meta.permission && !auth.permisos.includes(to.meta.permission)) {
     return { name: 'principal' }
   }
 
-  // 5. Verificar que tenga al menos uno de los permisos requeridos
+  // 7. Verificar que tenga al menos uno de los permisos requeridos
   if (to.meta.anyPermission && !to.meta.anyPermission.some(p => auth.permisos.includes(p))) {
     return { name: 'principal' }
   }

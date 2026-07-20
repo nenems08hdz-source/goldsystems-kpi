@@ -112,7 +112,7 @@ const subirFoto = async (event) => {
     return
   }
 
-  auth.setAuth(auth.token, data.user, data.role) //actualiza el store con el usuario que ya tiene profile_photo guardado
+  auth.user = data.user //actualiza solo el usuario sin tocar permisos ni role
   fotoUrl.value = `http://127.0.0.1:8000/storage/${data.user.profile_photo}` //actualiza la URL de la foto inmediatamente para que se refleje en pantalla sin recargar
   proxy.$notify.success('Foto actualizada correctamente', 'Éxito')
 }

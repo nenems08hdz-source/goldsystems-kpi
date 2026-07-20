@@ -80,65 +80,87 @@ function cerrarSesion() {
       <nav>
         <ul class="flex flex-col gap-1">
 
-          <!-- Panel Principal — todos los roles -->
-          <li>
-            <RouterLink to="/"
-              class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors font-medium sidebar-link"
-              :class="{'justify-center': !layout.isSidebarOpen}">
-              <i class="fi fi-sr-apps w-5 text-center"></i>
-              <span v-if="layout.isSidebarOpen">Panel Principal</span>
-            </RouterLink>
-          </li>
+          <!-- Developer sin empresa: solo muestra Gestión de Empresas y Auditoría global -->
+          <template v-if="can('companies.store') && !org.empresaActiva">
 
-          <!-- Gestión de KPIs — todos los roles con kpis.index -->
-          <li v-if="can('kpis.index')">
-            <RouterLink to="/kpis"
-              class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors font-medium sidebar-link"
-              :class="{'justify-center': !layout.isSidebarOpen}">
-              <i class="fi fi-sr-chart-histogram w-5 text-center"></i>
-              <span v-if="layout.isSidebarOpen">Gestión de KPIs</span>
-            </RouterLink>
-          </li>
+            <li>
+              <RouterLink to="/GestionEmpresas"
+                class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors font-medium sidebar-link"
+                :class="{'justify-center': !layout.isSidebarOpen}">
+                <i class="fi fi-sr-globe w-5 text-center"></i>
+                <span v-if="layout.isSidebarOpen">Gestión de Empresas</span>
+              </RouterLink>
+            </li>
 
-          <!-- Captura de Métricas — quien pueda registrar métricas -->
-          <li v-if="can('kpi-records.store')">
-            <RouterLink to="/capturasmetricas"
-              class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors font-medium sidebar-link"
-              :class="{'justify-center': !layout.isSidebarOpen}">
-              <i class="fi fi-sr-document-signed w-5 text-center"></i>
-              <span v-if="layout.isSidebarOpen">Captura de Métricas</span>
-            </RouterLink>
-          </li>
+            <li v-if="can('audit-logs.index')">
+              <RouterLink to="/auditoria"
+                class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors font-medium sidebar-link"
+                :class="{'justify-center': !layout.isSidebarOpen}">
+                <i class="fi fi-sr-shield-check w-5 text-center"></i>
+                <span v-if="layout.isSidebarOpen">Auditoría Global</span>
+              </RouterLink>
+            </li>
 
-          <!-- Auditoría — quien tenga acceso al módulo de auditoría -->
-          <li v-if="can('audit-logs.index')">
-            <RouterLink to="/auditoria"
-              class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors font-medium sidebar-link"
-              :class="{'justify-center': !layout.isSidebarOpen}">
-              <i class="fi fi-sr-shield-check w-5 text-center"></i>
-              <span v-if="layout.isSidebarOpen">Auditoría y Resumen</span>
-            </RouterLink>
-          </li>
+          </template>
 
-          <!-- Control Empresarial — quien pueda ver usuarios -->
-          <li v-if="can('users.index')">
-            <RouterLink to="/ControlOrganizacional"
-              class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors font-medium sidebar-link"
-              :class="{'justify-center': !layout.isSidebarOpen}">
-              <i class="fi fi-sr-building w-5 text-center"></i>
-              <span v-if="layout.isSidebarOpen">Control Empresarial</span>
-            </RouterLink>
-          </li>
+          <!-- Developer con empresa activa, o cualquier otro rol: menú completo -->
+          <template v-else>
 
-          <!-- Gestión de Empresas — solo developer (companies.store) -->
-          <li v-if="can('companies.store')">
-            <RouterLink to="/GestionEmpresas"
-              class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors font-medium sidebar-link"
-              :class="{'justify-center': !layout.isSidebarOpen}">
-              <i class="fi fi-sr-globe w-5 text-center"></i>
-              <span v-if="layout.isSidebarOpen">Gestión de Empresas</span>
-            </RouterLink>
-          </li>
+            <li>
+              <RouterLink to="/"
+                class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors font-medium sidebar-link"
+                :class="{'justify-center': !layout.isSidebarOpen}">
+                <i class="fi fi-sr-apps w-5 text-center"></i>
+                <span v-if="layout.isSidebarOpen">Panel Principal</span>
+              </RouterLink>
+            </li>
+
+            <li v-if="can('kpis.index')">
+              <RouterLink to="/kpis"
+                class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors font-medium sidebar-link"
+                :class="{'justify-center': !layout.isSidebarOpen}">
+                <i class="fi fi-sr-chart-histogram w-5 text-center"></i>
+                <span v-if="layout.isSidebarOpen">Gestión de KPIs</span>
+              </RouterLink>
+            </li>
+
+            <li v-if="can('kpi-records.store')">
+              <RouterLink to="/capturasmetricas"
+                class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors font-medium sidebar-link"
+                :class="{'justify-center': !layout.isSidebarOpen}">
+                <i class="fi fi-sr-document-signed w-5 text-center"></i>
+                <span v-if="layout.isSidebarOpen">Captura de Métricas</span>
+              </RouterLink>
+            </li>
+
+            <li v-if="can('audit-logs.index')">
+              <RouterLink to="/auditoria"
+                class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors font-medium sidebar-link"
+                :class="{'justify-center': !layout.isSidebarOpen}">
+                <i class="fi fi-sr-shield-check w-5 text-center"></i>
+                <span v-if="layout.isSidebarOpen">Auditoría y Resumen</span>
+              </RouterLink>
+            </li>
+
+            <li v-if="can('users.index')">
+              <RouterLink to="/ControlOrganizacional"
+                class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors font-medium sidebar-link"
+                :class="{'justify-center': !layout.isSidebarOpen}">
+                <i class="fi fi-sr-building w-5 text-center"></i>
+                <span v-if="layout.isSidebarOpen">Control Empresarial</span>
+              </RouterLink>
+            </li>
+
+            <li v-if="can('companies.store')">
+              <RouterLink to="/GestionEmpresas"
+                class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors font-medium sidebar-link"
+                :class="{'justify-center': !layout.isSidebarOpen}">
+                <i class="fi fi-sr-globe w-5 text-center"></i>
+                <span v-if="layout.isSidebarOpen">Gestión de Empresas</span>
+              </RouterLink>
+            </li>
+
+          </template>
 
         </ul>
       </nav>

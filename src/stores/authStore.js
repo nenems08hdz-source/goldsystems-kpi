@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import api from '@/services/api'
+import { useOrgStore } from './orgStore'
 
 export const useAuthStore = defineStore('auth', {
 
@@ -47,6 +48,9 @@ export const useAuthStore = defineStore('auth', {
     },
 
     logout() {
+      // Limpiar contexto de empresa (para que el guard restaure la fijada en el próximo login)
+      useOrgStore().limpiarSesion()
+
       this.token       = null
       this.user        = null
       this.role        = null

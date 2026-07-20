@@ -37,6 +37,10 @@ export const useOrgStore = defineStore('orgStore', () => {
   function seleccionarEmpresa(empresa) {
     empresaActiva.value = empresa
     sessionStorage.setItem('active_company_id', empresa.id)
+    // Limpiar datos de la empresa anterior para evitar que aparezcan en formularios
+    usuarios.value      = []
+    departamentos.value = []
+    equipos.value       = []
   }
 
   /**
@@ -64,6 +68,21 @@ export const useOrgStore = defineStore('orgStore', () => {
    */
   function salirDeEmpresa() {
     empresaActiva.value = null
+    sessionStorage.removeItem('active_company_id')
+    // La empresa fijada se mantiene — al próximo login se restaurará automáticamente
+  }
+
+  /**
+   * Limpia el estado de sesión al hacer logout.
+   * Resetea empresas y empresa activa para que el guard los recargue en el próximo login.
+   * No toca la empresa fijada (localStorage).
+   */
+  function limpiarSesion() {
+    empresaActiva.value   = null
+    empresas.value        = []
+    usuarios.value        = []
+    departamentos.value   = []
+    equipos.value         = []
     sessionStorage.removeItem('active_company_id')
   }
 
@@ -109,17 +128,24 @@ export const useOrgStore = defineStore('orgStore', () => {
     try {
       const res = await api.get('/companies')
       empresas.value = res.data
-
-      // Si hay una empresa fijada en localStorage, restaurarla como activa
-      const fijadaId = localStorage.getItem('empresa_fijada_id')
-      if (fijadaId && !empresaActiva.value) {
-        const empresa = res.data.find(e => e.id === parseInt(fijadaId))
-        if (empresa) {
-          empresaFijadaId.value = empresa.id
-          seleccionarEmpresa(empresa)
-        }
-      }
     } catch { empresas.value = [] }
+  }
+
+  /**
+   * Restaura la empresa fijada al iniciar sesión.
+   * Solo se llama desde el router guard en la primera carga.
+   * Prioridad: empresa fijada (localStorage) > empresa activa de sesión (sessionStorage)
+   */
+  function restaurarEmpresaInicial() {
+    if (empresaActiva.value) return // ya está activa, no hacer nada
+    const fijadaId = localStorage.getItem('empresa_fijada_id')
+    const activaId = sessionStorage.getItem('active_company_id')
+    const idARestaurar = parseInt(fijadaId || activaId)
+    if (!idARestaurar) return
+    const empresa = empresas.value.find(e => e.id === idARestaurar)
+    if (!empresa) return
+    if (fijadaId) empresaFijadaId.value = empresa.id
+    seleccionarEmpresa(empresa)
   }
 
   async function cargarUsuarios() {
@@ -192,7 +218,9 @@ export const useOrgStore = defineStore('orgStore', () => {
     fijarEmpresa,
     quitarFijacion,
     salirDeEmpresa,
+    limpiarSesion,
     cargarEmpresas,
+    restaurarEmpresaInicial,
     cargarUsuarios,
     cargarDepartamentos,
     cargarEquipos,

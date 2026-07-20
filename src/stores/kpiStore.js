@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import api from '../services/api'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MAPA DE CAMPOS  store ↔ BD
@@ -213,7 +214,7 @@ async function cargarTodosLosHistoriales() {
 
   async function cargarIndicadores() {
   try {
-    const res = await import('../services/api').then(m => m.default.get('/kpis'))
+    const res = await api.get('/kpis')
     indicadores.value = res.data.map(kpi => {
       const progreso = kpi.latest_record?.value ?? 0
       const estado = calcularEstado(progreso)
