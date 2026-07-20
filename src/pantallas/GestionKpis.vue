@@ -55,12 +55,15 @@ const cargando = ref(true)
 
 // ── Carga de datos al abrir la pantalla ──────────────────────────────────────
 onMounted(async () => {
-  const auth = useAuthStore() // ← AGREGAR ESTO
-  
-  // Si es lider, filtra KPIs del equipo; si no, carga todos
-  const url = auth.user?.role === 'lider' && auth.user?.team_id
-    ? `/kpis?team_id=${auth.user.team_id}`
-    : '/kpis'
+  const auth = useAuthStore()
+
+  // Si es team_leader, filtra por equipo; si es manager/admin, filtra por departamento; si no, carga todos
+  let url = '/kpis'
+  if (auth.role === 'team_leader' && auth.user?.team_id) {
+    url = `/kpis?team_id=${auth.user.team_id}`
+  } else if ((auth.role === 'manager' || auth.role === 'admin') && auth.user?.department_id) {
+    url = `/kpis?department_id=${auth.user.department_id}`
+  }
   
   const res  = await api.get(url)
   const data = res.data
