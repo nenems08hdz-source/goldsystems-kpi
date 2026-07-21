@@ -214,7 +214,21 @@ async function cargarTodosLosHistoriales() {
 
   async function cargarIndicadores() {
   try {
-    const res = await api.get('/kpis')
+    const { useAuthStore } = await import('./authStore')
+    const auth = useAuthStore()
+
+    // Filtrado según el rol del usuario
+    let url = '/kpis'
+    if (auth.role === 'team_leader' && auth.user?.team_id) {
+      // Team leader: filtra por su equipo
+      url += `?team_id=${auth.user.team_id}`
+    } else if ((auth.role === 'manager' || auth.role === 'admin') && auth.user?.department_id) {
+      // Manager/Admin: filtra por su departamento
+      url += `?department_id=${auth.user.department_id}`
+    }
+    // Si es employee: no agrega parámetro, el backend devuelve solo sus KPIs
+
+    const res = await api.get(url)
     indicadores.value = res.data.map(kpi => {
       const progreso = kpi.latest_record?.value ?? 0
       const estado = calcularEstado(progreso)
