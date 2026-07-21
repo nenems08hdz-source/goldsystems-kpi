@@ -76,11 +76,19 @@ const usuariosFiltrados = computed(() =>
   })
 )
 
-const tituloTabla = computed(() =>
-  nodoSeleccionado.value
-    ? `Usuarios: ${nodoSeleccionado.value.nombre}`
-    : `Todos los usuarios — ${store.empresaActiva?.name ?? ''}`
-)
+const tituloTabla = computed(() => {
+  if (!nodoSeleccionado.value) return `Todos los usuarios — ${store.empresaActiva?.name ?? ''}`
+  const tipo = nodoSeleccionado.value.tipo === 'equipo' ? 'Equipo' : 'Departamento'
+  return `Usuarios: ${tipo} ${nodoSeleccionado.value.nombre}`
+})
+
+const breadcrumbNodo = computed(() => {
+  if (!nodoSeleccionado.value) return null
+  if (nodoSeleccionado.value.tipo === 'departamento') return nodoSeleccionado.value.nombre
+  // Si es equipo, buscar el departamento padre
+  const dep = store.departamentos.find(d => d.id === nodoSeleccionado.value.padre_id)
+  return dep ? `${dep.name} — ${nodoSeleccionado.value.nombre}` : nodoSeleccionado.value.nombre
+})
 
 function limpiarFiltros() {
   filtroRol.value      = ''
@@ -325,18 +333,6 @@ async function eliminarNodo() {
           </div>
         </div>
 
-        <!-- Panel de descripción del nodo seleccionado -->
-        <div v-if="nodoSeleccionado?.descripcion"
-          class="px-3 py-2"
-          style="border-top: 1px solid var(--tabla-borde); background: var(--tabla-header-bg);">
-          <p class="text-[10px] font-semibold mb-0.5" style="color: var(--text-encabezado);">
-            {{ nodoSeleccionado.nombre }}
-          </p>
-          <p class="text-[10px]" style="color: var(--subtext-general);">
-            {{ nodoSeleccionado.descripcion }}
-          </p>
-        </div>
-
         <div class="p-3 flex gap-2" style="border-top: 1px solid var(--tabla-borde);">
           <AppButton v-if="can('org.manage_departments')" variant="secondary" size="sm" class="flex-1 flex items-center justify-center gap-1" @click="$router.push('/FormularioDepartamento')">
             <span style="color: var(--color-kpi-morado);">+</span> Departamento
@@ -353,10 +349,16 @@ async function eliminarNodo() {
           <p class="text-xs" style="color: var(--card-text-hint);">
             Mostrando <strong style="color: var(--card-text);">{{ usuariosPaginados.length }}</strong>
             de <strong style="color: var(--card-text);">{{ usuariosFiltrados.length }}</strong> usuarios
-            <span v-if="nodoSeleccionado" class="font-semibold" style="color: var(--text-encabezado);">
-              — {{ nodoSeleccionado.nombre }}
+            <span v-if="breadcrumbNodo" class="font-semibold" style="color: var(--text-encabezado);">
+              — {{ breadcrumbNodo }}
             </span>
           </p>
+        </div>
+
+        <!-- Descripción del nodo seleccionado -->
+        <div v-if="nodoSeleccionado?.descripcion" class="mb-3 px-4 py-2.5 rounded-xl text-xs"
+          style="background: var(--tabla-header-bg); border: 1px solid rgba(190,174,216,0.3); color: var(--subtext-general);">
+          <span class="font-semibold" style="color: var(--text-general);">Descripción: </span>{{ nodoSeleccionado.descripcion }}
         </div>
 
         <EmptyState
