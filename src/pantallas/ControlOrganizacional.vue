@@ -285,19 +285,30 @@ async function eliminarNodo() {
               <span v-else class="text-[10px] font-bold" style="color: var(--subtext-general);">└─</span>
 
               <div class="flex flex-col">
-                <span class="tracking-wide"
-                  :style="{
-                    color: nodo.nivel === 0 ? 'var(--text-encabezado)' : nodo.nivel === 1 ? 'var(--text-general)' : 'var(--subtext-general)',
-                    fontWeight: nodo.nivel === 0 ? '700' : nodo.nivel === 1 ? '600' : '500',
-                    fontSize: nodo.nivel === 0 ? '14px' : '12px'
-                  }">
-                  {{ nodo.nombre }}
-                </span>
+                <div class="flex items-center gap-1.5">
+                  <span class="tracking-wide"
+                    :style="{
+                      color: nodo.nivel === 0 ? 'var(--text-encabezado)' : nodo.nivel === 1 ? 'var(--text-general)' : 'var(--subtext-general)',
+                      fontWeight: nodo.nivel === 0 ? '700' : nodo.nivel === 1 ? '600' : '500',
+                      fontSize: nodo.nivel === 0 ? '14px' : '12px'
+                    }">
+                    {{ nodo.nombre }}
+                  </span>
+                  <!-- Tooltip de descripción -->
+                  <span
+                    v-if="nodo.descripcion"
+                    class="relative group/tip cursor-default"
+                    style="color: var(--subtext-general); opacity: 0.5;"
+                  >
+                    <i class="fi fi-sr-info text-[9px]"></i>
+                    <span class="absolute left-4 top-0 z-50 hidden group-hover/tip:block w-48 text-[10px] rounded-lg px-2 py-1.5 shadow-lg pointer-events-none"
+                      style="background: var(--card-bg); border: 1px solid rgba(190,174,216,0.4); color: var(--text-general);">
+                      {{ nodo.descripcion }}
+                    </span>
+                  </span>
+                </div>
                 <span v-if="nodo.responsable || nodo.lider" class="text-[9px]" style="color: var(--subtext-general);">
                   {{ nodo.tipo === 'equipo' ? 'Líder:' : 'Resp:' }} {{ nodo.responsable ?? nodo.lider }}
-                </span>
-                <span v-if="nodo.descripcion" class="text-[9px] italic" style="color: var(--subtext-general); opacity: 0.75;">
-                  {{ nodo.descripcion }}
                 </span>
               </div>
             </div>
