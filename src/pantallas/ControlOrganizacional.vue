@@ -356,8 +356,8 @@ async function eliminarNodo() {
         </div>
 
         <!-- Descripción del nodo seleccionado -->
-        <div v-if="nodoSeleccionado?.descripcion" class="mb-3 px-4 py-2.5 rounded-xl text-xs"
-          style="background: var(--tabla-header-bg); border: 1px solid rgba(190,174,216,0.3); color: var(--subtext-general);">
+        <div v-if="nodoSeleccionado?.descripcion" class="mb-3 px-4 py-2.5 rounded-xl text-xs shadow-md"
+          style="background: var(--card-bg); border: 1px solid rgba(190,174,216,0.4); color: var(--subtext-general);">
           <span class="font-semibold" style="color: var(--text-general);">Descripción: </span>{{ nodoSeleccionado.descripcion }}
         </div>
 
