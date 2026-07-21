@@ -1,38 +1,48 @@
-/**
- * Servicio para exportar datos de auditoría
- *
- * Maneja las llamadas a los endpoints de exportación y descarga de archivos.
- * Soporta Excel (.xlsx) y PDF.
- *
- * @author Keila Olivia Platas Sanchez <platassanchezkelly@gmail.com>
- */
-
 import api from './api'
 
 const auditExportService = {
   async exportToExcel(filters = {}) {
-    try {
-      console.log('Iniciando descarga Excel...')
-      const response = await api.get('/audit-logs/export/excel', {
-        params: this._limpiarFiltros(filters),
-        responseType: 'blob',
-      })
-      console.log('Response recibido:', response)
-      console.log('Blob size:', response.data.size)
-      this._descargarArchivo(response.data, `auditoria_${this._obtenerFecha()}.xlsx`)
-    } catch (error) {
-      console.error('Error Excel:', error)
-      throw error
-    }
-  },
+  try {
+    console.log('Iniciando descarga Excel...')
+    const params = new URLSearchParams()
+    const cleaned = this._limpiarFiltros(filters)
+    Object.entries(cleaned).forEach(([key, value]) => {
+      params.append(key, value)
+    })
+    
+    window.location.href = `http://gestionkpis.test:8000/api/audit-logs/export/excel?${params.toString()}`
+  } catch (error) {
+    console.error('Error Excel:', error)
+  }
+},
 
   async exportToPdf(filters = {}) {
     try {
-      const response = await api.get('/audit-logs/export/pdf', {
-        params: this._limpiarFiltros(filters),
-        responseType: 'blob',
+      console.log('Iniciando descarga PDF...')
+      const params = new URLSearchParams()
+      const cleaned = this._limpiarFiltros(filters)
+      Object.entries(cleaned).forEach(([key, value]) => {
+        params.append(key, value)
       })
-      this._descargarArchivo(response.data, `auditoria_${this._obtenerFecha()}.pdf`)
+      
+      // Token en query, no en header
+      const token = sessionStorage.getItem('token')
+      if (token) params.append('api_token', token)
+      
+      const response = await api.get(
+        `/audit-logs/export/pdf?${params.toString()}`,
+        { 
+          responseType: 'blob',
+          headers: { Authorization: undefined } // Quita header
+        }
+      )
+      
+      const url = window.URL.createObjectURL(response.data)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `auditoria_${this._obtenerFecha()}.pdf`
+      link.click()
+      window.URL.revokeObjectURL(url)
     } catch (error) {
       console.error('Error PDF:', error)
       throw error
@@ -47,17 +57,6 @@ const auditExportService = {
       }
     }
     return filtrosLimpios
-  },
-
-  _descargarArchivo(blob, filename) {
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.setAttribute('download', filename)
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    window.URL.revokeObjectURL(url)
   },
 
   _obtenerFecha() {
