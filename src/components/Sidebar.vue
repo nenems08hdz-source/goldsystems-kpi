@@ -12,7 +12,7 @@ const org    = useOrgStore()
 const router = useRouter()
 const { can, canAny } = usePermissions()
 
-function salirDeEmpresa() {
+function salirDeEmpresa() { 
   org.salirDeEmpresa()
   router.push('/GestionEmpresas')
 }

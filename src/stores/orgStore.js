@@ -94,6 +94,7 @@ export const useOrgStore = defineStore('orgStore', () => {
         uid:         `dep-${dep.id}`,
         id:          dep.id,
         nombre:      dep.name,
+        descripcion: dep.description ?? null,
         tipo:        'departamento',
         nivel:       1,
         abierto:     true,
@@ -103,14 +104,15 @@ export const useOrgStore = defineStore('orgStore', () => {
         .filter(eq => eq.department_id === dep.id)
         .forEach(eq => {
           nodos.push({
-            uid:      `eq-${eq.id}`,
-            id:       eq.id,
-            nombre:   eq.name,
-            tipo:     'equipo',
-            nivel:    2,
-            padre_id: dep.id,
-            abierto:  false,
-            lider:    eq.leader?.name ?? null,
+            uid:         `eq-${eq.id}`,
+            id:          eq.id,
+            nombre:      eq.name,
+            descripcion: eq.description ?? null,
+            tipo:        'equipo',
+            nivel:       2,
+            padre_id:    dep.id,
+            abierto:     false,
+            lider:       eq.leader?.name ?? null,
           })
         })
     })

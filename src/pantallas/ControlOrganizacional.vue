@@ -296,6 +296,9 @@ async function eliminarNodo() {
                 <span v-if="nodo.responsable || nodo.lider" class="text-[9px]" style="color: var(--subtext-general);">
                   {{ nodo.tipo === 'equipo' ? 'Líder:' : 'Resp:' }} {{ nodo.responsable ?? nodo.lider }}
                 </span>
+                <span v-if="nodo.descripcion" class="text-[9px] italic" style="color: var(--subtext-general); opacity: 0.75;">
+                  {{ nodo.descripcion }}
+                </span>
               </div>
             </div>
 

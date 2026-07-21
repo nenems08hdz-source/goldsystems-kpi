@@ -21,10 +21,8 @@ onMounted(async () => {
   usuariosApi.value = res.data
 })
 
-const usuariosFiltrrados = computed(() =>
-  usuariosApi.value
-    .filter(u => u.role === 'administrador' || u.role === 'gerente' || u.role === 'lider')
-    .map(u => ({ value: u.id, label: `${u.name} ${u.paternal ?? ''}`.trim() }))
+const usuariosDisponibles = computed(() =>
+  usuariosApi.value.map(u => ({ value: u.id, label: `${u.name} ${u.paternal ?? ''}`.trim() }))
 )
 
 const departamentosDisponibles = computed(() =>
@@ -98,7 +96,7 @@ async function guardarEquipo() {
         <FormField label="Líder del Equipo" hint="opcional">
         <select v-model="nuevoEquipo.leader_id" class="app-select">
           <option :value="null">Sin líder</option>
-          <option v-for="u in usuariosFiltrrados" :key="u.id" :value="u.value">
+          <option v-for="u in usuariosDisponibles" :key="u.value" :value="u.value">
             {{ u.label }}
           </option>
         </select>
