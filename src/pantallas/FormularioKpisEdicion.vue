@@ -18,32 +18,35 @@ const store = useKpiStore()
 const { proxy } = getCurrentInstance()
 const auth = useAuthStore()
 const departamentosApi = ref([])
-const usuariosApi = ref([])
+const equiposApi       = ref([])
+const usuariosApi      = ref([])
 const cargando = ref(true)
 
 const kpiId = ref(route.params.id)
 
 const kpiEdicion = ref({
-  nombre: '',
-  subtitulo: '',
-  formula: '',
+  nombre:          '',
+  subtitulo:       '',
+  formula:         '',
   departamento_id: null,
-  usuario_id: null,
-  goal: '',
-  unit: '%',
-  tipoMetrica: 'Porcentaje',
-  periodicidad: 'Mensual',
+  equipo_id:       null,
+  usuario_id:      null,
+  goal:            '',
+  unit:            '%',
+  tipoMetrica:     'Porcentaje',
+  periodicidad:    'Mensual',
 })
 
 onMounted(async () => {
   try {
-    // Cargar departamentos y usuarios
-    const [resDepts, resUsuarios] = await Promise.all([
+    const [resDepts, resEquipos, resUsuarios] = await Promise.all([
       api.get('/departments'),
+      api.get('/teams'),
       api.get('/users'),
     ])
     departamentosApi.value = resDepts.data
-    usuariosApi.value = resUsuarios.data
+    equiposApi.value       = resEquipos.data
+    usuariosApi.value      = resUsuarios.data
 
     // Cargar el KPI a editar
     const resKpi = await api.get(`/kpis/${kpiId.value}`)
@@ -67,15 +70,16 @@ onMounted(async () => {
     }
 
     kpiEdicion.value = {
-      nombre: k.name,
-      subtitulo: k.subtitle || k.name,
-      formula: k.formula || '',
+      nombre:          k.name,
+      subtitulo:       k.subtitle || k.name,
+      formula:         k.formula || '',
       departamento_id: k.department_id,
-      usuario_id: k.created_by,
-      goal: k.goal || '',
-      unit: k.unit || '%',
-      tipoMetrica: tipoReverseMap[k.type] || 'Porcentaje',
-      periodicidad: frecuenciaReverseMap[k.frequency] || 'Mensual',
+      equipo_id:       k.team_id ?? null,
+      usuario_id:      k.created_by,
+      goal:            k.goal || '',
+      unit:            k.unit || '%',
+      tipoMetrica:     tipoReverseMap[k.type]        || 'Porcentaje',
+      periodicidad:    frecuenciaReverseMap[k.frequency] || 'Mensual',
     }
     cargando.value = false
   } catch (error) {
@@ -89,14 +93,33 @@ const opcionesDepartamentos = computed(() =>
   departamentosApi.value.map(d => ({ value: d.id, label: d.name }))
 )
 
-const opcionesResponsable = computed(() =>
-  usuariosApi.value
+const opcionesEquipos = computed(() => {
+  if (!kpiEdicion.value.departamento_id) return []
+  const deptId = Number(kpiEdicion.value.departamento_id)
+  return equiposApi.value
+    .filter(e => e.department_id === deptId)
+    .map(e => ({ value: e.id, label: e.name }))
+})
+
+const opcionesResponsable = computed(() => {
+  const deptId   = kpiEdicion.value.departamento_id ? Number(kpiEdicion.value.departamento_id) : null
+  const equipoId = kpiEdicion.value.equipo_id       ? Number(kpiEdicion.value.equipo_id)       : null
+  return usuariosApi.value
     .filter(u => {
-      if (!kpiEdicion.value.departamento_id) return true
-      return u.department_id === Number(kpiEdicion.value.departamento_id)
+      if (equipoId) return u.team_id       === equipoId
+      if (deptId)   return u.department_id === deptId
+      return true
     })
     .map(u => ({ value: u.id, label: `${u.name} ${u.paternal ?? ''}`.trim() }))
-)
+})
+
+function onDepartamentoChange() {
+  kpiEdicion.value.equipo_id  = null
+  kpiEdicion.value.usuario_id = null
+}
+function onEquipoChange() {
+  kpiEdicion.value.usuario_id = null
+}
 
 const unidadPorTipo = {
   'Porcentaje': '%',
@@ -186,6 +209,16 @@ async function guardarEdicion() {
             v-model="kpiEdicion.departamento_id"
             :options="opcionesDepartamentos"
             required
+            @change="onDepartamentoChange"
+          />
+        </FormField>
+
+        <FormField v-if="kpiEdicion.departamento_id" label="Equipo" hint="opcional">
+          <AppSelect
+            v-model="kpiEdicion.equipo_id"
+            :options="[{ value: null, label: 'Sin equipo específico' }, ...opcionesEquipos]"
+            placeholder="Sin equipo específico"
+            @change="onEquipoChange"
           />
         </FormField>
 
@@ -193,9 +226,14 @@ async function guardarEdicion() {
           <AppSelect
             v-model="kpiEdicion.usuario_id"
             :options="opcionesResponsable"
+            :placeholder="kpiEdicion.departamento_id ? 'Selecciona un responsable' : 'Selecciona departamento primero'"
             :disabled="!kpiEdicion.departamento_id"
             required
           />
+          <p v-if="kpiEdicion.departamento_id && opcionesResponsable.length === 0"
+            class="text-[10px] mt-1 text-amber-500">
+            No hay usuarios en este departamento/equipo.
+          </p>
         </FormField>
 
         <FormField label="Fórmula o Criterio de Cálculo" required>
