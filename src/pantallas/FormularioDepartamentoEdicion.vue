@@ -23,17 +23,9 @@ const form = ref({
   manager_id:  null,
 })
 
-const usuariosFiltrados = computed(() => {
-  if (!store.usuarios || store.usuarios.length === 0) return []
-  
-  return store.usuarios.filter(u => {
-    const roles = u.roles?.map(r => r.name || r) || []
-    const rolesString = roles.map(r => String(r).toLowerCase())
-    
-    console.log(`${u.name}: roles =`, rolesString) // ← VE QUÉ ROLES TIENE
-    
-  return rolesString.includes('admin') || rolesString.includes('developer')  })
-})
+const usuariosFiltrados = computed(() =>
+  store.usuarios.map(u => u)
+)
 
 onMounted(async () => {
   try {
