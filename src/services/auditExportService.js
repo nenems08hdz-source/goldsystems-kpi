@@ -28,9 +28,10 @@ const auditExportService = {
         params.append(key, value)
       })
       
-      // Token en query, no en header
-      const token = sessionStorage.getItem('token')
-      if (token) params.append('api_token', token)
+      const token     = sessionStorage.getItem('token')
+      const companyId = sessionStorage.getItem('active_company_id')
+      if (token)     params.append('api_token',  token)
+      if (companyId) params.append('company_id', companyId)
       
       const response = await api.get(
         `/audit-logs/export/pdf?${params.toString()}`,
