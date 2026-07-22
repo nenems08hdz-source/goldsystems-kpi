@@ -114,12 +114,14 @@ const tiposEntidad = {
 }
 
 function extraerNombreEntidad(log) {
-  const d    = log.new_data ?? log.old_data
   const tipo = tiposEntidad[log.entity_type] ?? log.entity_type ?? ''
-  if (!d) return tipo ? `${tipo} #${log.entity_id}` : '—'
-  const nombre = d.name ?? (d.value !== undefined ? d.value : null)
-  if (nombre !== null && nombre !== undefined) return `${tipo}: ${nombre}`
-  return `${tipo} #${log.entity_id}`
+  // Buscar nombre en old_data o new_data (soporta claves en español e inglés)
+  const fuentes = [log.new_data, log.old_data].filter(d => d && Object.keys(d).length > 0)
+  for (const d of fuentes) {
+    const nombre = d['Nombre'] ?? d.name ?? (d.value !== undefined ? d.value : null)
+    if (nombre !== null && nombre !== undefined) return `${tipo}: ${nombre}`
+  }
+  return tipo ? `${tipo} #${log.entity_id}` : '—'
 }
 
 // ── Badge de acción ──────────────────────────────────────────────────────────
@@ -147,7 +149,8 @@ function iconoAccion(accion) {
 // ── Diff de cambios ──────────────────────────────────────────────────────────
 const camposIgnorar  = new Set(['id','created_at','updated_at','deleted_at','password','remember_token'])
 const nombresCampo   = {
-  name: 'Nombre', subtitle: 'Subtítulo', description: 'Descripción',
+  // Campos en inglés (registros anteriores)
+  name: 'Nombre', subtitle: 'Descripción corta', description: 'Descripción',
   type: 'Tipo', unit: 'Unidad', frequency: 'Frecuencia', goal: 'Meta',
   minimum: 'Mínimo', maximum: 'Máximo', weight: 'Peso', status: 'Estado',
   value: 'Valor', notes: 'Observaciones',
@@ -158,6 +161,9 @@ const nombresCampo   = {
   company_id: 'Empresa', department_id: 'Departamento',
   permissions: 'Permisos', formula: 'Fórmula',
   role_id: 'Rol', user_id: 'Usuario',
+  leader_id: 'Líder', manager_id: 'Responsable',
+  created_by: 'Responsable', paternal: 'Apellido paterno',
+  // Campos en español (registros nuevos — ya vienen bien, se muestran tal cual)
 }
 
 function calcularDiff(old_data, new_data) {
