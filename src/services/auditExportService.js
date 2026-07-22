@@ -3,19 +3,21 @@ import api from './api'
 
 const auditExportService = {
   async exportToExcel(filters = {}) {
-  try {
-    console.log('Iniciando descarga Excel...')
-    const params = new URLSearchParams()
-    const cleaned = this._limpiarFiltros(filters)
-    Object.entries(cleaned).forEach(([key, value]) => {
-      params.append(key, value)
-    })
-    
-    window.location.href = `http://gestionkpis.test:8000/api/audit-logs/export/excel?${params.toString()}`
-  } catch (error) {
-    console.error('Error Excel:', error)
-  }
-},
+    try {
+      const params = new URLSearchParams()
+      const cleaned = this._limpiarFiltros(filters)
+      Object.entries(cleaned).forEach(([key, value]) => params.append(key, value))
+
+      const token     = sessionStorage.getItem('token')
+      const companyId = sessionStorage.getItem('active_company_id')
+      if (token)     params.append('api_token',  token)
+      if (companyId) params.append('company_id', companyId)
+
+      window.location.href = `http://gestionkpis.test:8000/api/audit-logs/export/excel?${params.toString()}`
+    } catch (error) {
+      console.error('Error Excel:', error)
+    }
+  },
 
   async exportToPdf(filters = {}) {
     try {

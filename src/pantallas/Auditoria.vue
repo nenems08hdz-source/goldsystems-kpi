@@ -115,6 +115,12 @@ const tiposEntidad = {
 
 function extraerNombreEntidad(log) {
   const tipo = tiposEntidad[log.entity_type] ?? log.entity_type ?? ''
+
+  // Para login/logout/cambio de contraseña: la entidad ES el usuario que actuó
+  if (log.entity_type === 'User' && log.entity_id === log.user_id && log.user?.name) {
+    return `Usuario: ${log.user.name}`
+  }
+
   // Buscar nombre en old_data o new_data (soporta claves en español e inglés)
   const fuentes = [log.new_data, log.old_data].filter(d => d && Object.keys(d).length > 0)
   for (const d of fuentes) {
@@ -163,7 +169,24 @@ const nombresCampo   = {
   role_id: 'Rol', user_id: 'Usuario',
   leader_id: 'Líder', manager_id: 'Responsable',
   created_by: 'Responsable', paternal: 'Apellido paterno',
+  start_date: 'Fecha de inicio', end_date: 'Fecha de fin',
   // Campos en español (registros nuevos — ya vienen bien, se muestran tal cual)
+}
+
+function formatearValor(valor) {
+  if (valor === null || valor === undefined) return '—'
+  if (typeof valor === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(valor)) {
+    return new Intl.DateTimeFormat('es-MX', {
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', hour12: true,
+      timeZone: 'America/Mexico_City',
+    }).format(new Date(valor))
+  }
+  if (typeof valor === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(valor)) {
+    const [y, m, d] = valor.split('-')
+    return `${d}/${m}/${y}`
+  }
+  return valor
 }
 
 function calcularDiff(old_data, new_data) {
@@ -178,8 +201,8 @@ function calcularDiff(old_data, new_data) {
     if (JSON.stringify(old_data[key]) === JSON.stringify(new_data[key])) continue
     diff.push({
       campo:    nombresCampo[key] ?? key,
-      anterior: old_data[key] ?? '—',
-      nuevo:    new_data[key]  ?? '—',
+      anterior: formatearValor(old_data[key]),
+      nuevo:    formatearValor(new_data[key]),
     })
   }
   return diff
