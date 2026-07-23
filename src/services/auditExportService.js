@@ -1,16 +1,23 @@
 import api from './api'
-
+import { useAuthStore } from '../stores/authStore'
 
 const auditExportService = {
+  _resolverCompanyId() {
+    // Primero: empresa activa seleccionada (developer con empresa fijada)
+    const activa = sessionStorage.getItem('active_company_id')
+    if (activa) return activa
+    // Fallback: company_id del usuario autenticado (admin, manager, etc.)
+    const authStore = useAuthStore()
+    return authStore.user?.company_id ?? null
+  },
+
   async exportToExcel(filters = {}) {
     try {
       const params = new URLSearchParams()
       const cleaned = this._limpiarFiltros(filters)
       Object.entries(cleaned).forEach(([key, value]) => params.append(key, value))
 
-      const token     = sessionStorage.getItem('token')
-      const companyId = sessionStorage.getItem('active_company_id')
-      if (token)     params.append('api_token',  token)
+      const companyId = this._resolverCompanyId()
       if (companyId) params.append('company_id', companyId)
 
       window.location.href = `http://gestionkpis.test:8000/api/audit-logs/export/excel?${params.toString()}`
@@ -21,16 +28,13 @@ const auditExportService = {
 
   async exportToPdf(filters = {}) {
     try {
-      console.log('Iniciando descarga PDF...')
       const params = new URLSearchParams()
       const cleaned = this._limpiarFiltros(filters)
       Object.entries(cleaned).forEach(([key, value]) => {
         params.append(key, value)
       })
-      
-      const token     = sessionStorage.getItem('token')
-      const companyId = sessionStorage.getItem('active_company_id')
-      if (token)     params.append('api_token',  token)
+
+      const companyId = this._resolverCompanyId()
       if (companyId) params.append('company_id', companyId)
       
       const response = await api.get(
