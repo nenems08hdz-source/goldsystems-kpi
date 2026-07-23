@@ -13,6 +13,7 @@ const { can } = usePermissions()
 // ── Estado ──────────────────────────────────────────────────────────────────
 const logs        = ref([])
 const cargando    = ref(false)
+const kpisMap     = ref({})  // id → name, para resolver asignaciones
 const paginacion  = ref({ current_page: 1, last_page: 1, total: 0 })
 const logDetalle  = ref(null)   // log seleccionado para modal
 
@@ -116,9 +117,18 @@ const tiposEntidad = {
 function extraerNombreEntidad(log) {
   const tipo = tiposEntidad[log.entity_type] ?? log.entity_type ?? ''
 
-  // Para login/logout/cambio de contraseña: la entidad ES el usuario que actuó
-  if (log.entity_type === 'User' && log.entity_id === log.user_id && log.user?.name) {
-    return `Usuario: ${log.user.name}`
+  // Login/logout/cambio contraseña: misma persona, usar nombre del usuario que actuó
+  if (log.entity_type === 'User' && log.entity_id === log.user_id) {
+    if (log.user?.name) return log.user.name
+    // Usuario eliminado de la BD pero el log existe
+    return `Usuario eliminado (ID #${log.entity_id})`
+  }
+
+  // Asignación de KPI: resolver nombre del KPI por kpi_id
+  if (log.entity_type === 'KpiAssignment') {
+    const kpiId = log.new_data?.kpi_id ?? log.old_data?.kpi_id
+    if (kpiId && kpisMap.value[kpiId]) return `Asignación: ${kpisMap.value[kpiId]}`
+    if (kpiId) return `Asignación: KPI #${kpiId}`
   }
 
   // Buscar nombre en old_data o new_data (soporta claves en español e inglés)
@@ -208,7 +218,20 @@ function calcularDiff(old_data, new_data) {
   return diff
 }
 
-onMounted(cargar)
+async function cargarKpis() {
+  try {
+    const res = await api.get('/kpis')
+    const lista = res.data?.data ?? res.data ?? []
+    kpisMap.value = Object.fromEntries(lista.map(k => [k.id, k.name]))
+  } catch {
+    // no crítico, si falla solo se muestra el id
+  }
+}
+
+onMounted(async () => {
+  await cargarKpis()
+  cargar()
+})
 async function handleExportarExcel() {
   exportando.value = true
   try {
