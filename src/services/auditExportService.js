@@ -17,12 +17,20 @@ const auditExportService = {
       const cleaned = this._limpiarFiltros(filters)
       Object.entries(cleaned).forEach(([key, value]) => params.append(key, value))
 
-      const companyId = this._resolverCompanyId()
-      if (companyId) params.append('company_id', companyId)
+      const response = await api.get(
+        `/audit-logs/export/excel?${params.toString()}`,
+        { responseType: 'blob' }
+      )
 
-      window.location.href = `http://gestionkpis.test:8000/api/audit-logs/export/excel?${params.toString()}`
+      const url = window.URL.createObjectURL(response.data)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `auditoria_${this._obtenerFecha()}.xlsx`
+      link.click()
+      window.URL.revokeObjectURL(url)
     } catch (error) {
       console.error('Error Excel:', error)
+      throw error
     }
   },
 
