@@ -31,8 +31,14 @@ const departamentosDisponibles = computed(() =>
 
 const usuariosFiltrados = computed(() => {
   if (!store.usuarios || store.usuarios.length === 0) return []
-  if (!form.value.department_id) return store.usuarios
-  return store.usuarios.filter(u => u.department_id === Number(form.value.department_id))
+  
+  return store.usuarios.filter(u => {
+    const roles = u.roles?.map(r => r.name || r) || []
+    const rolesString = roles.map(r => String(r).toLowerCase())
+    return rolesString.includes('manager') || 
+           rolesString.includes('team_leader') || 
+           rolesString.includes('admin')
+  })
 })
 
 onMounted(async () => {
