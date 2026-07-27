@@ -11,7 +11,7 @@ import EtiquetaBadge      from '../components/ui/EtiquetaBadge.vue'
 import BotonAccion        from '../components/ui/BotonAccion.vue'
 import StatusBadge        from '../components/StatusBadge.vue'
 import AppButton          from '../components/ui/AppButton.vue'
-import { useLoading } from '@/composables/useLoading' // ← EDICIÓN
+import { useLoading } from '@/composables/useLoading' // ← EDICIÓN 
 import LoadingSpinner from '../components/LoadingSpinner.vue' // ← EDICIÓN: Componente personalizado
 
 const { proxy } = getCurrentInstance()
