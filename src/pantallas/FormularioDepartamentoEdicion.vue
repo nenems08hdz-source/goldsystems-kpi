@@ -16,6 +16,7 @@ const { proxy } = getCurrentInstance()
 
 const deptId   = route.params.id
 const cargando = ref(true)
+const usuariosManageables = ref([])
 
 const form = ref({
   name:       '',
@@ -23,21 +24,13 @@ const form = ref({
   manager_id:  null,
 })
 
-const usuariosFiltrados = computed(() => {
-  if (!store.usuarios || store.usuarios.length === 0) return []
-  
-  return store.usuarios.filter(u => {
-    const roles = u.roles?.map(r => r.name || r) || []
-    const rolesString = roles.map(r => String(r).toLowerCase())
-    
-    console.log(`${u.name}: roles =`, rolesString) // ← VE QUÉ ROLES TIENE
-    
-  return rolesString.includes('admin') || rolesString.includes('developer')  })
-})
-
 onMounted(async () => {
   try {
-    await store.cargarTodo()
+    // Cargar usuarios que el usuario actual puede gestionar
+    const resUsuarios = await api.get('/users/manageable')
+    usuariosManageables.value = resUsuarios.data
+
+    // Cargar departamento
     const res = await api.get(`/departments/${deptId}`)
     const d   = res.data
     form.value = {
@@ -106,8 +99,8 @@ async function guardar() {
         <FormField label="Responsable" hint="opcional">
           <select v-model="form.manager_id" class="app-select">
             <option :value="null">Sin responsable</option>
-           <option v-for="u in usuariosFiltrados" :key="u.id" :value="u.id">
-              {{ u.name }} {{ u.paternal }}
+           <option v-for="u in usuariosManageables" :key="u.id" :value="u.id">
+              {{ u.name }} {{ u.paternal || '' }}
            </option>
           </select>
         </FormField>

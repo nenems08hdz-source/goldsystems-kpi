@@ -17,6 +17,8 @@ const { proxy } = getCurrentInstance()
 
 const equipoId = route.params.id
 const cargando = ref(true)
+const departamentos = ref([])
+const usuariosManageables = ref([])
 
 const form = ref({
   name:          '',
@@ -26,25 +28,20 @@ const form = ref({
 })
 
 const departamentosDisponibles = computed(() =>
-  store.departamentos.map(d => ({ value: d.id, label: d.name }))
+  departamentos.value.map(d => ({ value: d.id, label: d.name }))
 )
-
-const usuariosFiltrados = computed(() => {
-  if (!store.usuarios || store.usuarios.length === 0) return []
-  
-  return store.usuarios.filter(u => {
-    const roles = u.roles?.map(r => r.name || r) || []
-    const rolesString = roles.map(r => String(r).toLowerCase())
-    
-    return rolesString.includes('manager') || 
-           rolesString.includes('team_leader') || 
-           rolesString.includes('developer')
-  })
-})
 
 onMounted(async () => {
   try {
-    await store.cargarTodo()
+    // Cargar departamentos y usuarios que el usuario actual puede gestionar
+    const [resDepts, resUsuarios] = await Promise.all([
+      api.get('/departments'),
+      api.get('/users/manageable'),
+    ])
+    departamentos.value = resDepts.data
+    usuariosManageables.value = resUsuarios.data
+
+    // Cargar equipo
     const res = await api.get(`/teams/${equipoId}`)
     const e   = res.data
     form.value = {
@@ -115,7 +112,8 @@ async function guardar() {
         <FormField label="Líder del Equipo" hint="opcional">
           <select v-model="form.leader_id" class="app-select">
             <option :value="null">Sin líder</option>
-            <option v-for="u in usuariosFiltrados" :key="u.id" :value="u.id">              {{ u.name }} {{ u.paternal }}
+            <option v-for="u in usuariosManageables" :key="u.id" :value="u.id">
+              {{ u.name }} {{ u.paternal || '' }}
             </option>
           </select>
         </FormField>
