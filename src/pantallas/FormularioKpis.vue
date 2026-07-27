@@ -293,7 +293,7 @@ const opcionesTipoMetrica  = [
         </FormField>
 
         <FormField
-          label="Subtítulo"
+          label="Descripción corta"
           hint="texto corto que aparece debajo del nombre en las tarjetas"
           :col-span="2"
         >

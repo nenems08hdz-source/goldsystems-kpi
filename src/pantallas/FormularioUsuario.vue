@@ -15,6 +15,15 @@ const store  = useOrgStore()
 const { proxy } = getCurrentInstance()
 const mostrarPassword = ref(false)
 
+function generarPassword() {
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789'
+  nuevoUsuario.value.password = Array.from(
+    { length: 10 },
+    () => chars[Math.floor(Math.random() * chars.length)]
+  ).join('')
+  mostrarPassword.value = true
+}
+
 const nuevoUsuario = ref({
   name:          '',
   paternal:      '',
@@ -114,23 +123,34 @@ async function guardarUsuario() {
         </FormField>
 
         <FormField label="Contraseña" required>
-          <div class="relative">
-            <AppInput
-              v-model="nuevoUsuario.password"
-              :type="mostrarPassword ? 'text' : 'password'"
-              placeholder="Mínimo 8 caracteres"
-              autocomplete="new-password"
-              required
-              class="pr-10"
-            />
+          <div class="flex gap-2 items-center">
+            <div class="relative flex-1">
+              <AppInput
+                v-model="nuevoUsuario.password"
+                :type="mostrarPassword ? 'text' : 'password'"
+                placeholder="Mínimo 8 caracteres"
+                autocomplete="new-password"
+                required
+                class="pr-10"
+              />
+              <button
+                type="button"
+                @click="mostrarPassword = !mostrarPassword"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-sm transition-colors"
+                style="color: var(--subtext-general);"
+                :title="mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              >
+                <i :class="mostrarPassword ? 'fi fi-sr-eye-crossed' : 'fi fi-sr-eye'" />
+              </button>
+            </div>
             <button
               type="button"
-              @click="mostrarPassword = !mostrarPassword"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-sm transition-colors"
-              style="color: var(--subtext-general);"
-              :title="mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              @click="generarPassword"
+              class="text-xs font-bold px-3 py-2 rounded-lg flex-shrink-0 transition-colors"
+              style="background: var(--color-kpi-morado); color: white;"
+              title="Generar contraseña aleatoria"
             >
-              <i :class="mostrarPassword ? 'fi fi-sr-eye-crossed' : 'fi fi-sr-eye'" />
+              <i class="fi fi-sr-shuffle mr-1" /> Generar
             </button>
           </div>
         </FormField>

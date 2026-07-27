@@ -1,25 +1,33 @@
-/**
- * Servicio para exportar datos de auditoría
- *
- * Maneja las llamadas a los endpoints de exportación y descarga de archivos.
- * Soporta Excel (.xlsx) y PDF.
- *
- * @author Keila Olivia Platas Sanchez <platassanchezkelly@gmail.com>
- */
-
 import api from './api'
+import { useAuthStore } from '../stores/authStore'
 
 const auditExportService = {
+  _resolverCompanyId() {
+    // Primero: empresa activa seleccionada (developer con empresa fijada)
+    const activa = sessionStorage.getItem('active_company_id')
+    if (activa) return activa
+    // Fallback: company_id del usuario autenticado (admin, manager, etc.)
+    const authStore = useAuthStore()
+    return authStore.user?.company_id ?? null
+  },
+
   async exportToExcel(filters = {}) {
     try {
-      console.log('Iniciando descarga Excel...')
-      const response = await api.get('/audit-logs/export/excel', {
-        params: this._limpiarFiltros(filters),
-        responseType: 'blob',
-      })
-      console.log('Response recibido:', response)
-      console.log('Blob size:', response.data.size)
-      this._descargarArchivo(response.data, `auditoria_${this._obtenerFecha()}.xlsx`)
+      const params = new URLSearchParams()
+      const cleaned = this._limpiarFiltros(filters)
+      Object.entries(cleaned).forEach(([key, value]) => params.append(key, value))
+
+      const response = await api.get(
+        `/audit-logs/export/excel?${params.toString()}`,
+        { responseType: 'blob' }
+      )
+
+      const url = window.URL.createObjectURL(response.data)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `auditoria_${this._obtenerFecha()}.xlsx`
+      link.click()
+      window.URL.revokeObjectURL(url)
     } catch (error) {
       console.error('Error Excel:', error)
       throw error
@@ -28,11 +36,29 @@ const auditExportService = {
 
   async exportToPdf(filters = {}) {
     try {
-      const response = await api.get('/audit-logs/export/pdf', {
-        params: this._limpiarFiltros(filters),
-        responseType: 'blob',
+      const params = new URLSearchParams()
+      const cleaned = this._limpiarFiltros(filters)
+      Object.entries(cleaned).forEach(([key, value]) => {
+        params.append(key, value)
       })
-      this._descargarArchivo(response.data, `auditoria_${this._obtenerFecha()}.pdf`)
+
+      const companyId = this._resolverCompanyId()
+      if (companyId) params.append('company_id', companyId)
+      
+      const response = await api.get(
+        `/audit-logs/export/pdf?${params.toString()}`,
+        { 
+          responseType: 'blob',
+          headers: { Authorization: undefined } // Quita header
+        }
+      )
+      
+      const url = window.URL.createObjectURL(response.data)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `auditoria_${this._obtenerFecha()}.pdf`
+      link.click()
+      window.URL.revokeObjectURL(url)
     } catch (error) {
       console.error('Error PDF:', error)
       throw error
@@ -47,17 +73,6 @@ const auditExportService = {
       }
     }
     return filtrosLimpios
-  },
-
-  _descargarArchivo(blob, filename) {
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.setAttribute('download', filename)
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    window.URL.revokeObjectURL(url)
   },
 
   _obtenerFecha() {

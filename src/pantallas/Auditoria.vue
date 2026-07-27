@@ -114,12 +114,8 @@ const tiposEntidad = {
 }
 
 function extraerNombreEntidad(log) {
-  const d    = log.new_data ?? log.old_data
   const tipo = tiposEntidad[log.entity_type] ?? log.entity_type ?? ''
-  if (!d) return tipo ? `${tipo} #${log.entity_id}` : '—'
-  const nombre = d.name ?? (d.value !== undefined ? d.value : null)
-  if (nombre !== null && nombre !== undefined) return `${tipo}: ${nombre}`
-  return `${tipo} #${log.entity_id}`
+  return tipo && log.entity_id ? `${tipo} #${log.entity_id}` : (tipo || '—')
 }
 
 // ── Badge de acción ──────────────────────────────────────────────────────────
@@ -147,7 +143,8 @@ function iconoAccion(accion) {
 // ── Diff de cambios ──────────────────────────────────────────────────────────
 const camposIgnorar  = new Set(['id','created_at','updated_at','deleted_at','password','remember_token'])
 const nombresCampo   = {
-  name: 'Nombre', subtitle: 'Subtítulo', description: 'Descripción',
+  // Campos en inglés (registros anteriores)
+  name: 'Nombre', subtitle: 'Descripción corta', description: 'Descripción',
   type: 'Tipo', unit: 'Unidad', frequency: 'Frecuencia', goal: 'Meta',
   minimum: 'Mínimo', maximum: 'Máximo', weight: 'Peso', status: 'Estado',
   value: 'Valor', notes: 'Observaciones',
@@ -158,6 +155,26 @@ const nombresCampo   = {
   company_id: 'Empresa', department_id: 'Departamento',
   permissions: 'Permisos', formula: 'Fórmula',
   role_id: 'Rol', user_id: 'Usuario',
+  leader_id: 'Líder', manager_id: 'Responsable',
+  created_by: 'Responsable', paternal: 'Apellido paterno',
+  start_date: 'Fecha de inicio', end_date: 'Fecha de fin',
+  // Campos en español (registros nuevos — ya vienen bien, se muestran tal cual)
+}
+
+function formatearValor(valor) {
+  if (valor === null || valor === undefined) return '—'
+  if (typeof valor === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(valor)) {
+    return new Intl.DateTimeFormat('es-MX', {
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', hour12: true,
+      timeZone: 'America/Mexico_City',
+    }).format(new Date(valor))
+  }
+  if (typeof valor === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(valor)) {
+    const [y, m, d] = valor.split('-')
+    return `${d}/${m}/${y}`
+  }
+  return valor
 }
 
 function calcularDiff(old_data, new_data) {
@@ -172,8 +189,8 @@ function calcularDiff(old_data, new_data) {
     if (JSON.stringify(old_data[key]) === JSON.stringify(new_data[key])) continue
     diff.push({
       campo:    nombresCampo[key] ?? key,
-      anterior: old_data[key] ?? '—',
-      nuevo:    new_data[key]  ?? '—',
+      anterior: formatearValor(old_data[key]),
+      nuevo:    formatearValor(new_data[key]),
     })
   }
   return diff
