@@ -42,15 +42,9 @@ const auditExportService = {
         params.append(key, value)
       })
 
-      const companyId = this._resolverCompanyId()
-      if (companyId) params.append('company_id', companyId)
-      
       const response = await api.get(
         `/audit-logs/export/pdf?${params.toString()}`,
-        { 
-          responseType: 'blob',
-          headers: { Authorization: undefined } // Quita header
-        }
+        { responseType: 'blob' }
       )
       
       const url = window.URL.createObjectURL(response.data)
