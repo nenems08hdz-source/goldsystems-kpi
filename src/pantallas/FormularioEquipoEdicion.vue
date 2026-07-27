@@ -31,8 +31,6 @@ const departamentosDisponibles = computed(() =>
   departamentos.value.map(d => ({ value: d.id, label: d.name }))
 )
 
-<<<<<<< HEAD
-=======
 const usuariosFiltrados = computed(() => {
   if (!store.usuarios || store.usuarios.length === 0) return []
   
@@ -45,7 +43,6 @@ const usuariosFiltrados = computed(() => {
   })
 })
 
->>>>>>> 51de6eb80bc8869b787493e3df05d595c7e8f7a5
 onMounted(async () => {
   try {
     // Cargar departamentos y usuarios que el usuario actual puede gestionar
