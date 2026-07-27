@@ -218,7 +218,7 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
             :encabezados="cabecerasCriticos"
             :datos="kpisCriticas"
             :mostrarAcciones="false"
-            class="!mt-0 min-h-[504px] [&_thead]:hidden"
+            class="!mt-0 [&_thead]:hidden"
           >
             <template #default="{ fila }">
               <td class="p-4 align-middle w-full">
