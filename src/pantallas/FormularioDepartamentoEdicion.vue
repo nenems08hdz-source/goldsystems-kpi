@@ -16,6 +16,7 @@ const { proxy } = getCurrentInstance()
 
 const deptId = route.params.id
 const cargando = ref(true)
+const usuariosManageables = ref([])
 
 const form = ref({
   name: '',
@@ -23,6 +24,8 @@ const form = ref({
   manager_id: null,
 })
 
+<<<<<<< HEAD
+=======
 // Filtra solo usuarios con rol manager o admin
 const usuariosFiltrados = computed(() => {
   if (!store.usuarios || store.usuarios.length === 0) return []
@@ -34,9 +37,14 @@ const usuariosFiltrados = computed(() => {
   })
 })
 
+>>>>>>> 51de6eb80bc8869b787493e3df05d595c7e8f7a5
 onMounted(async () => {
   try {
-    await store.cargarTodo()
+    // Cargar usuarios que el usuario actual puede gestionar
+    const resUsuarios = await api.get('/users/manageable')
+    usuariosManageables.value = resUsuarios.data
+
+    // Cargar departamento
     const res = await api.get(`/departments/${deptId}`)
     const d = res.data
     form.value = {
@@ -105,10 +113,21 @@ async function guardar() {
             </select>
           </FormField>
 
+<<<<<<< HEAD
+        <FormField label="Responsable" hint="opcional">
+          <select v-model="form.manager_id" class="app-select">
+            <option :value="null">Sin responsable</option>
+           <option v-for="u in usuariosManageables" :key="u.id" :value="u.id">
+              {{ u.name }} {{ u.paternal || '' }}
+           </option>
+          </select>
+        </FormField>
+=======
           <FormField label="Descripción" hint="opcional" :col-span="2">
             <textarea v-model="form.description" rows="3" placeholder="Describe las funciones principales del área..." class="app-input resize-none" />
           </FormField>
         </div>
+>>>>>>> 51de6eb80bc8869b787493e3df05d595c7e8f7a5
 
         <div class="p-4 border-t flex justify-end gap-3" style="background: var(--tabla-header-bg); border-color: rgba(190,174,216,0.2);">
           <AppButton variant="secondary" type="button" @click="router.push('/ControlOrganizacional')">

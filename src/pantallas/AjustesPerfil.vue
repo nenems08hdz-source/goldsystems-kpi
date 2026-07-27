@@ -94,27 +94,43 @@ const guardarPerfil = async () => { //"async" indica que la función tiene opera
 
 const subirFoto = async (event) => {
   const archivo = event.target.files[0]
-  if (!archivo) return //si el usuario abrió el selector pero no eligió nada, no hace nada
+  if (!archivo) return
 
-  const formData = new FormData() //crea un objeto especial para enviar archivos
+  const formData = new FormData()
   formData.append('photo', archivo)
 
-  const res = await fetch('http://127.0.0.1:8000/api/me/photo', {
-    method:  'POST',
-    headers: { 'Authorization': `Bearer ${auth.token}` },
-    body:    formData
-  })
+  try {
+    const res = await fetch('http://127.0.0.1:8000/api/me/photo', {
+      method:  'POST',
+      headers: { 'Authorization': `Bearer ${auth.token}` },
+      body:    formData
+    })
 
-  const data = await res.json()
+    console.log('Response status:', res.status, res.ok)
 
-  if (!res.ok) {
-    proxy.$notify.error(data.message || 'Error al subir foto', 'Error')
-    return
+    let data
+    try {
+      data = await res.json()
+    } catch (parseError) {
+      console.error('Error parseando JSON:', parseError, 'Response:', res)
+      proxy.$notify.error('Respuesta inválida del servidor', 'Error')
+      return
+    }
+
+    if (!res.ok) {
+      console.error('Error uploading photo:', data)
+      proxy.$notify.error(data.message || 'Error al subir foto', 'Error')
+      return
+    }
+
+    auth.user = data.user
+    fotoUrl.value = `http://127.0.0.1:8000/storage/${data.user.profile_photo}`
+    proxy.$notify.success('Foto actualizada correctamente', 'Éxito')
+
+  } catch (error) {
+    console.error('Error en subirFoto:', error)
+    proxy.$notify.error('Error de conexión', 'Error')
   }
-
-  auth.user = data.user //actualiza solo el usuario sin tocar permisos ni role
-  fotoUrl.value = `http://127.0.0.1:8000/storage/${data.user.profile_photo}` //actualiza la URL de la foto inmediatamente para que se refleje en pantalla sin recargar
-  proxy.$notify.success('Foto actualizada correctamente', 'Éxito')
 }
 
 const guardarPreferencias = () => {
