@@ -13,7 +13,8 @@ const auditExportService = {
   async exportToExcel(filters = {}) {
     try {
       const params = new URLSearchParams()
-      const cleaned = this._limpiarFiltros(filters)
+      const companyId = this._resolverCompanyId()
+      const cleaned = this._limpiarFiltros({ ...filters, ...(companyId ? { company_id: companyId } : {}) })
       Object.entries(cleaned).forEach(([key, value]) => params.append(key, value))
 
       const response = await api.get(
@@ -35,7 +36,8 @@ const auditExportService = {
   async exportToPdf(filters = {}) {
     try {
       const params = new URLSearchParams()
-      const cleaned = this._limpiarFiltros(filters)
+      const companyId = this._resolverCompanyId()
+      const cleaned = this._limpiarFiltros({ ...filters, ...(companyId ? { company_id: companyId } : {}) })
       Object.entries(cleaned).forEach(([key, value]) => params.append(key, value))
 
       const response = await api.get(
