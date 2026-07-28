@@ -20,9 +20,17 @@ onMounted(async () => {
   const res = await api.get('/users')
   usuariosApi.value = res.data
 })
-
+//filtrado por usuarios
 const usuariosDisponibles = computed(() =>
-  usuariosApi.value.map(u => ({ value: u.id, label: `${u.name} ${u.paternal ?? ''}`.trim() }))
+  usuariosApi.value
+    .filter(u => {
+      const roles = u.roles?.map(r => r.name || r) || []
+      const rolesString = roles.map(r => String(r).toLowerCase())
+      return rolesString.includes('manager') || 
+             rolesString.includes('team_leader') || 
+             rolesString.includes('admin')
+    })
+    .map(u => ({ value: u.id, label: `${u.name} ${u.paternal ?? ''}`.trim() }))
 )
 
 const departamentosDisponibles = computed(() =>

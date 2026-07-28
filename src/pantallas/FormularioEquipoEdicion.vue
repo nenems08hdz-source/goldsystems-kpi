@@ -4,15 +4,15 @@ import { useRouter, useRoute } from 'vue-router'
 import api from '../services/api'
 import { useOrgStore } from '../stores/orgStore'
 import EncabezadoPantalla from '@/components/EncabezadoPantalla.vue'
-import AppButton          from '@/components/ui/AppButton.vue'
-import AppInput           from '@/components/ui/AppInput.vue'
-import AppSelect          from '@/components/ui/AppSelect.vue'
-import FormField          from '@/components/ui/FormField.vue'
+import AppButton from '@/components/ui/AppButton.vue'
+import AppInput from '@/components/ui/AppInput.vue'
+import AppSelect from '@/components/ui/AppSelect.vue'
+import FormField from '@/components/ui/FormField.vue'
 import FormContenedor from '@/components/ui/FormContenedor.vue'
 
 const router = useRouter()
-const route  = useRoute()
-const store  = useOrgStore()
+const route = useRoute()
+const store = useOrgStore()
 const { proxy } = getCurrentInstance()
 
 const equipoId = route.params.id
@@ -21,9 +21,9 @@ const departamentos = ref([])
 const usuariosManageables = ref([])
 
 const form = ref({
-  name:          '',
-  description:   '',
-  leader_id:     null,
+  name: '',
+  description: '',
+  leader_id: null,
   department_id: null,
 })
 
@@ -31,35 +31,29 @@ const departamentosDisponibles = computed(() =>
   departamentos.value.map(d => ({ value: d.id, label: d.name }))
 )
 
-const usuariosFiltrados = computed(() => {
-  if (!store.usuarios || store.usuarios.length === 0) return []
-  
-  return store.usuarios.filter(u => {
-    const roles = u.roles?.map(r => r.name || r) || []
-    const rolesString = roles.map(r => String(r).toLowerCase())
-    return rolesString.includes('manager') || 
-           rolesString.includes('team_leader') || 
-           rolesString.includes('admin')
-  })
-})
-
 onMounted(async () => {
   try {
-    // Cargar departamentos y usuarios que el usuario actual puede gestionar
     const [resDepts, resUsuarios] = await Promise.all([
       api.get('/departments'),
-      api.get('/users/manageable'),
+      api.get('/users'),
     ])
     departamentos.value = resDepts.data
-    usuariosManageables.value = resUsuarios.data
+    
+    // Filtra solo usuarios con rol manager, team_leader o admin
+    usuariosManageables.value = resUsuarios.data.filter(u => {
+      const roles = u.roles?.map(r => r.name || r) || []
+      const rolesString = roles.map(r => String(r).toLowerCase())
+      return rolesString.includes('manager') || 
+             rolesString.includes('team_leader') || 
+             rolesString.includes('admin')
+    })
 
-    // Cargar equipo
     const res = await api.get(`/teams/${equipoId}`)
-    const e   = res.data
+    const e = res.data
     form.value = {
-      name:          e.name          ?? '',
-      description:   e.description   ?? '',
-      leader_id:     e.leader_id     ?? null,
+      name: e.name ?? '',
+      description: e.description ?? '',
+      leader_id: e.leader_id ?? null,
       department_id: e.department_id ?? null,
     }
   } catch (e) {
@@ -73,9 +67,9 @@ onMounted(async () => {
 async function guardar() {
   try {
     const res = await api.put(`/teams/${equipoId}`, {
-      name:          form.value.name,
-      description:   form.value.description,
-      leader_id:     form.value.leader_id     || null,
+      name: form.value.name,
+      description: form.value.description,
+      leader_id: form.value.leader_id || null,
       department_id: form.value.department_id || null,
     })
     const idx = store.equipos.findIndex(e => e.id === Number(equipoId))
