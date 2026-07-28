@@ -1,35 +1,58 @@
 import api from './api'
+import { useAuthStore } from '../stores/authStore'
 
 const auditExportService = {
- async exportToExcel(filters = {}) {
-  try {
-    const params = new URLSearchParams()
-    const cleaned = this._limpiarFiltros(filters)
-    Object.entries(cleaned).forEach(([key, value]) => params.append(key, value))
 
-    const baseUrl = api.defaults.baseURL || ''
-    const url = `${baseUrl}/audit-logs/export/excel${params.toString() ? '?' + params.toString() : ''}`
-    window.location.href = url
-  } catch (error) {
-    console.error('Error Excel:', error)
-    throw error
-  }
-},
+  _resolverCompanyId() {
+    const activa = sessionStorage.getItem('active_company_id')
+    if (activa) return activa
+    const authStore = useAuthStore()
+    return authStore.user?.company_id ?? null
+  },
+
+  async exportToExcel(filters = {}) {
+    try {
+      const params = new URLSearchParams()
+      const cleaned = this._limpiarFiltros(filters)
+      Object.entries(cleaned).forEach(([key, value]) => params.append(key, value))
+
+      const response = await api.get(
+        `/audit-logs/export/excel?${params.toString()}`,
+        { responseType: 'blob' }
+      )
+      const url = window.URL.createObjectURL(response.data)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `auditoria_${this._obtenerFecha()}.xlsx`
+      link.click()
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Error Excel:', error)
+      throw error
+    }
+  },
 
   async exportToPdf(filters = {}) {
-  try {
-    const params = new URLSearchParams()
-    const cleaned = this._limpiarFiltros(filters)
-    Object.entries(cleaned).forEach(([key, value]) => params.append(key, value))
+    try {
+      const params = new URLSearchParams()
+      const cleaned = this._limpiarFiltros(filters)
+      Object.entries(cleaned).forEach(([key, value]) => params.append(key, value))
 
-    const baseUrl = api.defaults.baseURL || ''
-    const url = `${baseUrl}/audit-logs/export/pdf${params.toString() ? '?' + params.toString() : ''}`
-    window.location.href = url
-  } catch (error) {
-    console.error('Error PDF:', error)
-    throw error
-  }
-},
+      const response = await api.get(
+        `/audit-logs/export/pdf?${params.toString()}`,
+        { responseType: 'blob' }
+      )
+      const url = window.URL.createObjectURL(response.data)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `auditoria_${this._obtenerFecha()}.pdf`
+      link.click()
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Error PDF:', error)
+      throw error
+    }
+  },
 
   _limpiarFiltros(filters) {
     const filtrosLimpios = {}
