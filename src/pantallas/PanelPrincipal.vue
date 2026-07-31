@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useUiStore }      from '../stores/uiStore'
 import { useKpiStore }     from '../stores/kpiStore'
 import { usePermissions }  from '../composables/usePermissions'
+import { useOrgStore }     from '../stores/orgStore'
 import api from '../services/api'
 
 const { can } = usePermissions()
@@ -19,6 +20,7 @@ import EmptyState             from '../components/ui/EmptyState.vue'
 
 const store    = useUiStore()
 const kpiStore = useKpiStore()
+const orgStore = useOrgStore()
 const kpis     = ref([])
 const misKpis  = ref([])
 
@@ -26,6 +28,7 @@ const listoPararenderizar = ref(false)
 
 onMounted(async () => {
   await store.cargarConfig()
+  await orgStore.cargarDepartamentos()
 
   // Cargar todos los KPIs desde la API al store
   await kpiStore.cargarIndicadores()
