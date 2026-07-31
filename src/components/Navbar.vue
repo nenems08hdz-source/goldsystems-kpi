@@ -3,6 +3,7 @@ import api from '@/services/api'
 import { useRoute } from 'vue-router'
 import { useLayoutStore } from '@/stores/layout'
 import FiltrosPrincipal from './FiltrosPrincipal.vue'
+import { usePermissions } from '@/composables/usePermissions'
 import { useAuthStore } from '@/stores/authStore' //para acceder a los datos del usuario logueado (foto, nombre, apellido)
 import { useRouter }    from 'vue-router' //nos permite navegar a otra pantalla al hacer click sobre ello
 import LoadingSpinner from './LoadingSpinner.vue' // ← EDICIÓN: Componente personalizado
@@ -13,6 +14,7 @@ const isLoading = ref(false)
 const route       = useRoute()
 const layout      = useLayoutStore()
 const auth        = useAuthStore()
+const { can }     = usePermissions()
 const router      = useRouter()  //instancias de cada uno para usarlos en el template
 const STORAGE_URL = (import.meta.env.VITE_API_URL ?? '').replace('/api', '/storage')
 
@@ -49,7 +51,7 @@ async function cargarDatos() {
         <i class="fi fi-sr-menu-burger text-lg"></i>
       </button>
       <div class="flex items-center gap-4">
-        <FiltrosPrincipal v-if="route.name === 'principal'" />
+        <FiltrosPrincipal v-if="route.name === 'principal' && can('dashboard.view_advanced')" />
       </div>
     </div>
 
