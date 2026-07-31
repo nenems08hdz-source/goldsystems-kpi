@@ -23,17 +23,9 @@ const kpis     = ref([])
 const misKpis  = ref([])
 
 const listoPararenderizar = ref(false)
-const IDS_ESPERADOS = ['tarjetas', 'graficas', 'criticos', 'detalle']
 
 onMounted(async () => {
-  store.cargarOrden()
-  const idsGuardados = store.widgets.map(w => w.id)
-  const ordenValido  = IDS_ESPERADOS.every(id => idsGuardados.includes(id))
-  if (!ordenValido) {
-    localStorage.removeItem('panelWidgetsOrden')
-    store.cargarOrden()
-  }
-  store.cargarPreferencias()
+  await store.cargarConfig()
 
   // Cargar todos los KPIs desde la API al store
   await kpiStore.cargarIndicadores()
@@ -65,14 +57,21 @@ onMounted(async () => {
 })
 
 const ordenWidgets  = computed(() => store.widgets.map(w => w.id))
+
+const kpisFiltrados = computed(() =>
+  store.departamentoActivo
+    ? kpis.value.filter(k => k.department_id === Number(store.departamentoActivo))
+    : kpis.value
+)
+
 const kpisResumen  = computed(() =>
   store.kpisActivos.length > 0
-    ? kpis.value.filter(k => store.kpisActivos.includes(k.id))
-    : kpis.value.slice(0, 4)
+    ? kpisFiltrados.value.filter(k => store.kpisActivos.includes(k.id))
+    : kpisFiltrados.value.slice(0, 4)
 )
-const kpisDetalle  = computed(() => kpis.value)
+const kpisDetalle  = computed(() => kpisFiltrados.value)
 const kpisCriticas = computed(() =>
-  kpis.value.filter(i => i.estadoTipo === 'danger' || i.estadoTipo === 'warning')
+  kpisFiltrados.value.filter(i => i.estadoTipo === 'danger' || i.estadoTipo === 'warning')
 )
 
 const cabecerasDetalle  = ['Departamento', 'Periodicidad', 'Objetivo', 'Progreso', 'Estado']

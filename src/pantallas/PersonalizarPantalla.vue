@@ -23,8 +23,7 @@ const filtroEstado        = ref('todos')
 
 onMounted(async () => {
   await kpiStore.cargarIndicadores()
-  store.cargarOrden()
-  store.cargarPreferencias()
+  await store.cargarConfig()
   const todosWidgets = JSON.parse(JSON.stringify(store.widgets))
   listaLocal.value = can('dashboard.view_advanced')
     ? todosWidgets
@@ -59,13 +58,13 @@ function toggleKpi(id) {
   }
 }
 
-function guardarCambios() {
+async function guardarCambios() {
   store.guardarOrden(listaLocal.value)
   store.kpisActivos             = kpisActivosLocal.value
   store.modoGrafica             = modoGraficaLocal.value
   store.kpiSeleccionadoGrafica  = kpiSeleccionadoLocal.value
   store.tipoGraficaEspecifica   = tipoGraficaLocal.value
-  store.guardarPreferencias()
+  await store.guardarConfig()
   router.push('/')
 }
 </script>

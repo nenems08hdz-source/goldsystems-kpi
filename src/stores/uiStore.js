@@ -2,26 +2,23 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useKpiStore }  from './kpiStore'
 import { useAuthStore } from './authStore'
+import api from '../services/api'
 
 export const useUiStore = defineStore('uiStore', () => {
 
   const kpiStore  = useKpiStore()
   const authStore = useAuthStore()
 
-  // Clave única por usuario para que cada quien tenga sus propias preferencias
-  function claveUsuario(nombre) {
-    const uid = authStore.user?.id ?? 'guest'
-    return `${nombre}_${uid}`
-  }
+  const departamentoActivo = ref(null)
 
   const widgets = ref([
-     { id: 'tarjetas', nombre: 'Tarjetas KPI',              icono: 'fi-sr-apps',            descripcion: 'Resumen rápido de los KPIs activos' },
-     { id: 'graficas', nombre: 'Medidor y Progreso',         icono: 'fi-sr-stats',           descripcion: 'Gráfica circular y barras de progreso' },
-     { id: 'criticos', nombre: 'KPIs Críticos y en Riesgo', icono: 'fi-sr-exclamation',     descripcion: 'Lista de indicadores que necesitan atención' },
-     { id: 'detalle',  nombre: 'Métricas Detalladas',        icono: 'fi-sr-document-signed', descripcion: 'Tabla completa por departamento' },
+    { id: 'tarjetas', nombre: 'Tarjetas KPI',              icono: 'fi-sr-apps',            descripcion: 'Resumen rápido de los KPIs activos' },
+    { id: 'graficas', nombre: 'Medidor y Progreso',         icono: 'fi-sr-stats',           descripcion: 'Gráfica circular y barras de progreso' },
+    { id: 'criticos', nombre: 'KPIs Críticos y en Riesgo', icono: 'fi-sr-exclamation',     descripcion: 'Lista de indicadores que necesitan atención' },
+    { id: 'detalle',  nombre: 'Métricas Detalladas',        icono: 'fi-sr-document-signed', descripcion: 'Tabla completa por departamento' },
   ])
 
-  const kpisActivos = ref([])
+  const kpisActivos            = ref([])
   const modoGrafica            = ref('general')
   const kpiSeleccionadoGrafica = ref(1)
   const tipoGraficaEspecifica  = ref('linea')
@@ -34,39 +31,65 @@ export const useUiStore = defineStore('uiStore', () => {
     kpiStore.indicadores.find(i => i.id === kpiSeleccionadoGrafica.value)
   )
 
-  function guardarOrden(nuevoOrden) {
-    widgets.value = nuevoOrden
-    localStorage.setItem(claveUsuario('panelWidgetsOrden'), JSON.stringify(nuevoOrden))
-  }
-
-  function cargarOrden() {
-    const guardado = localStorage.getItem(claveUsuario('panelWidgetsOrden'))
-    if (guardado) {
-      const base = { tarjetas: 'fi-sr-apps', graficas: 'fi-sr-stats', criticos: 'fi-sr-exclamation', detalle: 'fi-sr-document-signed' }
-      widgets.value = JSON.parse(guardado).map(w => ({ ...w, icono: base[w.id] ?? w.icono }))
-    }
-  }
-
-  function guardarPreferencias() {
-    const p = {
+  async function guardarConfig() {
+    const config = {
+      orden:                  widgets.value.map(w => ({ id: w.id })),
       kpisActivos:            kpisActivos.value,
       modoGrafica:            modoGrafica.value,
       kpiSeleccionadoGrafica: kpiSeleccionadoGrafica.value,
       tipoGraficaEspecifica:  tipoGraficaEspecifica.value,
     }
-    localStorage.setItem(claveUsuario('panelPreferencias'), JSON.stringify(p))
+    await api.post('/dashboard-config', {
+      department_id: departamentoActivo.value,
+      config,
+    })
   }
 
-  function cargarPreferencias() {
-    const guardado = localStorage.getItem(claveUsuario('panelPreferencias'))
-    if (guardado) {
-      const p = JSON.parse(guardado)
-      kpisActivos.value            = p.kpisActivos
-      modoGrafica.value            = p.modoGrafica
-      kpiSeleccionadoGrafica.value = p.kpiSeleccionadoGrafica
-      tipoGraficaEspecifica.value  = p.tipoGraficaEspecifica
+  async function cargarConfig() {
+    const params = departamentoActivo.value
+      ? `?department_id=${departamentoActivo.value}`
+      : ''
+    const { data } = await api.get(`/dashboard-config${params}`)
+    if (!data) return
+
+    const base = {
+      tarjetas: 'fi-sr-apps',
+      graficas:  'fi-sr-stats',
+      criticos:  'fi-sr-exclamation',
+      detalle:   'fi-sr-document-signed',
     }
+    const nombresBase = {
+      tarjetas: 'Tarjetas KPI',
+      graficas:  'Medidor y Progreso',
+      criticos:  'KPIs Críticos y en Riesgo',
+      detalle:   'Métricas Detalladas',
+    }
+    const descripcionesBase = {
+      tarjetas: 'Resumen rápido de los KPIs activos',
+      graficas:  'Gráfica circular y barras de progreso',
+      criticos:  'Lista de indicadores que necesitan atención',
+      detalle:   'Tabla completa por departamento',
+    }
+
+    if (data.orden) {
+      widgets.value = data.orden.map(w => ({
+        id:          w.id,
+        icono:       base[w.id] ?? w.icono,
+        nombre:      nombresBase[w.id] ?? w.id,
+        descripcion: descripcionesBase[w.id] ?? '',
+      }))
+    }
+    if (data.kpisActivos)            kpisActivos.value            = data.kpisActivos
+    if (data.modoGrafica)            modoGrafica.value            = data.modoGrafica
+    if (data.kpiSeleccionadoGrafica) kpiSeleccionadoGrafica.value = data.kpiSeleccionadoGrafica
+    if (data.tipoGraficaEspecifica)  tipoGraficaEspecifica.value  = data.tipoGraficaEspecifica
   }
+
+  // Compatibilidad con PersonalizarPantalla y PanelPrincipal
+  function guardarOrden(nuevoOrden) { widgets.value = nuevoOrden }
+  function guardarPreferencias()    { guardarConfig() }
+  function cargarOrden()            {}
+  function cargarPreferencias()     {}
 
   return {
     widgets,
@@ -76,9 +99,12 @@ export const useUiStore = defineStore('uiStore', () => {
     tipoGraficaEspecifica,
     indicadoresActivos,
     kpiParaGrafica,
+    departamentoActivo,
+    guardarConfig,
+    cargarConfig,
     guardarOrden,
-    cargarOrden,
     guardarPreferencias,
+    cargarOrden,
     cargarPreferencias,
   }
 })
