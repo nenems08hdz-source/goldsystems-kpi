@@ -39,9 +39,10 @@ onMounted(async () => {
 
 const indicadoresFiltrados = computed(() =>
   kpiStore.indicadores.filter(ind => {
+    const coincideDepto  = !store.departamentoActivo || ind.department_id === Number(store.departamentoActivo)
     const coincideTexto  = ind.nombre.toLowerCase().includes(filtroBusqueda.value.toLowerCase())
     const coincideEstado = filtroEstado.value === 'todos' || ind.estadoTipo === filtroEstado.value
-    return coincideTexto && coincideEstado
+    return coincideDepto && coincideTexto && coincideEstado
   })
 )
 
