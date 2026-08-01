@@ -1,5 +1,5 @@
 <script setup>
-// ── Imports ───────────────────────────────────────────────────────────────────
+// ── Imports ────────────────────────────//
 import { ref, computed, onMounted, watch } from 'vue'
 import { getCurrentInstance } from 'vue'
 import { useKpiStore } from '../stores/kpiStore'
@@ -28,7 +28,7 @@ const encabezados = computed(() => {
   return cols
 })
 
-// ── Mapeos API → Display ──────────────────────────────────────────────────────
+// ── Mapeos API → Display ─────────────────────────────────────//
 // La API guarda los tipos en inglés (percentage, money...)
 // pero el frontend los muestra en español (Porcentaje, Monetario...)
 const tipoMap = {
@@ -48,33 +48,37 @@ const frecuenciaMap = {
   annual:    'Anual',
 }
 
-// ── Variable reactiva principal ───────────────────────────────────────────────
+// ── Variable reactiva principal ───────────────────────────────────────//
 // Aquí se guardarán los KPIs que vengan de la API
 const kpis     = ref([])
 const cargando = ref(true)
 
-// ── Carga de datos al abrir la pantalla ──────────────────────────────────────
+// ── Carga de datos al abrir la pantalla ─────────────────────────────────//
 onMounted(async () => {
   const auth = useAuthStore()
-
-  // Si es team_leader, filtra por equipo; si es manager/admin, filtra por departamento; si no, carga todos
+  
+console.log('Auth data:', auth.role, auth.user?.team_id, auth.user?.department_id)
   let url = '/kpis'
+  
   if (auth.role === 'team_leader' && auth.user?.team_id) {
     url = `/kpis?team_id=${auth.user.team_id}`
-  } else if ((auth.role === 'manager' || auth.role === 'admin') && auth.user?.department_id) {
+    console.log('✓ Filtrando por team_id:', url)
+  } 
+  else if ((auth.role === 'manager' || auth.role === 'admin') && auth.user?.department_id) {
     url = `/kpis?department_id=${auth.user.department_id}`
+    console.log('✓ Filtrando por department_id:', url)
+  } 
+  else {
+    console.log('⚠ Sin filtro, cargando TODOS los KPIs')
   }
   
-  const res  = await api.get(url)
+  const res = await api.get(url)
   const data = res.data
+  console.log(`✓ KPIs recibidos: ${data.length}`)
 
-  // Transformamos cada KPI de la API al formato que usa el template
   kpis.value = data.map(k => {
-    // El último registro es el valor más reciente capturado para este KPI
     const ultimoRecord = k.latest_record
     const progreso     = ultimoRecord ? Number(ultimoRecord.value) : 0
-
-    // calcularEstado() devuelve si el KPI está saludable, en riesgo o crítico
     const { traffic_light, estado, estadoTipo } = store.calcularEstado(progreso)
 
     return {
@@ -125,7 +129,7 @@ watch(() => store.indicadores, (nuevosDatos) => {
   }
 }, { deep: true })
 
-// ── Filtros ───────────────────────────────────────────────────────────────────
+// ── Filtros ────────────────────────────────────────────────────//
 const filtroDepartamento = ref('')
 const filtroTipoMetrica  = ref('')
 const filtroEstado       = ref('')
@@ -146,7 +150,7 @@ const indicadoresFiltrados = computed(() =>
   })
 )
 
-// ── Paginación ────────────────────────────────────────────────────────────────
+// ── Paginación ───────────────────────────────────────────────────//
 const paginaActual = ref(1)
 const porPagina    = 10
 
@@ -174,7 +178,7 @@ const paginasVisibles = computed(() => {
   return paginas
 })
 
-// ── Contadores para las tarjetas de estado ────────────────────────────────────
+// ── Contadores para las tarjetas de estado ─────────────────────────────────//
 const contadorEstados = computed(() => ({
   saludables: kpis.value.filter(i => i.estadoTipo === 'success').length,
   alerta:     kpis.value.filter(i => i.estadoTipo === 'warning').length,
@@ -211,7 +215,7 @@ function formatearValor(valor, tipo) {
   return n.toFixed(1) + ' pts'
 }
 
-// ── Eliminar KPI ──────────────────────────────────────────────────────────────
+// ── Eliminar KPI ────────────────────────────────────────────────────//
 const showModal    = ref(false)
 const kpiAEliminar = ref(null)
 
