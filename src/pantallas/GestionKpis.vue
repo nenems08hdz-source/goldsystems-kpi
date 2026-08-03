@@ -123,7 +123,7 @@ const indicadoresFiltrados = computed(() =>
       ind.departamento.toLowerCase().includes(filtroBusqueda.value.toLowerCase())
     return pasaDepartamento && pasaTipoMetrica && pasaEstado && pasaPeriodicidad && pasaBusqueda
   })
-})
+)
 
 // ── Paginación ───────────────────────────────────────────────────//
 const paginaActual = ref(1)

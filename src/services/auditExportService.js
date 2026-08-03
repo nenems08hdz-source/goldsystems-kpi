@@ -16,7 +16,7 @@ const auditExportService = {
   // exportación de excel 
   async exportToExcel(filters = {}) {
     try {
-      const params = new URLSeargit chParams()
+      const params = new URLSeargitchParams()
       const companyId = this._resolverCompanyId()
       const cleaned = this._limpiarFiltros({ ...filters, ...(companyId ? { company_id: companyId } : {}) })
       Object.entries(cleaned).forEach(([key, value]) => params.append(key, value))
