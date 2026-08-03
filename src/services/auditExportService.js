@@ -2,6 +2,7 @@ import api from './api'
 import { useAuthStore } from '../stores/authStore'
 
 const auditExportService = {
+
   _resolverCompanyId() {
 
     // Primero: empresa activa seleccionada (developer con empresa fijada)
@@ -15,15 +16,15 @@ const auditExportService = {
   // exportación de excel 
   async exportToExcel(filters = {}) {
     try {
-      const params = new URLSearchParams()
-      const cleaned = this._limpiarFiltros(filters)
+      const params = new URLSeargit chParams()
+      const companyId = this._resolverCompanyId()
+      const cleaned = this._limpiarFiltros({ ...filters, ...(companyId ? { company_id: companyId } : {}) })
       Object.entries(cleaned).forEach(([key, value]) => params.append(key, value))
 
       const response = await api.get(
         `/audit-logs/export/excel?${params.toString()}`,
         { responseType: 'blob' }
       )
-
       const url = window.URL.createObjectURL(response.data)
       const link = document.createElement('a')
       link.href = url
@@ -41,22 +42,14 @@ const auditExportService = {
   async exportToPdf(filters = {}) {
     try {
       const params = new URLSearchParams()
-      const cleaned = this._limpiarFiltros(filters)
-      Object.entries(cleaned).forEach(([key, value]) => {
-        params.append(key, value)
-      })
-
       const companyId = this._resolverCompanyId()
-      if (companyId) params.append('company_id', companyId)
-      
+      const cleaned = this._limpiarFiltros({ ...filters, ...(companyId ? { company_id: companyId } : {}) })
+      Object.entries(cleaned).forEach(([key, value]) => params.append(key, value))
+
       const response = await api.get(
         `/audit-logs/export/pdf?${params.toString()}`,
-        { 
-          responseType: 'blob',
-          headers: { Authorization: undefined } // Quita header
-        }
+        { responseType: 'blob' }
       )
-      
       const url = window.URL.createObjectURL(response.data)
       const link = document.createElement('a')
       link.href = url

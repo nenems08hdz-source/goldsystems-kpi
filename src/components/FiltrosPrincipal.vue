@@ -1,25 +1,36 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useOrgStore } from '../stores/orgStore'
+import { useUiStore }  from '../stores/uiStore'
 
-const departamentoSeleccionado = ref('')
+const orgStore = useOrgStore()
+const uiStore  = useUiStore()
+const departamentoSeleccionado = ref(null)
+
+onMounted(() => {
+  departamentoSeleccionado.value = uiStore.departamentoActivo
+})
+
+async function alCambiar(val) {
+  uiStore.departamentoActivo     = val || null
+  departamentoSeleccionado.value = val || null
+  await uiStore.cargarConfig()
+}
 </script>
 
 <template>
-  <div class="flex items-center gap-4 transition-all duration-300">
+  <div class="flex items-center gap-4">
     <label class="text-xs font-bold uppercase tracking-wider"
       style="color: var(--text-general);">Departamento:</label>
-    <select v-model="departamentoSeleccionado"
+    <select
+      :value="departamentoSeleccionado"
+      @change="alCambiar($event.target.value)"
       class="text-xs rounded-lg p-2 outline-none cursor-pointer transition-colors"
-      style="
-        background: var(--input-bg);
-        color: var(--input-text);
-        border: 1px solid var(--input-border);
-      ">
+      style="background: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border);">
       <option value="">Todos los departamentos</option>
-      <option value="tecnologias">Tecnologías</option>
-      <option value="operaciones">Operaciones</option>
-      <option value="calidad">Calidad</option>
-      <option value="finanzas">Finanzas</option>
+      <option v-for="dep in orgStore.departamentos" :key="dep.id" :value="dep.id">
+        {{ dep.name }}
+      </option>
     </select>
   </div>
 </template>

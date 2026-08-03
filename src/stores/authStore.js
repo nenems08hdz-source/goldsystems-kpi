@@ -15,22 +15,22 @@ export const useAuthStore = defineStore('auth', {
   }),
 
   actions: {
-    async init() {
-      if (this.initialized) return
+  async init() {
+  if (this.initialized) return
 
-      if (this.token) {
-        try {
-          const res = await api.get('/me')
-          this.user     = res.data.user
-          this.role     = res.data.role
-          this.permisos = res.data.permisos ?? []
-        } catch {
-          this.logout()
-        }
-      }
+  if (this.token) {
+    try {
+      const res = await api.get('/me')
+      this.user     = res.data.user
+      this.role     = res.data.role
+      this.permisos = res.data.permisos ?? []
+    } catch {
+      this.logout()
+    }
+  }
 
-      this.initialized = true
-    },
+  this.initialized = true
+},
 
     setAuth(token, user, role, permisos = []) {
       this.token       = token

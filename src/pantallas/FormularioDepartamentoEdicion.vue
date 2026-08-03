@@ -16,6 +16,7 @@ const { proxy } = getCurrentInstance()
 
 const deptId = route.params.id
 const cargando = ref(true)
+const usuariosManageables = ref([])
 
 const form = ref({
   name: '',
@@ -36,7 +37,11 @@ const usuariosFiltrados = computed(() => {
 
 onMounted(async () => {
   try {
-    await store.cargarTodo()
+    // Cargar usuarios que el usuario actual puede gestionar
+    const resUsuarios = await api.get('/users/manageable')
+    usuariosManageables.value = resUsuarios.data
+
+    // Cargar departamento
     const res = await api.get(`/departments/${deptId}`)
     const d = res.data
     form.value = {

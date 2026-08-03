@@ -12,6 +12,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
+import api from '../services/api'
 
 const router = useRouter()
 const auth   = useAuthStore()
@@ -35,25 +36,17 @@ const verPassword = ref(false)
 const handleLogin = async () => {
   error.value = ''
 
-  const res = await fetch('http://127.0.0.1:8000/api/login', {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ email: email.value, password: password.value })
-  })
+  try {
+    const res = await api.post('/login', {
+      email:    email.value,
+      password: password.value
+    })
 
-  const data = await res.json()
-
-  // Si la API responde con error muestra el mensaje
-  if (!res.ok) {
+    auth.setAuth(res.data.token, res.data.user, res.data.role, res.data.permisos ?? [])
+    router.push('/')
+  } catch (err) {
     error.value = 'Credenciales incorrectas'
-    return
   }
-
-  // Guarda token, usuario y rol en el store y localStorage
-  auth.setAuth(data.token, data.user, data.role, data.permisos ?? [])
-
-  // Redirige al panel principal
-  router.push('/')
 }
 </script>
 

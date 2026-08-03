@@ -23,8 +23,7 @@ const filtroEstado        = ref('todos')
 
 onMounted(async () => {
   await kpiStore.cargarIndicadores()
-  store.cargarOrden()
-  store.cargarPreferencias()
+  await store.cargarConfig()
   const todosWidgets = JSON.parse(JSON.stringify(store.widgets))
   listaLocal.value = can('dashboard.view_advanced')
     ? todosWidgets
@@ -40,9 +39,10 @@ onMounted(async () => {
 
 const indicadoresFiltrados = computed(() =>
   kpiStore.indicadores.filter(ind => {
+    const coincideDepto  = !store.departamentoActivo || ind.department_id === Number(store.departamentoActivo)
     const coincideTexto  = ind.nombre.toLowerCase().includes(filtroBusqueda.value.toLowerCase())
     const coincideEstado = filtroEstado.value === 'todos' || ind.estadoTipo === filtroEstado.value
-    return coincideTexto && coincideEstado
+    return coincideDepto && coincideTexto && coincideEstado
   })
 )
 
@@ -59,13 +59,13 @@ function toggleKpi(id) {
   }
 }
 
-function guardarCambios() {
+async function guardarCambios() {
   store.guardarOrden(listaLocal.value)
   store.kpisActivos             = kpisActivosLocal.value
   store.modoGrafica             = modoGraficaLocal.value
   store.kpiSeleccionadoGrafica  = kpiSeleccionadoLocal.value
   store.tipoGraficaEspecifica   = tipoGraficaLocal.value
-  store.guardarPreferencias()
+  await store.guardarConfig()
   router.push('/')
 }
 </script>

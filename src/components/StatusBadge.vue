@@ -1,4 +1,5 @@
 <script setup>
+import { computed } from 'vue'
 const props = defineProps({
   tipo:  { type: String, required: true },  
   texto: { type: String, default: '' },
@@ -35,8 +36,8 @@ const config = {
   revision:  { badge: 'text-amber-700  bg-amber-50  border-amber-200',  dot: 'bg-amber-500',  label: 'Revisión'   },
 }
 
-const current = config[props.tipo] ?? config.danger
-const label   = props.texto || current.label
+const current = computed(() => config[props.tipo] ?? config.danger)
+const label   = computed(() => props.texto || current.value.label)
 </script>
 
 <template>

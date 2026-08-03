@@ -236,6 +236,7 @@ async function cargarTodosLosHistoriales() {
         id: kpi.id,
         nombre: kpi.name,
         subtitulo: kpi.subtitle,
+        department_id: kpi.department_id ?? null,
         departamento: kpi.department?.name || '',
         responsable: kpi.creator ? `${kpi.creator.name} ${kpi.creator.paternal ?? ''}`.trim() : '—',
         progreso: progreso,
