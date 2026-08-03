@@ -112,9 +112,8 @@ const filtroPeriodicidad = ref('')
 const filtroBusqueda     = ref('')
 
 // Filtra los KPIs según lo que el usuario seleccione en los dropdowns
-const indicadoresFiltrados = computed(() => {
-  console.log('filtroEstado:', filtroEstado.value)
-  return kpis.value.filter(ind => {
+const indicadoresFiltrados = computed(() =>
+  kpis.value.filter(ind => {
     const pasaDepartamento = filtroDepartamento.value === '' || ind.departamento === filtroDepartamento.value
     const pasaTipoMetrica  = filtroTipoMetrica.value  === '' || ind.tipoMetrica  === filtroTipoMetrica.value
     const pasaEstado       = filtroEstado.value       === '' || ind.estadoTipo   === filtroEstado.value
@@ -122,7 +121,6 @@ const indicadoresFiltrados = computed(() => {
     const pasaBusqueda     = filtroBusqueda.value     === '' ||
       ind.nombre.toLowerCase().includes(filtroBusqueda.value.toLowerCase()) ||
       ind.departamento.toLowerCase().includes(filtroBusqueda.value.toLowerCase())
-    console.log(`  ${ind.nombre}: estadoTipo=${ind.estadoTipo}, pasa=${pasaEstado}`)
     return pasaDepartamento && pasaTipoMetrica && pasaEstado && pasaPeriodicidad && pasaBusqueda
   })
 })
