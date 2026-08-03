@@ -103,31 +103,6 @@ console.log('Auth data:', auth.role, auth.user?.team_id, auth.user?.department_i
   cargando.value = false
 })
 
-// Observa cambios en el store y actualiza la tabla
-watch(() => store.indicadores, (nuevosDatos) => {
-  if (nuevosDatos.length > 0) {
-    kpis.value = nuevosDatos.map(k => {
-      const progreso = k.progreso ?? 0
-      const { traffic_light, estado, estadoTipo } = store.calcularEstado(progreso)
-      return {
-        id: k.id,
-        nombre: k.nombre,
-        subtitulo: k.subtitulo ?? k.nombre,
-        formula: k.formula ?? '—',
-        tipoMetrica: k.tipoMetrica,
-        periodicidad: k.periodicidad,
-        departamento: k.departamento ?? '—',
-        responsable: k.responsable ?? '—',
-        meta: k.goal ? `${parseFloat(k.goal)} ${k.unit ?? ''}`.trim() : '—',
-        progreso,
-        traffic_light,
-        estado,
-        estadoTipo,
-        ultimaActualizacion: k.ultimaActualizacion ?? '—',
-      }
-    })
-  }
-}, { deep: true })
 
 // ── Filtros ────────────────────────────────────────────────────//
 const filtroDepartamento = ref('')
