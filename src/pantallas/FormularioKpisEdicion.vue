@@ -39,17 +39,10 @@ const kpiEdicion = ref({
 
 onMounted(async () => {
   try {
-<<<<<<< HEAD
     // Cargar departamentos y usuarios que el usuario actual puede gestionar
     const [resDepts, resUsuarios] = await Promise.all([
       api.get('/departments'),
       api.get('/users/manageable'),
-=======
-    const [resDepts, resEquipos, resUsuarios] = await Promise.all([
-      api.get('/departments'),
-      api.get('/teams'),
-      api.get('/users'),
->>>>>>> 51de6eb80bc8869b787493e3df05d595c7e8f7a5
     ])
     departamentosApi.value = resDepts.data
     equiposApi.value       = resEquipos.data
