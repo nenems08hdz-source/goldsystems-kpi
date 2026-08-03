@@ -79,7 +79,7 @@ console.log('Auth data:', auth.role, auth.user?.team_id, auth.user?.department_i
   kpis.value = data.map(k => {
     const ultimoRecord = k.latest_record
     const progreso     = ultimoRecord ? Number(ultimoRecord.value) : 0
-    const { traffic_light, estado, estadoTipo } = store.calcularEstado(progreso)
+    const calculado = store.calcularEstado(progreso)
 
     return {
       id:                  k.id,
@@ -94,9 +94,9 @@ console.log('Auth data:', auth.role, auth.user?.team_id, auth.user?.department_i
                             : '—',
       meta:                k.goal ? `${parseFloat(k.goal)} ${k.unit ?? ''}`.trim() : '—',
       progreso,
-      traffic_light,
-      estado,
-      estadoTipo,
+      traffic_light: calculado.traffic_light,
+      estado:        calculado.estado,
+      estadoTipo:    calculado.estadoTipo,
       ultimaActualizacion: ultimoRecord?.period_start ?? '—',
     }
   })
@@ -344,8 +344,7 @@ async function ejecutarEliminacion() {
         </td>
 
         <td class="p-4 align-middle text-left">
-          <span style="color:white;font-size:10px">{{ fila.estadoTipo }}/{{ fila.estado }}</span>
-          <StatusBadge :tipo="fila.estadoTipo" :texto="fila.estado" />
+          <StatusBadge :tipo="fila.estadoTipo" />
         </td>
 
       </template>
