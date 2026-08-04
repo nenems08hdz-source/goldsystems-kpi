@@ -80,7 +80,7 @@ async function cargarDatos() {
 
         <img
              v-if="auth.user?.profile_photo"
-             :src="`${STORAGE_URL}/${auth.user.profile_photo}`"
+             :src="`${auth.user?.profile_photo_url}`"
              class="w-full h-full object-cover"
             />
                    
