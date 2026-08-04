@@ -218,9 +218,20 @@ const guardarPreferencias = () => {
       </div>
     </div>
 
+    <!--SECCIÓN: Preferencias de Notificaciones
+        Descripción: Tarjeta que muestra una tabla de alertas con opciones para 
+        habilitar/deshabilitar notificaciones por Email y Push. Permite al usuario
+        guardar sus cambios o cancelar.
+
+      Componentes:
+      - Encabezado: Título de la sección
+      - Tabla: Lista de alertas con checkboxes para Email y Push
+      - Botones: Cancelar (descarta cambios) y Guardar (aplica cambios)
+   
+    
     <div class="rounded-2xl shadow-sm w-full overflow-hidden mb-12"
       style="background: var(--card-bg); border: 1px solid var(--tabla-borde);">
-
+    
       <div class="px-6 py-4 border-b" style="background: var(--tabla-header-bg); border-color: var(--tabla-borde);">
         <h3 class="text-xs font-black uppercase tracking-wider" style="color: var(--tabla-header-text);">Preferencias de Notificaciones</h3>
       </div>
@@ -250,6 +261,6 @@ const guardarPreferencias = () => {
         <AppButton variant="primary" @click="guardarPreferencias">Guardar Cambios</AppButton>
       </div>
     </div>
-
+-->
   </div>
 </template>

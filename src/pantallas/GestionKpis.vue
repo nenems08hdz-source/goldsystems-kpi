@@ -125,6 +125,7 @@ const indicadoresFiltrados = computed(() =>
   })
 )
 
+
 // ── Paginación ───────────────────────────────────────────────────//
 const paginaActual = ref(1)
 const porPagina    = 10

@@ -50,9 +50,9 @@ const categorias = [
       <div class="lg:col-span-3 w-full items-start mt-2">
         <div class="w-full">
           <div v-if="categoriaActiva === 'perfil'"         class="animate-fade-in w-full"><AjustesPerfil /></div>
-          <div v-if="categoriaActiva === 'notificaciones'" class="animate-fade-in w-full"><ConfiguracionNotificacion /></div>
-          <div v-if="categoriaActiva === 'seguridad'"      class="animate-fade-in w-full"><ConfiguracionSeguridad /></div>
-        </div>
+          <!--<div v-if="categoriaActiva === 'notificaciones'" class="animate-fade-in w-full"><ConfiguracionNotificacion /></div>-->
+          <div v-if="categoriaActiva === 'seguridad'"      class="animate-fade-in w-full"><ConfiguracionSeguridad /></div>   
+           </div>
       </div>
 
     </div>
