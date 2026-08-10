@@ -41,6 +41,8 @@ export const useOrgStore = defineStore('orgStore', () => {
     usuarios.value      = []
     departamentos.value = []
     equipos.value       = []
+    // El departamento filtrado pertenece a la empresa anterior — no existe en la nueva
+    sessionStorage.removeItem('ui_departamento_activo')
   }
 
   /**
