@@ -29,16 +29,10 @@ onMounted(async () => {
     ? todosWidgets
     : todosWidgets.filter(w => w.id !== 'detalle')
 
-  // Filtra IDs guardados que:
-  // 1. Ya no existen en la BD (evita slots fantasma)
-  // 2. Pertenezcan al departamento activo (evita contaminación entre departamentos)
-  const idsDelDepto = store.departamentoActivo
-    ? kpiStore.indicadores
-        .filter(i => i.department_id === Number(store.departamentoActivo))
-        .map(i => i.id)
-    : kpiStore.indicadores.map(i => i.id)
-
-  kpisActivosLocal.value  = store.kpisActivos.filter(id => idsDelDepto.includes(id))
+  // Filtra IDs guardados que ya no existen en la BD (evita slots fantasma)
+  // cargarConfig() ya resetea y carga la config correcta del departamento activo
+  const idsValidos = kpiStore.indicadores.map(i => i.id)
+  kpisActivosLocal.value = store.kpisActivos.filter(id => idsValidos.includes(id))
   modoGraficaLocal.value    = store.modoGrafica
   kpiSeleccionadoLocal.value = store.kpiSeleccionadoGrafica
   tipoGraficaLocal.value    = store.tipoGraficaEspecifica
@@ -62,7 +56,7 @@ function toggleKpi(id) {
   if (index === -1) {
     if (kpisActivosLocal.value.length < 4) kpisActivosLocal.value.push(id)
   } else {
-    if (kpisActivosLocal.value.length > 1) kpisActivosLocal.value.splice(index, 1)
+    kpisActivosLocal.value.splice(index, 1)  // sin mínimo — 0 activos muestra los primeros 4
   }
 }
 
