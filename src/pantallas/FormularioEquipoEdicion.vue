@@ -27,8 +27,8 @@ const form = ref({
   department_id: null,
 })
 
-const departamentosDisponibles = computed(() =>
-  departamentos.value.map(d => ({ value: d.id, label: d.name }))
+const departamentosDisponibles = computed(() => 
+  store.departamentos.map(d => ({ value: d.id, label: d.name }))
 )
 
 onMounted(async () => {

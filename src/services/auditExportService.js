@@ -4,15 +4,19 @@ import { useAuthStore } from '../stores/authStore'
 const auditExportService = {
 
   _resolverCompanyId() {
+
+    // Primero: empresa activa seleccionada (developer con empresa fijada)
     const activa = sessionStorage.getItem('active_company_id')
     if (activa) return activa
+
+    // Fallback: company_id del usuario autenticado (admin, manager, etc.)
     const authStore = useAuthStore()
     return authStore.user?.company_id ?? null
   },
-
+  // exportación de excel 
   async exportToExcel(filters = {}) {
     try {
-      const params = new URLSearchParams()
+      const params = new URLSeargitchParams()
       const companyId = this._resolverCompanyId()
       const cleaned = this._limpiarFiltros({ ...filters, ...(companyId ? { company_id: companyId } : {}) })
       Object.entries(cleaned).forEach(([key, value]) => params.append(key, value))
@@ -33,6 +37,8 @@ const auditExportService = {
     }
   },
 
+  //exportación de pdf
+  
   async exportToPdf(filters = {}) {
     try {
       const params = new URLSearchParams()

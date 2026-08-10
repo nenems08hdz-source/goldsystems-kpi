@@ -173,7 +173,7 @@ function ejecutarEliminacion() {
       </div>
     </section>
 
-    <section class="mb-6">
+    <!--<section class="mb-6">
       <plantillatabla titulo="Sesiones Activas" :encabezados="encabezadosSesiones" :datos="sesiones" icon="fi-sr-computer-speaker">
         <template #default="{ fila }">
           <td class="p-4"><p class="text-sm font-bold" style="color: var(--text-general);">{{ fila.dispositivo }}</p></td>
@@ -203,8 +203,9 @@ function ejecutarEliminacion() {
       <AppButton variant="secondary">Cancelar</AppButton>
       <AppButton variant="primary" @click="guardarcambios">Guardar Cambios</AppButton>
     </div>
-
+--->
   </div>
+  
 
   <ModalConfirmacion
     :isOpen="showModal"
