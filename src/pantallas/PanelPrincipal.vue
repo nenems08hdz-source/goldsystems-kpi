@@ -24,7 +24,8 @@ const orgStore = useOrgStore()
 const kpis     = ref([])
 const misKpis  = ref([])
 
-const listoPararenderizar = ref(false)
+const _listo = ref(false)
+const listoPararenderizar = computed(() => _listo.value && !store.cargandoConfig)
 
 onMounted(async () => {
   await store.cargarConfig()
@@ -56,7 +57,7 @@ onMounted(async () => {
     })
   }
 
-  setTimeout(() => { listoPararenderizar.value = true }, 50)
+  setTimeout(() => { _listo.value = true }, 50)
 })
 
 const ordenWidgets  = computed(() => store.widgets.map(w => w.id))
@@ -67,14 +68,18 @@ const kpisFiltrados = computed(() =>
     : kpis.value
 )
 
-const kpisResumen  = computed(() =>
-  store.kpisActivos.length > 0
+const kpisResumen  = computed(() => {
+  if (store.cargandoConfig) return []
+  return store.kpisActivos.length > 0
     ? kpisFiltrados.value.filter(k => store.kpisActivos.includes(k.id))
     : kpisFiltrados.value.slice(0, 4)
-)
-const kpisDetalle  = computed(() => kpisFiltrados.value)
+})
+const kpisDetalle  = computed(() => {
+  if (store.cargandoConfig) return []
+  return [...kpisFiltrados.value].sort((a, b) => b.id - a.id).slice(0, 5)
+})
 const kpisCriticas = computed(() =>
-  kpisFiltrados.value.filter(i => i.estadoTipo === 'danger' || i.estadoTipo === 'warning')
+  store.cargandoConfig ? [] : kpisFiltrados.value.filter(i => i.estadoTipo === 'danger' || i.estadoTipo === 'warning')
 )
 
 const cabecerasDetalle  = ['Departamento', 'Periodicidad', 'Objetivo', 'Progreso', 'Estado']
@@ -96,12 +101,13 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
       </div>
     </div>
 
+    <div :style="{ opacity: listoPararenderizar ? '1' : '0', transition: 'opacity 0.15s ease' }">
     <template v-for="widgetId in ordenWidgets" :key="widgetId">
 
       <!-- tarjetas KPI -->
       <template v-if="widgetId === 'tarjetas'">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <template v-if="kpisResumen.length > 0">
+          <template v-if="listoPararenderizar && kpisResumen.length > 0">
             <TarjetasKpi
               v-for="item in kpisResumen"
               :key="item.id"
@@ -253,7 +259,7 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
         />
         <plantillatabla
           v-else
-          titulo="Métricas Detalladas por Departamento"
+          titulo="Últimas 5 Métricas Registradas"
           :encabezados="cabecerasDetalle"
           :datos="kpisDetalle"
           :mostrarAcciones="false"
@@ -300,5 +306,6 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
       </template>
 
     </template>
+    </div>
   </div>
 </template>

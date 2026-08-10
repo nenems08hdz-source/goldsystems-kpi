@@ -5,15 +5,21 @@ import { useUiStore }  from '../stores/uiStore'
 
 const orgStore = useOrgStore()
 const uiStore  = useUiStore()
-const departamentoSeleccionado = ref(null)
+
+// String para el select, Number|null para el store
+const departamentoSeleccionado = ref('')
 
 onMounted(() => {
+  // Restaurar desde el store (que ya leyó de sessionStorage)
   departamentoSeleccionado.value = uiStore.departamentoActivo
+    ? String(uiStore.departamentoActivo)
+    : ''
 })
 
 async function alCambiar(val) {
-  uiStore.departamentoActivo     = val || null
-  departamentoSeleccionado.value = val || null
+  uiStore.cargandoConfig         = true
+  uiStore.departamentoActivo     = val ? Number(val) : null
+  departamentoSeleccionado.value = val || ''
   await uiStore.cargarConfig()
 }
 </script>
@@ -28,7 +34,7 @@ async function alCambiar(val) {
       class="text-xs rounded-lg p-2 outline-none cursor-pointer transition-colors"
       style="background: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border);">
       <option value="">Todos los departamentos</option>
-      <option v-for="dep in orgStore.departamentos" :key="dep.id" :value="dep.id">
+      <option v-for="dep in orgStore.departamentos" :key="dep.id" :value="String(dep.id)">
         {{ dep.name }}
       </option>
     </select>

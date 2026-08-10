@@ -1,24 +1,12 @@
 import api from './api'
-import { useAuthStore } from '../stores/authStore'
 
 const auditExportService = {
 
-  _resolverCompanyId() {
-
-    // Primero: empresa activa seleccionada (developer con empresa fijada)
-    const activa = sessionStorage.getItem('active_company_id')
-    if (activa) return activa
-
-    // Fallback: company_id del usuario autenticado (admin, manager, etc.)
-    const authStore = useAuthStore()
-    return authStore.user?.company_id ?? null
-  },
-  // exportación de excel 
+  // exportación de excel
   async exportToExcel(filters = {}) {
     try {
-      const params = new URLSeargitchParams()
-      const companyId = this._resolverCompanyId()
-      const cleaned = this._limpiarFiltros({ ...filters, ...(companyId ? { company_id: companyId } : {}) })
+      const params = new URLSearchParams()
+      const cleaned = this._limpiarFiltros(filters)
       Object.entries(cleaned).forEach(([key, value]) => params.append(key, value))
 
       const response = await api.get(
@@ -42,8 +30,7 @@ const auditExportService = {
   async exportToPdf(filters = {}) {
     try {
       const params = new URLSearchParams()
-      const companyId = this._resolverCompanyId()
-      const cleaned = this._limpiarFiltros({ ...filters, ...(companyId ? { company_id: companyId } : {}) })
+      const cleaned = this._limpiarFiltros(filters)
       Object.entries(cleaned).forEach(([key, value]) => params.append(key, value))
 
       const response = await api.get(

@@ -30,6 +30,7 @@ onMounted(async () => {
     : todosWidgets.filter(w => w.id !== 'detalle')
 
   // Filtra IDs guardados que ya no existen en la BD (evita slots fantasma)
+  // cargarConfig() ya resetea y carga la config correcta del departamento activo
   const idsValidos = kpiStore.indicadores.map(i => i.id)
   kpisActivosLocal.value = store.kpisActivos.filter(id => idsValidos.includes(id))
   modoGraficaLocal.value    = store.modoGrafica
@@ -55,18 +56,23 @@ function toggleKpi(id) {
   if (index === -1) {
     if (kpisActivosLocal.value.length < 4) kpisActivosLocal.value.push(id)
   } else {
-    if (kpisActivosLocal.value.length > 1) kpisActivosLocal.value.splice(index, 1)
+    kpisActivosLocal.value.splice(index, 1)  // sin mínimo — 0 activos muestra los primeros 4
   }
 }
 
 async function guardarCambios() {
-  store.guardarOrden(listaLocal.value)
-  store.kpisActivos             = kpisActivosLocal.value
-  store.modoGrafica             = modoGraficaLocal.value
-  store.kpiSeleccionadoGrafica  = kpiSeleccionadoLocal.value
-  store.tipoGraficaEspecifica   = tipoGraficaLocal.value
-  await store.guardarConfig()
-  router.push('/')
+  try {
+    store.guardarOrden(listaLocal.value)
+    store.kpisActivos             = kpisActivosLocal.value
+    store.modoGrafica             = modoGraficaLocal.value
+    store.kpiSeleccionadoGrafica  = kpiSeleccionadoLocal.value
+    store.tipoGraficaEspecifica   = tipoGraficaLocal.value
+    await store.guardarConfig()
+    router.push('/')
+  } catch (err) {
+    console.error('[guardarCambios] Error al guardar:', err)
+    alert('Error al guardar la configuración: ' + (err?.response?.data?.message || err?.message || 'revisa la consola'))
+  }
 }
 </script>
 

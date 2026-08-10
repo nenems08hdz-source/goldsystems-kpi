@@ -1,26 +1,39 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useKpiStore }  from './kpiStore'
 import { useAuthStore } from './authStore'
 import api from '../services/api'
+
+const DEPTO_KEY = 'ui_departamento_activo'
+
+// Factory para no mutar el mismo objeto al resetear
+const widgetsBase = () => [
+  { id: 'tarjetas', nombre: 'Tarjetas KPI',              icono: 'fi-sr-apps',            descripcion: 'Resumen rápido de los KPIs activos' },
+  { id: 'graficas', nombre: 'Medidor y Progreso',         icono: 'fi-sr-stats',           descripcion: 'Gráfica circular y barras de progreso' },
+  { id: 'criticos', nombre: 'KPIs Críticos y en Riesgo', icono: 'fi-sr-exclamation',     descripcion: 'Lista de indicadores que necesitan atención' },
+  { id: 'detalle',  nombre: 'Métricas Detalladas',        icono: 'fi-sr-document-signed', descripcion: 'Tabla completa por departamento' },
+]
 
 export const useUiStore = defineStore('uiStore', () => {
 
   const kpiStore  = useKpiStore()
   const authStore = useAuthStore()
 
-  const departamentoActivo = ref(null)
+  // Persiste el departamento activo entre recargas de página
+  const _storedDepto = sessionStorage.getItem(DEPTO_KEY)
+  const departamentoActivo = ref(_storedDepto ? Number(_storedDepto) : null)
 
-  const widgets = ref([
-    { id: 'tarjetas', nombre: 'Tarjetas KPI',              icono: 'fi-sr-apps',            descripcion: 'Resumen rápido de los KPIs activos' },
-    { id: 'graficas', nombre: 'Medidor y Progreso',         icono: 'fi-sr-stats',           descripcion: 'Gráfica circular y barras de progreso' },
-    { id: 'criticos', nombre: 'KPIs Críticos y en Riesgo', icono: 'fi-sr-exclamation',     descripcion: 'Lista de indicadores que necesitan atención' },
-    { id: 'detalle',  nombre: 'Métricas Detalladas',        icono: 'fi-sr-document-signed', descripcion: 'Tabla completa por departamento' },
-  ])
+  watch(departamentoActivo, (val) => {
+    if (val) sessionStorage.setItem(DEPTO_KEY, String(val))
+    else     sessionStorage.removeItem(DEPTO_KEY)
+  })
 
+  const widgets = ref(widgetsBase())
+
+  const cargandoConfig         = ref(false)
   const kpisActivos            = ref([])
   const modoGrafica            = ref('general')
-  const kpiSeleccionadoGrafica = ref(1)
+  const kpiSeleccionadoGrafica = ref(null)
   const tipoGraficaEspecifica  = ref('linea')
 
   const indicadoresActivos = computed(() =>
@@ -39,18 +52,30 @@ export const useUiStore = defineStore('uiStore', () => {
       kpiSeleccionadoGrafica: kpiSeleccionadoGrafica.value,
       tipoGraficaEspecifica:  tipoGraficaEspecifica.value,
     }
+    console.log('[guardarConfig] enviando →', JSON.stringify({ department_id: departamentoActivo.value, config }))
     await api.post('/dashboard-config', {
       department_id: departamentoActivo.value,
       config,
     })
+    console.log('[guardarConfig] guardado OK')
   }
 
   async function cargarConfig() {
-    const params = departamentoActivo.value
-      ? `?department_id=${departamentoActivo.value}`
-      : ''
-    const { data } = await api.get(`/dashboard-config${params}`)
-    if (!data) return
+    // Reset ANTES del await para que Vue renderice datos vacíos mientras carga
+    cargandoConfig.value         = true
+    widgets.value                = widgetsBase()
+    kpisActivos.value            = []
+    modoGrafica.value            = 'general'
+    kpiSeleccionadoGrafica.value = null
+    tipoGraficaEspecifica.value  = 'linea'
+
+    const qs = departamentoActivo.value
+      ? `?department_id=${departamentoActivo.value}&_t=${Date.now()}`
+      : `?_t=${Date.now()}`
+    const { data } = await api.get(`/dashboard-config${qs}`)
+    console.log('[cargarConfig] dept=', departamentoActivo.value, '→ data=', JSON.stringify(data))
+
+    if (!data) { cargandoConfig.value = false; return }
 
     const base = {
       tarjetas: 'fi-sr-apps',
@@ -83,6 +108,7 @@ export const useUiStore = defineStore('uiStore', () => {
     if (data.modoGrafica)            modoGrafica.value            = data.modoGrafica
     if (data.kpiSeleccionadoGrafica) kpiSeleccionadoGrafica.value = data.kpiSeleccionadoGrafica
     if (data.tipoGraficaEspecifica)  tipoGraficaEspecifica.value  = data.tipoGraficaEspecifica
+    cargandoConfig.value = false
   }
 
   // Compatibilidad con PersonalizarPantalla y PanelPrincipal
@@ -93,6 +119,7 @@ export const useUiStore = defineStore('uiStore', () => {
 
   return {
     widgets,
+    cargandoConfig,
     kpisActivos,
     modoGrafica,
     kpiSeleccionadoGrafica,
