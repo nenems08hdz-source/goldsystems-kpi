@@ -1,26 +1,38 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useKpiStore }  from './kpiStore'
 import { useAuthStore } from './authStore'
 import api from '../services/api'
+
+const DEPTO_KEY = 'ui_departamento_activo'
+
+// Factory para no mutar el mismo objeto al resetear
+const widgetsBase = () => [
+  { id: 'tarjetas', nombre: 'Tarjetas KPI',              icono: 'fi-sr-apps',            descripcion: 'Resumen rápido de los KPIs activos' },
+  { id: 'graficas', nombre: 'Medidor y Progreso',         icono: 'fi-sr-stats',           descripcion: 'Gráfica circular y barras de progreso' },
+  { id: 'criticos', nombre: 'KPIs Críticos y en Riesgo', icono: 'fi-sr-exclamation',     descripcion: 'Lista de indicadores que necesitan atención' },
+  { id: 'detalle',  nombre: 'Métricas Detalladas',        icono: 'fi-sr-document-signed', descripcion: 'Tabla completa por departamento' },
+]
 
 export const useUiStore = defineStore('uiStore', () => {
 
   const kpiStore  = useKpiStore()
   const authStore = useAuthStore()
 
-  const departamentoActivo = ref(null)
+  // Persiste el departamento activo entre recargas de página
+  const _storedDepto = sessionStorage.getItem(DEPTO_KEY)
+  const departamentoActivo = ref(_storedDepto ? Number(_storedDepto) : null)
 
-  const widgets = ref([
-    { id: 'tarjetas', nombre: 'Tarjetas KPI',              icono: 'fi-sr-apps',            descripcion: 'Resumen rápido de los KPIs activos' },
-    { id: 'graficas', nombre: 'Medidor y Progreso',         icono: 'fi-sr-stats',           descripcion: 'Gráfica circular y barras de progreso' },
-    { id: 'criticos', nombre: 'KPIs Críticos y en Riesgo', icono: 'fi-sr-exclamation',     descripcion: 'Lista de indicadores que necesitan atención' },
-    { id: 'detalle',  nombre: 'Métricas Detalladas',        icono: 'fi-sr-document-signed', descripcion: 'Tabla completa por departamento' },
-  ])
+  watch(departamentoActivo, (val) => {
+    if (val) sessionStorage.setItem(DEPTO_KEY, String(val))
+    else     sessionStorage.removeItem(DEPTO_KEY)
+  })
+
+  const widgets = ref(widgetsBase())
 
   const kpisActivos            = ref([])
   const modoGrafica            = ref('general')
-  const kpiSeleccionadoGrafica = ref(1)
+  const kpiSeleccionadoGrafica = ref(null)
   const tipoGraficaEspecifica  = ref('linea')
 
   const indicadoresActivos = computed(() =>
@@ -50,6 +62,16 @@ export const useUiStore = defineStore('uiStore', () => {
       ? `?department_id=${departamentoActivo.value}`
       : ''
     const { data } = await api.get(`/dashboard-config${params}`)
+
+    // ── Siempre resetear antes de aplicar la nueva config ───────────────
+    // Esto evita que KPIs de otro departamento contaminen el contador
+    widgets.value                = widgetsBase()
+    kpisActivos.value            = []
+    modoGrafica.value            = 'general'
+    kpiSeleccionadoGrafica.value = null
+    tipoGraficaEspecifica.value  = 'linea'
+    // ────────────────────────────────────────────────────────────────────
+
     if (!data) return
 
     const base = {

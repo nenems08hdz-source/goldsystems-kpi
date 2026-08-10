@@ -29,9 +29,16 @@ onMounted(async () => {
     ? todosWidgets
     : todosWidgets.filter(w => w.id !== 'detalle')
 
-  // Filtra IDs guardados que ya no existen en la BD (evita slots fantasma)
-  const idsValidos = kpiStore.indicadores.map(i => i.id)
-  kpisActivosLocal.value = store.kpisActivos.filter(id => idsValidos.includes(id))
+  // Filtra IDs guardados que:
+  // 1. Ya no existen en la BD (evita slots fantasma)
+  // 2. Pertenezcan al departamento activo (evita contaminación entre departamentos)
+  const idsDelDepto = store.departamentoActivo
+    ? kpiStore.indicadores
+        .filter(i => i.department_id === Number(store.departamentoActivo))
+        .map(i => i.id)
+    : kpiStore.indicadores.map(i => i.id)
+
+  kpisActivosLocal.value  = store.kpisActivos.filter(id => idsDelDepto.includes(id))
   modoGraficaLocal.value    = store.modoGrafica
   kpiSeleccionadoLocal.value = store.kpiSeleccionadoGrafica
   tipoGraficaLocal.value    = store.tipoGraficaEspecifica

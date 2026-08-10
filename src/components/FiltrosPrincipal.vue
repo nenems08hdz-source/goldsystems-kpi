@@ -1,21 +1,26 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useOrgStore } from '../stores/orgStore'
 import { useUiStore }  from '../stores/uiStore'
 
 const orgStore = useOrgStore()
 const uiStore  = useUiStore()
-const departamentoSeleccionado = ref(null)
+
+// El select usa strings (valores de HTML), el store usa Number|null
+// departamentoSeleccionado es el "string local" del select
+const departamentoSeleccionado = ref('')
 
 onMounted(() => {
+  // Restaurar el valor del select desde el store (que ya lo leyó de sessionStorage)
   departamentoSeleccionado.value = uiStore.departamentoActivo
+    ? String(uiStore.departamentoActivo)
+    : ''
 })
 
-async function alCambiar(val) {
-  uiStore.departamentoActivo     = val || null
-  departamentoSeleccionado.value = val || null
+watch(departamentoSeleccionado, async (val) => {
+  uiStore.departamentoActivo = val ? Number(val) : null
   await uiStore.cargarConfig()
-}
+})
 </script>
 
 <template>
@@ -23,12 +28,11 @@ async function alCambiar(val) {
     <label class="text-xs font-bold uppercase tracking-wider"
       style="color: var(--text-general);">Departamento:</label>
     <select
-      :value="departamentoSeleccionado"
-      @change="alCambiar($event.target.value)"
+      v-model="departamentoSeleccionado"
       class="text-xs rounded-lg p-2 outline-none cursor-pointer transition-colors"
       style="background: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border);">
       <option value="">Todos los departamentos</option>
-      <option v-for="dep in orgStore.departamentos" :key="dep.id" :value="dep.id">
+      <option v-for="dep in orgStore.departamentos" :key="dep.id" :value="String(dep.id)">
         {{ dep.name }}
       </option>
     </select>
