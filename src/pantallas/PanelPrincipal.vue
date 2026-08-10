@@ -74,7 +74,10 @@ const kpisResumen  = computed(() => {
     ? kpisFiltrados.value.filter(k => store.kpisActivos.includes(k.id))
     : kpisFiltrados.value.slice(0, 4)
 })
-const kpisDetalle  = computed(() => store.cargandoConfig ? [] : kpisFiltrados.value)
+const kpisDetalle  = computed(() => {
+  if (store.cargandoConfig) return []
+  return [...kpisFiltrados.value].sort((a, b) => b.id - a.id).slice(0, 5)
+})
 const kpisCriticas = computed(() =>
   store.cargandoConfig ? [] : kpisFiltrados.value.filter(i => i.estadoTipo === 'danger' || i.estadoTipo === 'warning')
 )
@@ -256,7 +259,7 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
         />
         <plantillatabla
           v-else
-          titulo="Métricas Detalladas por Departamento"
+          titulo="Últimas 5 Métricas Registradas"
           :encabezados="cabecerasDetalle"
           :datos="kpisDetalle"
           :mostrarAcciones="false"
