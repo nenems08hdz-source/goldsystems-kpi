@@ -61,13 +61,18 @@ function toggleKpi(id) {
 }
 
 async function guardarCambios() {
-  store.guardarOrden(listaLocal.value)
-  store.kpisActivos             = kpisActivosLocal.value
-  store.modoGrafica             = modoGraficaLocal.value
-  store.kpiSeleccionadoGrafica  = kpiSeleccionadoLocal.value
-  store.tipoGraficaEspecifica   = tipoGraficaLocal.value
-  await store.guardarConfig()
-  router.push('/')
+  try {
+    store.guardarOrden(listaLocal.value)
+    store.kpisActivos             = kpisActivosLocal.value
+    store.modoGrafica             = modoGraficaLocal.value
+    store.kpiSeleccionadoGrafica  = kpiSeleccionadoLocal.value
+    store.tipoGraficaEspecifica   = tipoGraficaLocal.value
+    await store.guardarConfig()
+    router.push('/')
+  } catch (err) {
+    console.error('[guardarCambios] Error al guardar:', err)
+    alert('Error al guardar la configuración: ' + (err?.response?.data?.message || err?.message || 'revisa la consola'))
+  }
 }
 </script>
 
