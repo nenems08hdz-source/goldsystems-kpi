@@ -61,21 +61,19 @@ export const useUiStore = defineStore('uiStore', () => {
   }
 
   async function cargarConfig() {
-    cargandoConfig.value = true
-    const qs = departamentoActivo.value
-      ? `?department_id=${departamentoActivo.value}&_t=${Date.now()}`
-      : `?_t=${Date.now()}`
-    const { data } = await api.get(`/dashboard-config${qs}`)
-    console.log('[cargarConfig] dept=', departamentoActivo.value, '→ data=', JSON.stringify(data))
-
-    // ── Siempre resetear antes de aplicar la nueva config ───────────────
-    // Esto evita que KPIs de otro departamento contaminen el contador
+    // Reset ANTES del await para que Vue renderice datos vacíos mientras carga
+    cargandoConfig.value         = true
     widgets.value                = widgetsBase()
     kpisActivos.value            = []
     modoGrafica.value            = 'general'
     kpiSeleccionadoGrafica.value = null
     tipoGraficaEspecifica.value  = 'linea'
-    // ────────────────────────────────────────────────────────────────────
+
+    const qs = departamentoActivo.value
+      ? `?department_id=${departamentoActivo.value}&_t=${Date.now()}`
+      : `?_t=${Date.now()}`
+    const { data } = await api.get(`/dashboard-config${qs}`)
+    console.log('[cargarConfig] dept=', departamentoActivo.value, '→ data=', JSON.stringify(data))
 
     if (!data) { cargandoConfig.value = false; return }
 

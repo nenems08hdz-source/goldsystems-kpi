@@ -19,6 +19,7 @@ const logDetalle  = ref(null)   // log seleccionado para modal
 // ── Filtros ──────────────────────────────────────────────────────────────────
 const filtroModulo    = ref('')
 const filtroAccion    = ref('')
+const filtroUsuario   = ref('')
 const filtroDesde     = ref('')
 const filtroHasta     = ref('')
 const paginaActual    = ref(1)
@@ -38,10 +39,11 @@ async function cargar() {
   cargando.value = true
   try {
     const params = { page: paginaActual.value }
-    if (filtroModulo.value)  params.module    = filtroModulo.value
-    if (filtroAccion.value)  params.action    = filtroAccion.value
-    if (filtroDesde.value)   params.date_from = filtroDesde.value
-    if (filtroHasta.value)   params.date_to   = filtroHasta.value
+    if (filtroModulo.value)   params.module    = filtroModulo.value
+    if (filtroAccion.value)   params.action    = filtroAccion.value
+    if (filtroUsuario.value)  params.user      = filtroUsuario.value
+    if (filtroDesde.value)    params.date_from = filtroDesde.value
+    if (filtroHasta.value)    params.date_to   = filtroHasta.value
 
     const res  = await api.get('/audit-logs', { params })
     const data = res.data
@@ -62,11 +64,12 @@ async function cargar() {
 }
 
 function limpiarFiltros() {
-  filtroModulo.value = ''
-  filtroAccion.value = ''
-  filtroDesde.value  = ''
-  filtroHasta.value  = ''
-  paginaActual.value = 1
+  filtroModulo.value   = ''
+  filtroAccion.value   = ''
+  filtroUsuario.value  = ''
+  filtroDesde.value    = ''
+  filtroHasta.value    = ''
+  paginaActual.value   = 1
   cargar()
 }
 
@@ -203,6 +206,7 @@ async function handleExportarExcel() {
     await auditExportService.exportToExcel({
       module: filtroModulo.value,
       action: filtroAccion.value,
+      user: filtroUsuario.value,
       date_from: filtroDesde.value,
       date_to: filtroHasta.value,
     })
@@ -219,6 +223,7 @@ async function handleExportarPdf() {
     await auditExportService.exportToPdf({
       module: filtroModulo.value,
       action: filtroAccion.value,
+      user: filtroUsuario.value,
       date_from: filtroDesde.value,
       date_to: filtroHasta.value,
     })
@@ -308,6 +313,11 @@ async function handleExportarPdf() {
           <option value="">Todas las acciones</option>
           <option v-for="a in acciones" :key="a" :value="a">{{ a }}</option>
         </select>
+      </div>
+
+      <div class="flex flex-col gap-1 min-w-[180px]">
+        <label class="text-[10px] font-bold uppercase tracking-wider" style="color: var(--subtext-general);">Persona</label>
+        <input v-model="filtroUsuario" type="text" placeholder="Nombre o correo..." class="app-select" />
       </div>
 
       <div class="flex flex-col gap-1">

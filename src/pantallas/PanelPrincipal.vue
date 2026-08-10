@@ -68,14 +68,15 @@ const kpisFiltrados = computed(() =>
     : kpis.value
 )
 
-const kpisResumen  = computed(() =>
-  store.kpisActivos.length > 0
+const kpisResumen  = computed(() => {
+  if (store.cargandoConfig) return []
+  return store.kpisActivos.length > 0
     ? kpisFiltrados.value.filter(k => store.kpisActivos.includes(k.id))
     : kpisFiltrados.value.slice(0, 4)
-)
-const kpisDetalle  = computed(() => kpisFiltrados.value)
+})
+const kpisDetalle  = computed(() => store.cargandoConfig ? [] : kpisFiltrados.value)
 const kpisCriticas = computed(() =>
-  kpisFiltrados.value.filter(i => i.estadoTipo === 'danger' || i.estadoTipo === 'warning')
+  store.cargandoConfig ? [] : kpisFiltrados.value.filter(i => i.estadoTipo === 'danger' || i.estadoTipo === 'warning')
 )
 
 const cabecerasDetalle  = ['Departamento', 'Periodicidad', 'Objetivo', 'Progreso', 'Estado']
