@@ -30,7 +30,7 @@ const listoPararenderizar = ref(false)
 watch(() => store.cargandoConfig, (cargando) => {
   if (cargando) listoPararenderizar.value = false
   else          listoPararenderizar.value = true
-})
+}, { flush: 'sync' })
 
 onMounted(async () => {
   await store.cargarConfig()
@@ -107,7 +107,7 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
       <!-- tarjetas KPI -->
       <template v-if="widgetId === 'tarjetas'">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <template v-if="kpisResumen.length > 0">
+          <template v-if="listoPararenderizar && kpisResumen.length > 0">
             <TarjetasKpi
               v-for="item in kpisResumen"
               :key="item.id"

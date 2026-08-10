@@ -17,6 +17,7 @@ onMounted(() => {
 })
 
 async function alCambiar(val) {
+  uiStore.cargandoConfig         = true
   uiStore.departamentoActivo     = val ? Number(val) : null
   departamentoSeleccionado.value = val || ''
   await uiStore.cargarConfig()
