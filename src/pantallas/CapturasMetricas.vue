@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, getCurrentInstance } from 'vue'
+import { useRouter } from 'vue-router'
 import { useKpiStore }    from '../stores/kpiStore'
 import { usePermissions } from '../composables/usePermissions'
 import api from '../services/api'
@@ -11,18 +12,17 @@ import EtiquetaBadge      from '../components/ui/EtiquetaBadge.vue'
 import BotonAccion        from '../components/ui/BotonAccion.vue'
 import StatusBadge        from '../components/StatusBadge.vue'
 import AppButton          from '../components/ui/AppButton.vue'
-import { useLoading } from '@/composables/useLoading' // ← EDICIÓN 
-import LoadingSpinner from '../components/LoadingSpinner.vue' // ← EDICIÓN: Componente personalizado
+import { useLoading } from '@/composables/useLoading'
+import LoadingSpinner from '../components/LoadingSpinner.vue'
 
+const router = useRouter()
 const { proxy } = getCurrentInstance()
 const { can }   = usePermissions()
 const store     = useKpiStore()
 const kpis      = ref([])
-const { isLoading, cargarConDelay } = useLoading() // ← EDICIÓN
+const { isLoading, cargarConDelay } = useLoading()
 
 onMounted(async () => {
-  // ← EDICIÓN: Usar cargarConDelay
-  // Esta pantalla siempre muestra solo los KPIs asignados al usuario actual
   const res = await cargarConDelay(() => api.get('/kpis/mine'))
   const data = res.data
 
@@ -56,7 +56,6 @@ function regresarATabla() {
 
 const misKpis = computed(() => kpis.value)
 
-// Devuelve el tipo que entiende StatusBadge
 function tipoEstadoCaptura(kpi) {
   return store.estadoCaptura(kpi) ?? 'danger'
 }
@@ -77,13 +76,11 @@ function ejecutarEliminacion() {
 </script>
 
 <template>
-  <!-- ← EDICIÓN: Componente personalizado -->
   <LoadingSpinner :isActive="isLoading" text="Cargando mis KPIs..." />
 
   <div class="p-3 min-h-screen">
     <div class="w-full">
 
-      <!-- VISTA TABLA -->
       <div v-if="vistaActual === 'tabla'" class="space-y-6">
 
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-200/60 pb-5">
@@ -92,6 +89,7 @@ function ejecutarEliminacion() {
             descripcion="Registra los valores de los KPIs que tienes asignados."
           />
         </div>
+
         <div
           v-if="misKpis.length === 0"
           class="rounded-xl p-6 text-center"
@@ -133,6 +131,7 @@ function ejecutarEliminacion() {
 
             <td class="p-4 min-w-[120px]">
               <div class="flex items-center gap-2">
+                <BotonAccion variante="eye" titulo="Ver Detalles" @click="router.push(`/kpis/detalle/${fila.id}`)" />
                 <AppButton v-if="can('kpi-records.store')" variant="primary" size="sm" class="flex items-center gap-1.5" @click="abrirFormulario(fila)">
                   <i class="fi fi-sr-edit text-[10px]"></i> Registrar
                 </AppButton>
@@ -151,6 +150,7 @@ function ejecutarEliminacion() {
           @cancelar="showModal = false"
         />
       </div>
+
       <div v-else>
         <RegistroMetricas
           :kpi="kpiPreseleccionado"
@@ -158,6 +158,7 @@ function ejecutarEliminacion() {
           @cancelar="regresarATabla"
         />
       </div>
+
     </div>
   </div>
 </template>

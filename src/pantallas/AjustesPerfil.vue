@@ -17,9 +17,7 @@ const usuario = ref({
 })
 
 const fotoUrl = ref( //variable reactiva que guarda la URL de la foto del usuario
-  auth.user?.profile_photo  //el ?. es el operador de encadenamiento opcional, 
-    ? `http://127.0.0.1:8000/storage/${auth.user.profile_photo}`  //significa "si auth.user existe, dame profile_photo, si no, no explotes"
-    : null
+  auth.user?.profile_photo_url
 )
 
 const alertasConfig = ref([

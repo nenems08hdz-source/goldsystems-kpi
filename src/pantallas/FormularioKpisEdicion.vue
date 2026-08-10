@@ -40,13 +40,14 @@ const kpiEdicion = ref({
 onMounted(async () => {
   try {
     // Cargar departamentos y usuarios que el usuario actual puede gestionar
-    const [resDepts, resUsuarios] = await Promise.all([
-      api.get('/departments'),
-      api.get('/users/manageable'),
-    ])
-    departamentosApi.value = resDepts.data
-    equiposApi.value       = resEquipos.data
-    usuariosApi.value      = resUsuarios.data
+    const [resDepts, resEquipos, resUsuarios] = await Promise.all([
+        api.get('/departments'),
+        api.get('/teams'),
+        api.get('/users'),  // ← Cambio: obtén TODOS los usuarios
+  ])
+      departamentosApi.value = resDepts.data
+      equiposApi.value       = resEquipos.data
+      usuariosApi.value      = resUsuarios.data
 
     // Cargar el KPI a editar
     const resKpi = await api.get(`/kpis/${kpiId.value}`)
@@ -80,8 +81,11 @@ onMounted(async () => {
       unit:            k.unit || '%',
       tipoMetrica:     tipoReverseMap[k.type]        || 'Porcentaje',
       periodicidad:    frecuenciaReverseMap[k.frequency] || 'Mensual',
-    }
-    cargando.value = false
+}
+// Fuerza recalculo de computed
+await proxy.$nextTick()
+
+ cargando.value = false
   } catch (error) {
     console.error('Error cargando KPI:', error)
     proxy.$notify.error('Error al cargar el KPI', 'Error')
@@ -129,8 +133,8 @@ const unidadPorTipo = {
 }
 
 watch(() => kpiEdicion.value.tipoMetrica, (tipo) => {
-  kpiEdicion.value.unit = unidadPorTipo[tipo] ?? '%'
-})
+  }, { immediate: true })
+
 
 async function guardarEdicion() {
   const tipoApiMap = {
@@ -236,10 +240,11 @@ async function guardarEdicion() {
           </p>
         </FormField>
 
-        <FormField label="Fórmula o Criterio de Cálculo" required>
+        <!--<FormField label="Fórmula o Criterio de Cálculo" required>
           <AppInput v-model="kpiEdicion.formula" required />
         </FormField>
-
+      --> 
+        
         <FormField label="Descripción corta" :col-span="2">
           <AppInput v-model="kpiEdicion.subtitulo" />
         </FormField>

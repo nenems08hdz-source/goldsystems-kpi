@@ -35,8 +35,8 @@ onMounted(() => {
   store.cargarEmpresas()
 })
 
-const API_URL     = import.meta.env.VITE_API_URL                  // http://localhost:8000/api
-const STORAGE_URL = API_URL?.replace('/api', '/storage') ?? ''    // http://localhost:8000/storage
+const API_URL     = import.meta.env.VITE_API_URL               // http://localhost:8000/api
+const STORAGE_URL = API_URL+ '/storage'    // http://localhost:8000/storage
 
 const filtroBusqueda = ref('')
 const filtroEstado   = ref('')
