@@ -60,10 +60,10 @@ export const useUiStore = defineStore('uiStore', () => {
   }
 
   async function cargarConfig() {
-    const params = departamentoActivo.value
-      ? `?department_id=${departamentoActivo.value}`
-      : ''
-    const { data } = await api.get(`/dashboard-config${params}`)
+    const base = departamentoActivo.value
+      ? `?department_id=${departamentoActivo.value}&_t=${Date.now()}`
+      : `?_t=${Date.now()}`
+    const { data } = await api.get(`/dashboard-config${base}`)
     console.log('[cargarConfig] dept=', departamentoActivo.value, '→ data=', JSON.stringify(data))
 
     // ── Siempre resetear antes de aplicar la nueva config ───────────────
