@@ -51,10 +51,12 @@ export const useUiStore = defineStore('uiStore', () => {
       kpiSeleccionadoGrafica: kpiSeleccionadoGrafica.value,
       tipoGraficaEspecifica:  tipoGraficaEspecifica.value,
     }
+    console.log('[guardarConfig] enviando →', JSON.stringify({ department_id: departamentoActivo.value, config }))
     await api.post('/dashboard-config', {
       department_id: departamentoActivo.value,
       config,
     })
+    console.log('[guardarConfig] guardado OK')
   }
 
   async function cargarConfig() {
@@ -62,6 +64,7 @@ export const useUiStore = defineStore('uiStore', () => {
       ? `?department_id=${departamentoActivo.value}`
       : ''
     const { data } = await api.get(`/dashboard-config${params}`)
+    console.log('[cargarConfig] dept=', departamentoActivo.value, '→ data=', JSON.stringify(data))
 
     // ── Siempre resetear antes de aplicar la nueva config ───────────────
     // Esto evita que KPIs de otro departamento contaminen el contador
