@@ -97,6 +97,7 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
       </div>
     </div>
 
+    <div :style="{ opacity: listoPararenderizar ? '1' : '0', transition: 'opacity 0.15s ease' }">
     <template v-for="widgetId in ordenWidgets" :key="widgetId">
 
       <!-- tarjetas KPI -->
@@ -301,5 +302,6 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
       </template>
 
     </template>
+    </div>
   </div>
 </template>
