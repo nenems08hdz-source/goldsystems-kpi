@@ -30,6 +30,7 @@ export const useUiStore = defineStore('uiStore', () => {
 
   const widgets = ref(widgetsBase())
 
+  const cargandoConfig         = ref(false)
   const kpisActivos            = ref([])
   const modoGrafica            = ref('general')
   const kpiSeleccionadoGrafica = ref(null)
@@ -60,6 +61,7 @@ export const useUiStore = defineStore('uiStore', () => {
   }
 
   async function cargarConfig() {
+    cargandoConfig.value = true
     const qs = departamentoActivo.value
       ? `?department_id=${departamentoActivo.value}&_t=${Date.now()}`
       : `?_t=${Date.now()}`
@@ -75,7 +77,7 @@ export const useUiStore = defineStore('uiStore', () => {
     tipoGraficaEspecifica.value  = 'linea'
     // ────────────────────────────────────────────────────────────────────
 
-    if (!data) return
+    if (!data) { cargandoConfig.value = false; return }
 
     const base = {
       tarjetas: 'fi-sr-apps',
@@ -108,6 +110,7 @@ export const useUiStore = defineStore('uiStore', () => {
     if (data.modoGrafica)            modoGrafica.value            = data.modoGrafica
     if (data.kpiSeleccionadoGrafica) kpiSeleccionadoGrafica.value = data.kpiSeleccionadoGrafica
     if (data.tipoGraficaEspecifica)  tipoGraficaEspecifica.value  = data.tipoGraficaEspecifica
+    cargandoConfig.value = false
   }
 
   // Compatibilidad con PersonalizarPantalla y PanelPrincipal
@@ -118,6 +121,7 @@ export const useUiStore = defineStore('uiStore', () => {
 
   return {
     widgets,
+    cargandoConfig,
     kpisActivos,
     modoGrafica,
     kpiSeleccionadoGrafica,

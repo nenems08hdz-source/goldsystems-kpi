@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useUiStore }      from '../stores/uiStore'
 import { useKpiStore }     from '../stores/kpiStore'
 import { usePermissions }  from '../composables/usePermissions'
@@ -25,6 +25,12 @@ const kpis     = ref([])
 const misKpis  = ref([])
 
 const listoPararenderizar = ref(false)
+
+// Oculta el panel mientras cargarConfig() está en curso (evita flash de datos anteriores)
+watch(() => store.cargandoConfig, (cargando) => {
+  if (cargando) listoPararenderizar.value = false
+  else          listoPararenderizar.value = true
+})
 
 onMounted(async () => {
   await store.cargarConfig()
