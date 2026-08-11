@@ -235,7 +235,7 @@ async function cargarTodosLosHistoriales() {
 
     const res = await api.get(url)
     indicadores.value = res.data.map(kpi => {
-      const progreso = kpi.latest_record?.value ?? 0
+      const progreso = parseFloat(Number(kpi.latest_record?.value ?? 0).toFixed(2))
       const estado = calcularEstado(progreso)
       return {
         id: kpi.id,

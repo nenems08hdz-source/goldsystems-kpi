@@ -42,7 +42,7 @@ onMounted(async () => {
   if (!can('dashboard.view_advanced')) {
     const res = await api.get('/kpis/mine')
     misKpis.value = res.data.map(k => {
-      const progreso = k.latest_record ? Number(k.latest_record.value) : 0
+      const progreso = k.latest_record ? parseFloat(Number(k.latest_record.value).toFixed(2)) : 0      
       const { traffic_light, estado, estadoTipo } = kpiStore.calcularEstado(progreso)
       return {
         id:           k.id,
@@ -259,7 +259,7 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
         />
         <plantillatabla
           v-else
-          titulo="Últimas 5 Métricas Registradas"
+          titulo="Últimas 5 Kpis Registradas"
           :encabezados="cabecerasDetalle"
           :datos="kpisDetalle"
           :mostrarAcciones="false"
