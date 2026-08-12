@@ -37,8 +37,7 @@ onMounted(async () => {
     periodicidad: frecuenciaMap[k.frequency] ?? k.frequency,
     departamento: k.department?.name         ?? '—',
     meta:         k.goal ? `${k.goal} ${k.unit ?? ''}`.trim() : '—',
-    progreso:     k.latest_record ? Number(k.latest_record.value) : 0,
-  }))
+    progreso: k.latest_record ? parseFloat(Number(k.latest_record.value).toFixed(2)) : 0,  }))
 })
 
 const vistaActual        = ref('tabla')

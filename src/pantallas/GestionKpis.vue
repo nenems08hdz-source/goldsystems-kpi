@@ -78,8 +78,8 @@ console.log('Auth data:', auth.role, auth.user?.team_id, auth.user?.department_i
 
   kpis.value = data.map(k => {
     const ultimoRecord = k.latest_record
-    const progreso     = ultimoRecord ? Number(ultimoRecord.value) : 0
-    const calculado = store.calcularEstado(progreso)
+      const progreso = k.latest_record ? parseFloat(Number(k.latest_record.value).toFixed(2)) : 0   
+      const calculado = store.calcularEstado(progreso)
 
     return {
       id:                  k.id,

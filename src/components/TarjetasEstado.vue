@@ -52,7 +52,7 @@ const nombreEmpresa = computed(() => orgStore.empresaActiva?.name ?? 'Mi Empresa
       </div>
       <div class="mt-2 flex items-center gap-2">
         <span class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
-        <span class="text-[11px] font-bold text-yellow-400 uppercase tracking-wide">Estado: preventivo</span>
+        <span class="text-[11px] font-bold text-yellow-400 uppercase tracking-wide">Estado: En riesgo</span>
       </div>
     </div>
 
