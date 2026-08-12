@@ -71,7 +71,7 @@ const handleLogin = async () => {
       </div>
 
       <div class="form-side">
-        <h2 class="form-title">Iniciar Sesion</h2>
+        <h2 class="form-title">Iniciar Sesión</h2>
         
         <div class="form-content-wrapper">
           <form @submit.prevent="handleLogin">
