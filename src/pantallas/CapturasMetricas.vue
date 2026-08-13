@@ -36,7 +36,7 @@ onMounted(async () => {
     tipoMetrica:  tipoMap[k.type]            ?? k.type,
     periodicidad: frecuenciaMap[k.frequency] ?? k.frequency,
     departamento: k.department?.name         ?? '—',
-    meta:         k.goal ? `${k.goal} ${k.unit ?? ''}`.trim() : '—',
+    meta:         k.goal ? `${k.goal} ${k.unit === 'ms' ? 'hrs' : k.unit ?? ''}`.trim() : '—',
     progreso: k.latest_record ? parseFloat(Number(k.latest_record.value).toFixed(2)) : 0,  }))
 })
 

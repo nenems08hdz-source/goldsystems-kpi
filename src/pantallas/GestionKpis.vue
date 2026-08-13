@@ -92,8 +92,7 @@ console.log('Auth data:', auth.role, auth.user?.team_id, auth.user?.department_i
       responsable:         k.creator
                             ? `${k.creator.name} ${k.creator.paternal ?? ''}`.trim()
                             : '—',
-      meta:                k.goal ? `${parseFloat(k.goal)} ${k.unit ?? ''}`.trim() : '—',
-      progreso,
+      meta:                k.goal ? `${parseFloat(k.goal)} ${k.unit === 'ms' ? 'hrs' : k.unit ?? ''}`.trim() : '—',      progreso,
       traffic_light: calculado.traffic_light,
       estado:        calculado.estado,
       estadoTipo:    calculado.estadoTipo,
@@ -187,10 +186,9 @@ function formatearValor(valor, tipo) {
   const n = Number(valor)
   if (tipo === 'Monetario')  return '$' + n.toFixed(0)
   if (tipo === 'Porcentaje') return n.toFixed(1) + '%'
-  if (tipo === 'Tiempo')     return n.toFixed(0) + ' ms'
+  if (tipo === 'Tiempo')     return n.toFixed(0) + ' hrs'  // ← CAMBIO
   return n.toFixed(1) + ' pts'
 }
-
 // ── Eliminar KPI ────────────────────────────────────────────────────//
 const showModal    = ref(false)
 const kpiAEliminar = ref(null)
