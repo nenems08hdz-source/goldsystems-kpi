@@ -72,7 +72,7 @@ const kpisResumen  = computed(() => {
   if (store.cargandoConfig) return []
   return store.kpisActivos.length > 0
     ? kpisFiltrados.value.filter(k => store.kpisActivos.includes(k.id))
-    : kpisFiltrados.value.slice(0, 4)
+    : kpisFiltrados.value.slice(0, store.maxKpis)
 })
 const kpisDetalle  = computed(() => {
   if (store.cargandoConfig) return []
