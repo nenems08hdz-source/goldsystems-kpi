@@ -86,13 +86,15 @@ console.log('Auth data:', auth.role, auth.user?.team_id, auth.user?.department_i
       nombre:              k.name,
       subtitulo:           k.subtitle ?? k.name,
       formula:             k.formula ?? '—',
+      is_calculated:       k.is_calculated ?? false,  // ← AGREGAR
       tipoMetrica:         tipoMap[k.type]             ?? k.type,
       periodicidad:        frecuenciaMap[k.frequency]  ?? k.frequency,
       departamento:        k.department?.name          ?? '—',
       responsable:         k.creator
                             ? `${k.creator.name} ${k.creator.paternal ?? ''}`.trim()
                             : '—',
-      meta:                k.goal ? `${parseFloat(k.goal)} ${k.unit === 'ms' ? 'hrs' : k.unit ?? ''}`.trim() : '—',      progreso,
+      meta:                k.goal ? `${parseFloat(k.goal)} ${k.unit === 'ms' ? 'hrs' : k.unit ?? ''}`.trim() : '—',      
+      progreso,
       traffic_light: calculado.traffic_light,
       estado:        calculado.estado,
       estadoTipo:    calculado.estadoTipo,
@@ -312,8 +314,13 @@ async function ejecutarEliminacion() {
       <template #default="{ fila }">
 
         <td class="p-4 align-middle text-left">
+          <div class="flex items-center gap-2">
           <div class="font-bold text-sm" style="color: var(--text-general);">{{ fila.nombre }}</div>
-          <div class="text-xs mt-0.5" style="color: var(--subtext-general);">{{ fila.formula }}</div>
+            <span v-if="fila.is_calculated" class="px-2 py-0.5 rounded text-xs font-semibold" style="background: var(--bg-success); color: var(--text-success);">
+              (Fórmula)
+            </span>
+           </div>
+           <div class="text-xs mt-0.5" style="color: var(--subtext-general);">{{ fila.formula }}</div>
         </td>
 
         <td class="p-4 align-middle text-left">
@@ -330,11 +337,11 @@ async function ejecutarEliminacion() {
           <EtiquetaBadge :texto="fila.periodicidad" />
         </td>
 
-        <td class="p-4 align-middle text-left">
+      <td class="p-4 align-middle text-left">
           <span class="text-sm font-bold" style="color: var(--text-general);">
-            {{ formatearValor(fila.progreso, fila.tipoMetrica) }}
-          </span>
-        </td>
+              {{ formatearValor(fila.progreso, fila.tipoMetrica) }}
+          </span> 
+      </td>
 
         <td v-if="can('kpis.view_targets')" class="p-4 align-middle text-left">
           <span class="text-xs font-semibold" style="color: var(--card-text-muted);">{{ fila.meta }}</span>
