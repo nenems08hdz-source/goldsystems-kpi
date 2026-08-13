@@ -149,7 +149,10 @@ const registrosFiltrados = computed(() => {
           <div class="flex flex-col items-end gap-2">
             <StatusBadge :tipo="kpi.estadoTipo" :texto="kpi.estado" />
             <p class="text-xs text-right" style="color: var(--subtext-general);">
-              Valor actual: <strong style="color: var(--text-general);">{{ kpi.progreso }}</strong>
+              <span v-if="kpi.is_calculated" class="px-1.5 py-0.5 rounded text-[10px] font-semibold mr-2" style="background: var(--bg-success); color: var(--text-success);">
+                (Calculado)
+              </span>
+                  Valor actual: <strong style="color: var(--text-general);">{{ kpi.progreso }}</strong>
             </p>
             <p class="text-xs text-right" style="color: var(--subtext-general);">
               Meta: <strong style="color: var(--text-general);">{{ kpi.meta }}</strong>

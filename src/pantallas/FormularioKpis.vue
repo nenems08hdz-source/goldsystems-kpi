@@ -23,20 +23,30 @@ const equiposApi       = ref([])
 const usuariosApi      = ref([])
 
 onMounted(async () => {
-  const [resDepts, resEquipos, resUsuarios] = await Promise.all([
-    api.get('/departments'),
-    api.get('/teams'),
-    api.get('/users'),
-  ])
-  departamentosApi.value = resDepts.data
-  equiposApi.value       = resEquipos.data
-  usuariosApi.value      = resUsuarios.data
+  const [resDepts, resEquipos, resUsuarios, resKpis] = await Promise.all([
+  api.get('/departments'),
+  api.get('/teams'),
+  api.get('/users'),
+  api.get('/kpis'),
+])
+departamentosApi.value = resDepts.data
+equiposApi.value       = resEquipos.data
+usuariosApi.value      = resUsuarios.data
+kpisDisponibles.value  = resKpis.data.filter(k => !k.is_calculated)  // ← AGREGAR
+
 })
+
+const kpisDisponibles = ref([])  // ← AGREGAR antes de nuevoKpi
 
 const nuevoKpi = ref({
   nombre:          '',
   subtitulo:       '',
   formula:         '',
+  is_calculated:   false,  // ← AGREGAR
+  kpi1_id:         null,    // ← AGREGAR
+  kpi2_id:         null,    // ← AGREGAR
+  operacion:       '+',     // ← AGREGAR
+  multiplicador:   100,     // ← AGREGAR
   departamento_id: null,
   equipo_id:       null,
   usuario_id:      null,
@@ -55,6 +65,31 @@ const nuevoKpi = ref({
 const opcionesDepartamentos = computed(() =>
   departamentosApi.value.map(d => ({ value: d.id, label: d.name }))
 )
+
+const opcionesKpis = computed(() =>
+  kpisDisponibles.value.map(k => {
+    const dept = departamentosApi.value.find(d => d.id === k.department_id)
+    const deptName = dept ? dept.name : 'Sin departamento'
+    return {
+      value: k.id,
+      label: `${k.name} (${deptName})`,
+    }
+  })
+)
+
+const formulaPreview = computed(() => {
+  if (!nuevoKpi.value.kpi1_id) return ''
+  
+  const kpi1 = `KPI_${nuevoKpi.value.kpi1_id}`
+  const kpi2 = nuevoKpi.value.kpi2_id ? `KPI_${nuevoKpi.value.kpi2_id}` : ''
+  const op1 = nuevoKpi.value.operacion || '+'
+  const op2 = nuevoKpi.value.operacion_2 || '+'
+  const mult = nuevoKpi.value.multiplicador || 1
+  
+  if (!kpi2) return `( ${kpi1} ) × ${mult}`
+  return `( ${kpi1} ${op1} ${kpi2} ) × ${mult}`
+})
+
 
 // Equipos filtrados por departamento seleccionado
 const opcionesEquipos = computed(() => {
@@ -100,6 +135,13 @@ watch(() => nuevoKpi.value.tipoMetrica, (tipo) => {
   nuevoKpi.value.unit = unidadPorTipo[tipo] ?? '%'
 })
 
+// Actualiza la unidad automáticamente al cambiar la formula
+watch(() => formulaPreview.value, (newFormula) => {
+  if (nuevoKpi.value.is_calculated) {
+    nuevoKpi.value.formula = newFormula
+  }
+}, { deep: true })
+
 async function guardarKpi() {
   // Mapeo de valores display → valores que acepta la API
   const tipoApiMap = {
@@ -122,6 +164,7 @@ async function guardarKpi() {
     name:          nuevoKpi.value.nombre,
     subtitle:      nuevoKpi.value.subtitulo || nuevoKpi.value.nombre,
     formula:       nuevoKpi.value.formula,
+    is_calculated: nuevoKpi.value.is_calculated,  // ← AGREGAR
     type:          tipoApiMap[nuevoKpi.value.tipoMetrica],
     frequency:     frecuenciaApiMap[nuevoKpi.value.periodicidad],
     goal:          nuevoKpi.value.goal !== '' ? Number(nuevoKpi.value.goal) : null,
@@ -209,6 +252,7 @@ const opcionesTipoMetrica  = [
   { value: 'Tiempo',     label: 'Tiempo (hrs)' },
   { value: 'Puntaje',    label: 'Puntaje (pts)'  },
 ]
+
 </script>
 
 <template>
@@ -284,14 +328,87 @@ const opcionesTipoMetrica  = [
           </p>
         </FormField>
 
-        <!--<FormField label="Fórmula o Criterio de Cálculo" required :col-span="2">
+        <FormField label="¿Es un KPI calculado?" :col-span="2">
+          <div class="flex items-center gap-2">
+          <input 
+            v-model="nuevoKpi.is_calculated" 
+            type="checkbox" 
+            class="w-4 h-4 cursor-pointer"
+          />
+
+          <label class="text-sm" style="color: var(--text-general);">
+            Sí, este KPI se calcula con una fórmula
+          </label>
+        </div>
+      </FormField>
+
+      <!-- Constructor de Fórmula - sin contenedor -->
+        <template v-if="nuevoKpi.is_calculated">
+          <FormField label="Primer KPI" required>
+            <AppSelect 
+                v-model="nuevoKpi.kpi1_id" 
+                :options="opcionesKpis" 
+                placeholder="Selecciona KPI"
+            />
+          </FormField>
+
+          <FormField label="Operación" required>
+            <AppSelect
+              v-model="nuevoKpi.operacion"
+              :options="[
+                { value: '+', label: '+' },
+                { value: '-', label: '−' },
+                { value: '*', label: '×' },
+                { value: '/', label: '÷' }
+              ]"
+            />
+          </FormField>
+
+          <FormField label="Segundo KPI" required>
+            <AppSelect 
+              v-model="nuevoKpi.kpi2_id" 
+              :options="opcionesKpis" 
+              placeholder="Selecciona KPI"
+            />
+          </FormField>
+
+          <FormField label="Operación" required>
+            <AppSelect
+                v-model="nuevoKpi.operacion"
+                :options="[
+                  { value: '+', label: '+' },
+                  { value: '-', label: '−' },
+                  { value: '*', label: '×' },
+                  { value: '/', label: '÷' }
+                ]"
+              />
+          </FormField>
+
+          <FormField label="Valor" required>
+            <AppInput 
+                v-model.number="nuevoKpi.multiplicador" 
+                type="number" 
+                step="0.01" 
+                placeholder="100"
+              />
+            </FormField>
+        </template>
+
+          <FormField 
+            label="Fórmula" 
+            required 
+            :col-span="2"
+            >
+          
           <AppInput
             v-model="nuevoKpi.formula"
-            placeholder="Ej. (Tiempo Activo / Tiempo Total) * 100"
-            required
-          />
-        </FormField> 
-      -->
+            :readonly="nuevoKpi.is_calculated"
+            :placeholder="nuevoKpi.is_calculated ? formulaPreview : 'Ej. (KPI_1 / KPI_2) * 100'"
+            />
+          <p class="text-[10px] mt-1" style="color: var(--card-text-muted);">
+            {{ nuevoKpi.is_calculated ? 'Auto-generada' : 'Usa KPI_1, KPI_2, etc. para referenciar otros KPIs' }}
+          </p>
+        </FormField>
 
         <FormField
           label="Descripción corta"
@@ -322,28 +439,31 @@ const opcionesTipoMetrica  = [
           />
         </FormField>
 
+        
         <FormField
-          label="Valor Inicial"
-          hint="define el estado vs la meta"
-          required
-        >
+            label="Valor Inicial"
+            hint="define el estado vs la meta"
+            :required="!nuevoKpi.is_calculated"
+            >
+
           <AppInput
-            v-model="nuevoKpi.progreso"
-            type="number"
-            step="0.01"
-            :min="0"
-            placeholder="Ej. 85, 5000, 920..."
-            required
-          />
-          <p v-if="semaforo" class="text-[10px] mt-1" :class="semaforo.clase">
-            ● Estado: {{ semaforo.texto }}
-            <span class="opacity-60">({{ cumplimiento.toFixed(1) }}% de la meta)</span>
+              v-model="nuevoKpi.progreso"
+              type="number"
+              step="0.01"
+              :min="0"
+              :disabled="nuevoKpi.is_calculated"
+              :placeholder="nuevoKpi.is_calculated ? 'Auto-calculado' : 'Ej. 85, 5000, 920...'"
+              :required="!nuevoKpi.is_calculated"
+            />
+          <p v-if="!nuevoKpi.is_calculated && semaforo" class="text-[10px] mt-1" :class="semaforo.clase">
+              ● Estado: {{ semaforo.texto }}
+              <span class="opacity-60">({{ cumplimiento.toFixed(1) }}% de la meta)</span>
           </p>
-          <p v-else-if="nuevoKpi.progreso && !nuevoKpi.goal" class="text-[10px] mt-1 text-amber-400">
-            Ingresa la meta primero para calcular el estado.
+
+          <p v-if="nuevoKpi.is_calculated" class="text-[10px] mt-1" style="color: var(--card-text-muted);">
+            Se calcula automáticamente desde las fórmula
           </p>
         </FormField>
-
       </div>
 
       <div
