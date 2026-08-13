@@ -32,6 +32,7 @@ export const useUiStore = defineStore('uiStore', () => {
 
   const cargandoConfig         = ref(false)
   const kpisActivos            = ref([])
+  const maxKpis                = ref(4)   // cuántas tarjetas KPI se muestran en el panel
   const modoGrafica            = ref('general')
   const kpiSeleccionadoGrafica = ref(null)
   const tipoGraficaEspecifica  = ref('linea')
@@ -48,6 +49,7 @@ export const useUiStore = defineStore('uiStore', () => {
     const config = {
       orden:                  widgets.value.map(w => ({ id: w.id })),
       kpisActivos:            kpisActivos.value,
+      maxKpis:                maxKpis.value,
       modoGrafica:            modoGrafica.value,
       kpiSeleccionadoGrafica: kpiSeleccionadoGrafica.value,
       tipoGraficaEspecifica:  tipoGraficaEspecifica.value,
@@ -65,6 +67,7 @@ export const useUiStore = defineStore('uiStore', () => {
     cargandoConfig.value         = true
     widgets.value                = widgetsBase()
     kpisActivos.value            = []
+    maxKpis.value                = 4
     modoGrafica.value            = 'general'
     kpiSeleccionadoGrafica.value = null
     tipoGraficaEspecifica.value  = 'linea'
@@ -105,6 +108,7 @@ export const useUiStore = defineStore('uiStore', () => {
       }))
     }
     if (data.kpisActivos)            kpisActivos.value            = data.kpisActivos
+    if (data.maxKpis)                maxKpis.value                = data.maxKpis
     if (data.modoGrafica)            modoGrafica.value            = data.modoGrafica
     if (data.kpiSeleccionadoGrafica) kpiSeleccionadoGrafica.value = data.kpiSeleccionadoGrafica
     if (data.tipoGraficaEspecifica)  tipoGraficaEspecifica.value  = data.tipoGraficaEspecifica
@@ -121,6 +125,7 @@ export const useUiStore = defineStore('uiStore', () => {
     widgets,
     cargandoConfig,
     kpisActivos,
+    maxKpis,
     modoGrafica,
     kpiSeleccionadoGrafica,
     tipoGraficaEspecifica,
