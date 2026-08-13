@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import draggable from 'vuedraggable'
 import { useUiStore }     from '../stores/uiStore'
@@ -15,6 +15,8 @@ const { can }  = usePermissions()
 
 const listaLocal          = ref([])
 const kpisActivosLocal    = ref([])
+const maxKpisLocal        = ref(4)
+const OPCIONES_MAX_KPIS   = [2, 3, 4, 6, 8, 10, 12]
 const modoGraficaLocal    = ref('general')
 const kpiSeleccionadoLocal = ref(1)
 const tipoGraficaLocal    = ref('linea')
@@ -33,6 +35,7 @@ onMounted(async () => {
   // cargarConfig() ya resetea y carga la config correcta del departamento activo
   const idsValidos = kpiStore.indicadores.map(i => i.id)
   kpisActivosLocal.value = store.kpisActivos.filter(id => idsValidos.includes(id))
+  maxKpisLocal.value        = store.maxKpis
   modoGraficaLocal.value    = store.modoGrafica
   kpiSeleccionadoLocal.value = store.kpiSeleccionadoGrafica
   tipoGraficaLocal.value    = store.tipoGraficaEspecifica
@@ -54,16 +57,25 @@ const kpiSeleccionadoCompleto = computed(() =>
 function toggleKpi(id) {
   const index = kpisActivosLocal.value.indexOf(id)
   if (index === -1) {
-    if (kpisActivosLocal.value.length < 4) kpisActivosLocal.value.push(id)
+    // Solo agrega si no se alcanzó el máximo que eligió el usuario
+    if (kpisActivosLocal.value.length < maxKpisLocal.value) kpisActivosLocal.value.push(id)
   } else {
-    kpisActivosLocal.value.splice(index, 1)  // sin mínimo — 0 activos muestra los primeros 4
+    kpisActivosLocal.value.splice(index, 1)  // sin mínimo — 0 activos muestra los primeros del depto
   }
 }
+
+// Si el usuario baja el máximo, recorta la selección para no dejar más marcados de los permitidos
+watch(maxKpisLocal, (nuevoMax) => {
+  if (kpisActivosLocal.value.length > nuevoMax) {
+    kpisActivosLocal.value = kpisActivosLocal.value.slice(0, nuevoMax)
+  }
+})
 
 async function guardarCambios() {
   try {
     store.guardarOrden(listaLocal.value)
     store.kpisActivos             = kpisActivosLocal.value
+    store.maxKpis                 = maxKpisLocal.value
     store.modoGrafica             = modoGraficaLocal.value
     store.kpiSeleccionadoGrafica  = kpiSeleccionadoLocal.value
     store.tipoGraficaEspecifica   = tipoGraficaLocal.value
@@ -134,7 +146,22 @@ async function guardarCambios() {
 
       <div class="p-4" style="background: var(--grafics-bg); border-bottom: 1px solid var(--tabla-borde);">
         <p class="text-xs font-bold uppercase tracking-wider" style="color: var(--color-kpi-morado);">Configuración del Panel</p>
-        <p class="text-[10px] mt-0.5" style="color: var(--card-text-hint);">Máximo 4 KPIs activos al mismo tiempo</p>
+        <p class="text-[10px] mt-0.5" style="color: var(--card-text-hint);">
+          Máximo {{ maxKpisLocal }} KPIs activos al mismo tiempo
+        </p>
+      </div>
+
+      <!-- Cantidad de tarjetas KPI a mostrar en el panel -->
+      <div class="p-4" style="border-bottom: 1px solid var(--tabla-borde);">
+        <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color: var(--tabla-header-text);">
+          Tarjetas en el Panel
+        </p>
+        <p class="text-[10px] mb-2" style="color: var(--subtext-general);">
+          Cuántas tarjetas de KPI quieres ver en tu panel principal.
+        </p>
+        <select v-model.number="maxKpisLocal" class="app-select">
+          <option v-for="n in OPCIONES_MAX_KPIS" :key="n" :value="n">{{ n }} tarjetas</option>
+        </select>
       </div>
 
       <div class="p-4" style="border-bottom: 1px solid var(--tabla-borde);">
@@ -154,7 +181,7 @@ async function guardarCambios() {
           <option value="danger">Crítico</option>
         </select>
         <p class="text-[10px] mb-2" style="color: var(--subtext-general);">
-          {{ kpisActivosLocal.length }}/4 KPIs activos
+          {{ kpisActivosLocal.length }}/{{ maxKpisLocal }} KPIs activos
         </p>
 
         <div class="flex flex-col gap-1.5 max-h-64 overflow-y-auto">
@@ -196,7 +223,7 @@ async function guardarCambios() {
           </p>
         </div>
 
-        <p v-if="kpisActivosLocal.length >= 4"
+        <p v-if="kpisActivosLocal.length >= maxKpisLocal"
           class="text-[10px] text-amber-600 mt-2 rounded-lg px-2 py-1.5"
           style="background: rgba(217,119,6,0.08); border: 1px solid rgba(217,119,6,0.3);">
           Límite alcanzado. Desactiva uno para activar otro.
