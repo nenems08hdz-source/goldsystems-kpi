@@ -70,13 +70,23 @@ function serieCumplimiento(kpi) {
 }
 
 const series = computed(() =>
-  props.kpis.map(k => ({
-    name: k.nombre,
-    data: modoEfectivo.value === 'cumplimiento'
-      ? serieCumplimiento(k)
-      : (k.historial ?? []).map(v => Number(v)),
-  }))
+  props.kpis
+    .map(k => ({
+      name: k.nombre,
+      data: modoEfectivo.value === 'cumplimiento'
+        ? serieCumplimiento(k)
+        : (k.historial ?? []).map(v => Number(v)),
+    }))
+    // Un KPI sin meta da una serie de puros null. En modo barras eso rompe
+    // el render de ApexCharts, así que se descarta.
+    .filter(s => s.data.some(v => v !== null && !isNaN(v)))
 )
+
+/** KPIs que quedaron fuera por no tener meta o datos suficientes. */
+const kpisSinDatos = computed(() => {
+  const dibujados = series.value.map(s => s.name)
+  return props.kpis.filter(k => !dibujados.includes(k.nombre)).map(k => k.nombre)
+})
 
 /** En modo cumplimiento la meta siempre es 100 %, común a todos los KPIs. */
 const anotacionMeta = computed(() => {
@@ -193,12 +203,26 @@ const chartOptions = computed(() => ({
         </span>
       </div>
 
+      <!-- El :key fuerza a Vue a recrear el componente al cambiar de tipo.
+           Sin él, ApexCharts destruye la gráfica anterior y no monta la nueva. -->
       <apexchart
+        v-if="series.length > 0"
+        :key="`${tipoApex}-${series.length}-${modoEfectivo}`"
         :type="tipoApex"
         height="260"
         :options="chartOptions"
         :series="series"
       />
+
+      <div v-else class="flex items-center justify-center py-10 text-xs text-center"
+        style="color: var(--subtext-general);">
+        Los KPIs seleccionados no tienen meta definida, así que no se puede
+        calcular su porcentaje de cumplimiento.
+      </div>
+
+      <p v-if="kpisSinDatos.length > 0" class="text-[10px] mt-1" style="color: #d97706;">
+        Sin datos suficientes: {{ kpisSinDatos.join(', ') }}
+      </p>
 
       <p v-if="modoEfectivo === 'cumplimiento'" class="text-[10px] mt-1" style="color: var(--card-text-hint);">
         Cada línea es qué tan cerca está ese KPI de su propia meta. Curvas parecidas sugieren que los indicadores se mueven juntos.
