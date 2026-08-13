@@ -441,31 +441,28 @@ const opcionesTipoMetrica  = [
 
         
         <FormField
+            v-if="!nuevoKpi.is_calculated"
             label="Valor Inicial"
             hint="define el estado vs la meta"
-            :required="!nuevoKpi.is_calculated"
-            >
+            required
+            :col-span="2"
+          >
+          
+        <AppInput
+          v-model="nuevoKpi.progreso"
+          type="number"
+          step="0.01"
+          :min="0"
+          placeholder="Ej. 85, 5000, 920..."
+        />
 
-          <AppInput
-              v-model="nuevoKpi.progreso"
-              type="number"
-              step="0.01"
-              :min="0"
-              :disabled="nuevoKpi.is_calculated"
-              :placeholder="nuevoKpi.is_calculated ? 'Auto-calculado' : 'Ej. 85, 5000, 920...'"
-              :required="!nuevoKpi.is_calculated"
-            />
-          <p v-if="!nuevoKpi.is_calculated && semaforo" class="text-[10px] mt-1" :class="semaforo.clase">
+          <p v-if="semaforo" class="text-[10px] mt-1" :class="semaforo.clase">
               ● Estado: {{ semaforo.texto }}
-              <span class="opacity-60">({{ cumplimiento.toFixed(1) }}% de la meta)</span>
+                <span class="opacity-60">({{ cumplimiento.toFixed(1) }}% de la meta)</span>
           </p>
-
-          <p v-if="nuevoKpi.is_calculated" class="text-[10px] mt-1" style="color: var(--card-text-muted);">
-            Se calcula automáticamente desde las fórmula
-          </p>
-        </FormField>
-      </div>
-
+      </FormField>
+  </div>
+  
       <div
         class="p-4 border-t flex justify-end gap-3"
         style="background: var(--tabla-header-bg); border-color: rgba(190,174,216,0.2);"
@@ -479,6 +476,8 @@ const opcionesTipoMetrica  = [
       </div>
 
       </form>
+            
     </FormContenedor>
+    
   </div>
 </template>
