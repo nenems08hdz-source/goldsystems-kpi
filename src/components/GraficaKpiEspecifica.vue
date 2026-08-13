@@ -9,6 +9,23 @@ const props = defineProps({
   tipo: { type: String, default: 'linea' }
 })
 
+// Meta como número, o null si el KPI no tiene meta definida
+const metaNumerica = computed(() => {
+  const g = Number(props.kpi?.goal)
+  return props.kpi?.goal === null || props.kpi?.goal === undefined || isNaN(g) ? null : g
+})
+
+// Si la meta es menor que el punto de partida, el KPI es de los de "reducir"
+const menosEsMejor = computed(() => {
+  if (metaNumerica.value === null) return false
+  return metaNumerica.value < Number(props.kpi?.initial_value ?? 0)
+})
+
+const unidad = computed(() => {
+  const u = props.kpi?.unit
+  return u === '%' ? '%' : u && u !== 'time' ? ` ${u}` : ''
+})
+
 const tipoApex = computed(() => {
   if (props.tipo === 'linea') return 'line'
   if (props.tipo === 'barras') return 'bar'
@@ -62,6 +79,32 @@ const chartOptions = computed(() => {
       type: tipoApex.value,
       toolbar: { show: false },
       background: 'transparent',
+    },
+    // Línea de meta: permite ver de un vistazo si el KPI está por encima o
+    // por debajo de su objetivo. Cuando "menos es mejor" la etiqueta lo aclara,
+    // porque estar arriba de la línea es malo y sin eso se lee al revés.
+    annotations: metaNumerica.value === null ? {} : {
+      yaxis: [{
+        y: metaNumerica.value,
+        borderColor: '#10b981',
+        strokeDashArray: 5,
+        width: '100%',
+        label: {
+          text: menosEsMejor.value
+            ? `Meta: máx. ${metaNumerica.value}${unidad.value}`
+            : `Meta: ${metaNumerica.value}${unidad.value}`,
+          position: 'left',
+          offsetX: 10,
+          borderColor: '#10b981',
+          style: {
+            background: '#10b981',
+            color: '#ffffff',
+            fontSize: '10px',
+            fontWeight: 600,
+            padding: { left: 6, right: 6, top: 2, bottom: 2 },
+          },
+        },
+      }],
     },
     colors: [
       props.kpi.estadoTipo === 'success' ? '#10b981' :

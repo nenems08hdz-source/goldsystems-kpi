@@ -9,6 +9,7 @@ import api from '../services/api'
 const { can } = usePermissions()
 import EncabezadoPantalla     from '../components/EncabezadoPantalla.vue'
 import GraficaKpiEspecifica   from '../components/GraficaKpiEspecifica.vue'
+import GraficaComparativa     from '../components/GraficaComparativa.vue'
 import MedidorKpi             from '../components/MedidorKpi.vue'
 import ProgresoKpi            from '../components/ProgresoKpi.vue'
 import plantillatabla         from '../components/PlantillaTabla.vue'
@@ -77,6 +78,14 @@ const kpisResumen  = computed(() => {
 const kpisDetalle  = computed(() => {
   if (store.cargandoConfig) return []
   return [...kpisFiltrados.value].sort((a, b) => b.id - a.id).slice(0, 5)
+})
+
+// KPIs elegidos para la gráfica comparativa, en el orden en que se eligieron
+const kpisParaComparar = computed(() => {
+  if (store.cargandoConfig) return []
+  return store.kpisComparar
+    .map(id => kpis.value.find(k => k.id === id))
+    .filter(Boolean)
 })
 const kpisCriticas = computed(() =>
   store.cargandoConfig ? [] : kpisFiltrados.value.filter(i => i.estadoTipo === 'danger' || i.estadoTipo === 'warning')
@@ -149,6 +158,19 @@ const cabecerasCriticos = ['Detalle del Indicador en Alerta']
               <p class="text-[11px] font-bold text-[#beaed8] uppercase tracking-wider">Progreso General</p>
               <div class="flex-1 flex items-center justify-center overflow-hidden">
                   <ProgresoKpi :kpisData="kpisResumen" />              </div>
+            </div>
+          </template>
+
+          <!-- Modo Comparativa — varios KPIs en una sola gráfica -->
+          <template v-else-if="store.modoGrafica === 'comparativa'">
+            <div v-if="listoPararenderizar"
+              class="border border-[#beaed8]/70 rounded-2xl p-5 shadow-sm flex flex-col justify-between lg:col-span-2"
+              style="background: var(--grafics-bg);">
+              <GraficaComparativa
+                :kpis="kpisParaComparar"
+                :tipo="store.tipoGraficaEspecifica"
+                modo="cumplimiento"
+              />
             </div>
           </template>
 

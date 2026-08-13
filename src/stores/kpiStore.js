@@ -93,6 +93,22 @@ export const useKpiStore = defineStore('kpiStore', () => {
   }
 
   // traffic_light + alias UI a partir del progreso
+  // Traduce el semáforo que manda el backend al formato que usa la interfaz
+  function estadoDesdeSemaforo(luz) {
+    if (luz === 'green')  return { traffic_light: 'green',  estado: 'saludable', estadoTipo: 'success' }
+    if (luz === 'yellow') return { traffic_light: 'yellow', estado: 'en riesgo', estadoTipo: 'warning' }
+    return                       { traffic_light: 'red',    estado: 'critico',   estadoTipo: 'danger'  }
+  }
+
+  // Calcula el cumplimiento en el cliente cuando el backend no lo manda.
+  // Misma fórmula que KpiCalculationService: funciona en los dos sentidos.
+  function calcularCumplimiento(valor, meta, inicial = 0) {
+    if (valor === null || valor === undefined || meta === null || meta === undefined) return null
+    const m = Number(meta), i = Number(inicial ?? 0), v = Number(valor)
+    if (Math.abs(m - i) < 0.0001) return null
+    return Math.max(Math.round(((v - i) / (m - i)) * 10000) / 100, 0)
+  }
+
   function calcularEstado(progreso) {
     if (progreso >= 80) return { traffic_light: 'green',  estado: 'saludable', estadoTipo: 'success' }
     if (progreso >= 50) return { traffic_light: 'yellow', estado: 'en riesgo', estadoTipo: 'warning' }
@@ -192,7 +208,12 @@ export const useKpiStore = defineStore('kpiStore', () => {
         const ultimo = registros[registros.length - 1]
         kpi.progreso = Number(ultimo.value)
 
-        const estado = calcularEstado(kpi.progreso)
+        // Recalcula el cumplimiento con la misma fórmula del backend para que
+        // el semáforo no cambie al cargar el historial.
+        kpi.cumplimiento = calcularCumplimiento(kpi.progreso, kpi.goal, kpi.initial_value)
+        const estado = kpi.cumplimiento !== null
+          ? estadoDesdeSemaforo(kpi.cumplimiento >= 80 ? 'green' : kpi.cumplimiento >= 50 ? 'yellow' : 'red')
+          : calcularEstado(kpi.progreso)
         kpi.estadoTipo    = estado.estadoTipo
         kpi.estado        = estado.estado
         kpi.traffic_light = estado.traffic_light
@@ -235,8 +256,13 @@ async function cargarTodosLosHistoriales() {
 
     const res = await api.get(url)
     indicadores.value = res.data.map(kpi => {
-      const progreso = parseFloat(Number(kpi.latest_record?.value ?? 0).toFixed(2))
-      const estado = calcularEstado(progreso)
+      // El backend ya calcula el valor (incluidos los KPIs compuestos) y el
+      // cumplimiento. Si no viene — backend viejo — se cae al cálculo local.
+      const valorApi = kpi.calculated_value ?? kpi.latest_record?.value ?? 0
+      const progreso = parseFloat(Number(valorApi).toFixed(2))
+      const estado   = kpi.traffic_light
+        ? estadoDesdeSemaforo(kpi.traffic_light)
+        : calcularEstado(progreso)
       return {
         id: kpi.id,
         nombre: kpi.name,
@@ -247,7 +273,14 @@ async function cargarTodosLosHistoriales() {
         progreso: progreso,
         meta: kpi.goal ? `${parseFloat(kpi.goal)} ${kpi.unit ?? ''}`.trim() : '—',
         goal: kpi.goal,
+        initial_value: kpi.initial_value ?? 0,
+        cumplimiento: kpi.completion_percentage ?? null,
         unit: kpi.unit,
+        is_calculated: !!kpi.is_calculated,
+        formula_operation: kpi.formula_operation ?? null,
+        formula_kpi_a_id: kpi.formula_kpi_a_id ?? null,
+        formula_kpi_b_id: kpi.formula_kpi_b_id ?? null,
+        formula_multiplier: kpi.formula_multiplier ?? 1,
         estadoTipo: estado.estadoTipo,
         estado: estado.estado,
         traffic_light: estado.traffic_light,
@@ -290,6 +323,8 @@ async function cargarTodosLosHistoriales() {
     capturasPorKpi,
     etiquetaCaptura,
     calcularEstado,
+    calcularCumplimiento,
+    estadoDesdeSemaforo,
     cargarIndicadores,
     cargarCapturasPorKpi,
     cargarTodosLosHistoriales,

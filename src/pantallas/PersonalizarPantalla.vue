@@ -17,6 +17,8 @@ const listaLocal          = ref([])
 const kpisActivosLocal    = ref([])
 const maxKpisLocal        = ref(4)
 const OPCIONES_MAX_KPIS   = [2, 3, 4, 6, 8, 10, 12]
+const kpisCompararLocal   = ref([])
+const MAX_COMPARAR        = 6
 const modoGraficaLocal    = ref('general')
 const kpiSeleccionadoLocal = ref(1)
 const tipoGraficaLocal    = ref('linea')
@@ -36,6 +38,7 @@ onMounted(async () => {
   const idsValidos = kpiStore.indicadores.map(i => i.id)
   kpisActivosLocal.value = store.kpisActivos.filter(id => idsValidos.includes(id))
   maxKpisLocal.value        = store.maxKpis
+  kpisCompararLocal.value   = store.kpisComparar.filter(id => idsValidos.includes(id))
   modoGraficaLocal.value    = store.modoGrafica
   kpiSeleccionadoLocal.value = store.kpiSeleccionadoGrafica
   tipoGraficaLocal.value    = store.tipoGraficaEspecifica
@@ -71,11 +74,21 @@ watch(maxKpisLocal, (nuevoMax) => {
   }
 })
 
+function toggleComparar(id) {
+  const i = kpisCompararLocal.value.indexOf(id)
+  if (i === -1) {
+    if (kpisCompararLocal.value.length < MAX_COMPARAR) kpisCompararLocal.value.push(id)
+  } else {
+    kpisCompararLocal.value.splice(i, 1)
+  }
+}
+
 async function guardarCambios() {
   try {
     store.guardarOrden(listaLocal.value)
     store.kpisActivos             = kpisActivosLocal.value
     store.maxKpis                 = maxKpisLocal.value
+    store.kpisComparar            = kpisCompararLocal.value
     store.modoGrafica             = modoGraficaLocal.value
     store.kpiSeleccionadoGrafica  = kpiSeleccionadoLocal.value
     store.tipoGraficaEspecifica   = tipoGraficaLocal.value
@@ -237,8 +250,9 @@ async function guardarCambios() {
 
         <div
           v-for="(opt, i) in [
-          { val: 'general',   label: 'Resumen general',              desc: 'Medidor de salud global y barras de progreso de todos los KPIs' },
-          { val: 'especifica', label: 'Gráfica específica de un KPI', desc: 'Elige un KPI y el tipo de gráfica para ver su historial' }
+          { val: 'general',     label: 'Resumen general',              desc: 'Medidor de salud global y barras de progreso de todos los KPIs' },
+          { val: 'especifica',  label: 'Gráfica específica de un KPI', desc: 'Elige un KPI y el tipo de gráfica para ver su historial' },
+          { val: 'comparativa', label: 'Comparar varios KPIs',         desc: 'Varios KPIs en una gráfica, medidos por su % de cumplimiento' }
         ]"
           @click="modoGraficaLocal = opt.val"
           class="flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-all mb-2"
@@ -258,6 +272,73 @@ async function guardarCambios() {
           <div>
             <p class="text-xs font-semibold" style="color: var(--text-general);">{{ opt.label }}</p>
             <p class="text-[10px] mt-0.5" style="color: var(--subtext-general);">{{ opt.desc }}</p>
+          </div>
+        </div>
+
+        <!-- Selección de KPIs para la gráfica comparativa -->
+        <div v-if="modoGraficaLocal === 'comparativa'" class="mt-3 pl-2 flex flex-col gap-2"
+          style="border-left: 2px solid var(--color-kpi-morado);">
+          <p class="text-[10px] font-bold uppercase tracking-wider" style="color: var(--subtext-general);">
+            KPIs a comparar
+          </p>
+          <p class="text-[10px]" style="color: var(--card-text-hint);">
+            Se comparan por su porcentaje de cumplimiento, así que pueden ser de
+            distinta unidad e incluso de distinto departamento.
+          </p>
+          <p class="text-[10px]" style="color: var(--subtext-general);">
+            {{ kpisCompararLocal.length }}/{{ MAX_COMPARAR }} seleccionados
+          </p>
+
+          <div class="flex flex-col gap-1.5 max-h-56 overflow-y-auto">
+            <div
+              v-for="ind in indicadoresFiltrados"
+              :key="'cmp-' + ind.id"
+              @click="toggleComparar(ind.id)"
+              class="flex items-center gap-2.5 p-2 rounded-lg cursor-pointer transition-all"
+              :style="kpisCompararLocal.includes(ind.id)
+                ? 'border: 1px solid var(--sidebar-bg); background: rgba(63,42,82,0.1);'
+                : 'border: 1px solid var(--tabla-borde); background: transparent;'"
+            >
+              <div class="w-3.5 h-3.5 rounded flex items-center justify-center flex-shrink-0"
+                :style="kpisCompararLocal.includes(ind.id)
+                  ? 'background: var(--sidebar-bg); border: 2px solid var(--sidebar-bg);'
+                  : 'border: 2px solid var(--tabla-borde);'">
+                <span v-if="kpisCompararLocal.includes(ind.id)" class="text-white text-[7px] font-bold">✓</span>
+              </div>
+              <span class="text-[11px] truncate flex-1" style="color: var(--text-general);">{{ ind.nombre }}</span>
+              <span v-if="ind.is_calculated" class="text-[8px] px-1.5 py-0.5 rounded-full flex-shrink-0"
+                style="background: rgba(124,95,184,0.15); color: var(--color-kpi-morado);">fx</span>
+            </div>
+            <p v-if="indicadoresFiltrados.length === 0" class="text-[11px] text-center py-3" style="color: var(--subtext-general);">
+              No hay KPIs en este departamento.
+            </p>
+          </div>
+
+          <p v-if="kpisCompararLocal.length === 1" class="text-[10px] text-amber-600 rounded-lg px-2 py-1.5"
+            style="background: rgba(217,119,6,0.08); border: 1px solid rgba(217,119,6,0.3);">
+            Elige al menos dos para poder comparar.
+          </p>
+          <p v-if="kpisCompararLocal.length >= MAX_COMPARAR" class="text-[10px] text-amber-600 rounded-lg px-2 py-1.5"
+            style="background: rgba(217,119,6,0.08); border: 1px solid rgba(217,119,6,0.3);">
+            Límite alcanzado. Con más de {{ MAX_COMPARAR }} la gráfica se vuelve ilegible.
+          </p>
+
+          <p class="text-[10px] font-bold uppercase tracking-wider mt-1" style="color: var(--subtext-general);">Tipo de gráfica</p>
+          <div class="flex flex-col gap-1">
+            <div
+              v-for="tipo in ['linea', 'barras', 'area']"
+              :key="'tc-' + tipo"
+              @click="tipoGraficaLocal = tipo"
+              class="flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-all text-xs capitalize"
+              :style="tipoGraficaLocal === tipo
+                ? 'border: 1px solid var(--sidebar-bg); background: rgba(63,42,82,0.1); color: var(--tabla-header-text); font-weight: 600;'
+                : 'border: 1px solid var(--tabla-borde); background: transparent; color: var(--subtext-general);'"
+            >
+              <i :class="`fi ${ tipo === 'linea' ? 'fi-sr-stats' : tipo === 'barras' ? 'fi-sr-chart-histogram' : 'fi-sr-signal-alt-2' } text-sm`"
+                style="color: var(--color-kpi-morado);"></i>
+              <span class="capitalize">{{ tipo }}</span>
+              <span v-if="tipoGraficaLocal === tipo" class="ml-auto text-[10px]">✓</span>
+            </div>
           </div>
         </div>
 

@@ -36,6 +36,7 @@ export const useUiStore = defineStore('uiStore', () => {
   const modoGrafica            = ref('general')
   const kpiSeleccionadoGrafica = ref(null)
   const tipoGraficaEspecifica  = ref('linea')
+  const kpisComparar           = ref([])   // IDs de los KPIs de la gráfica comparativa
 
   const indicadoresActivos = computed(() =>
     kpiStore.indicadores.filter(i => kpisActivos.value.includes(i.id))
@@ -53,6 +54,7 @@ export const useUiStore = defineStore('uiStore', () => {
       modoGrafica:            modoGrafica.value,
       kpiSeleccionadoGrafica: kpiSeleccionadoGrafica.value,
       tipoGraficaEspecifica:  tipoGraficaEspecifica.value,
+      kpisComparar:           kpisComparar.value,
     }
     console.log('[guardarConfig] enviando →', JSON.stringify({ department_id: departamentoActivo.value, config }))
     await api.post('/dashboard-config', {
@@ -71,6 +73,7 @@ export const useUiStore = defineStore('uiStore', () => {
     modoGrafica.value            = 'general'
     kpiSeleccionadoGrafica.value = null
     tipoGraficaEspecifica.value  = 'linea'
+    kpisComparar.value           = []
 
     const qs = departamentoActivo.value
       ? `?department_id=${departamentoActivo.value}&_t=${Date.now()}`
@@ -112,6 +115,7 @@ export const useUiStore = defineStore('uiStore', () => {
     if (data.modoGrafica)            modoGrafica.value            = data.modoGrafica
     if (data.kpiSeleccionadoGrafica) kpiSeleccionadoGrafica.value = data.kpiSeleccionadoGrafica
     if (data.tipoGraficaEspecifica)  tipoGraficaEspecifica.value  = data.tipoGraficaEspecifica
+    if (data.kpisComparar)           kpisComparar.value           = data.kpisComparar
     cargandoConfig.value = false
   }
 
@@ -129,6 +133,7 @@ export const useUiStore = defineStore('uiStore', () => {
     modoGrafica,
     kpiSeleccionadoGrafica,
     tipoGraficaEspecifica,
+    kpisComparar,
     indicadoresActivos,
     kpiParaGrafica,
     departamentoActivo,

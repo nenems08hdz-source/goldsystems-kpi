@@ -29,7 +29,10 @@ onMounted(async () => {
   const tipoMap = { percentage: 'Porcentaje', money: 'Monetario', time: 'Tiempo', absolute: 'Puntaje', custom: 'Puntaje' }
   const frecuenciaMap = { daily: 'Diario', weekly: 'Semanal', monthly: 'Mensual', quarterly: 'Trimestral', annual: 'Anual' }
 
-  kpis.value = data.map(k => ({
+  // Los KPIs calculados no se capturan: su valor lo obtiene el sistema a partir
+  // de su fórmula. Si aparecieran aquí, alguien registraría un valor a mano y
+  // habría dos números en conflicto para el mismo indicador.
+  kpis.value = data.filter(k => !k.is_calculated).map(k => ({
     id:           k.id,
     nombre:       k.name,
     formula:      k.formula ?? '—',
