@@ -10,7 +10,7 @@ const categoriaActiva = ref('perfil')
 const categorias = [
   { id: 'perfil',         nombre: 'Perfil',         icono: 'fi-sr-user-pen'                         },
   { id: 'seguridad',      nombre: 'Seguridad',       icono: 'fi-sr-shield-check'                     },
-  { id: 'notificaciones', nombre: 'Notificaciones',  icono: 'fi-sr-bell-notification-social-media'   },
+  //{ id: 'notificaciones', nombre: 'Notificaciones',  icono: 'fi-sr-bell-notification-social-media'   },
 ]
 </script>
 

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import api from '../services/api'
+import ControlOrganizacional from '@/pantallas/ControlOrganizacional.vue'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MAPA DE CAMPOS  store ↔ BD
@@ -186,16 +187,18 @@ export const useKpiStore = defineStore('kpiStore', () => {
       if (kpi && registros.length > 0) {
         const soloFecha = s => (s ?? '').split('T')[0]
         kpi.historial          = registros.map(r => Number(r.value))
-        kpi.etiquetasHistorial = registros.map(r => etiquetaCaptura(kpi.periodicidad, soloFecha(r.period_start)))
+        kpi.etiquetasHistorial = registros.map(r => etiquetaCaptura(kpi.periodicidad, soloFecha(r.period_start))) 
 
         const ultimo = registros[registros.length - 1]
         kpi.progreso = Number(ultimo.value)
+
         const estado = calcularEstado(kpi.progreso)
         kpi.estadoTipo    = estado.estadoTipo
         kpi.estado        = estado.estado
         kpi.traffic_light = estado.traffic_light
         kpi.ultimaActualizacion = ultimo.period_start
       }
+       
     } catch (e) {
       console.error('Error cargando capturas del KPI:', e)
     }
@@ -217,6 +220,7 @@ async function cargarTodosLosHistoriales() {
     const { useAuthStore } = await import('./authStore')
     const auth = useAuthStore()
 
+   
     // Filtrado según el rol del usuario
     let url = '/kpis'
     if (auth.role === 'team_leader' && auth.user?.team_id) {
@@ -226,11 +230,12 @@ async function cargarTodosLosHistoriales() {
       // Manager/Admin: filtra por su departamento
       url += `?department_id=${auth.user.department_id}`
     }
+     
     // Si es employee: no agrega parámetro, el backend devuelve solo sus KPIs
 
     const res = await api.get(url)
     indicadores.value = res.data.map(kpi => {
-      const progreso = kpi.latest_record?.value ?? 0
+      const progreso = parseFloat(Number(kpi.latest_record?.value ?? 0).toFixed(2))
       const estado = calcularEstado(progreso)
       return {
         id: kpi.id,

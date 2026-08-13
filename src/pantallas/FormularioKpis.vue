@@ -91,7 +91,7 @@ function onEquipoChange() {
 const unidadPorTipo = {
   'Porcentaje': '%',
   'Monetario':  '$',
-  'Tiempo':     'ms',
+  'Tiempo':     'time',
   'Puntaje':    'pts',
 }
 
@@ -206,7 +206,7 @@ const opcionesPeriodicidad = ['Diario', 'Semanal', 'Mensual', 'Trimestral', 'Anu
 const opcionesTipoMetrica  = [
   { value: 'Porcentaje', label: 'Porcentaje (%)' },
   { value: 'Monetario',  label: 'Monetario ($)'  },
-  { value: 'Tiempo',     label: 'Tiempo (ms, hrs)' },
+  { value: 'Tiempo',     label: 'Tiempo (hrs)' },
   { value: 'Puntaje',    label: 'Puntaje (pts)'  },
 ]
 </script>
@@ -284,13 +284,14 @@ const opcionesTipoMetrica  = [
           </p>
         </FormField>
 
-        <FormField label="Fórmula o Criterio de Cálculo" required :col-span="2">
+        <!--<FormField label="Fórmula o Criterio de Cálculo" required :col-span="2">
           <AppInput
             v-model="nuevoKpi.formula"
             placeholder="Ej. (Tiempo Activo / Tiempo Total) * 100"
             required
           />
-        </FormField>
+        </FormField> 
+      -->
 
         <FormField
           label="Descripción corta"
